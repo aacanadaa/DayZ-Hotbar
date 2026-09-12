@@ -45,10 +45,14 @@ public final class StatusRow {
     public static final int HEADROOM = 9;
     /** Total cell height. */
     public static final int CELL_H = HEADROOM + ICON + ARROW_H;
-    /** Padding between the cell contents and the panel edge. */
-    private static final int PAD = 4;
-    /** Distance from the right and bottom screen edges. */
-    private static final int MARGIN = 6;
+    /** Padding between the cell contents and the panel edge. Kept tight, as on the hotbar. */
+    private static final int PAD = 2;
+    /**
+     * Distance from the right and bottom screen edges. Deliberately small so the
+     * readout sits down at the hotbar's level rather than floating above it - the
+     * icons cannot go any lower than this while the trend marker hangs below them.
+     */
+    private static final int MARGIN = 2;
 
     /** Vanilla's experience-bar green. */
     private static final int XP_GREEN = 0xFF80FF20;

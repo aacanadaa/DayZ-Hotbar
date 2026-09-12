@@ -34,10 +34,14 @@ package com.suoim.dayzhotbar.client;
 public final class VelocityTracker {
     /** Ticks of history the delta is measured over - one second at 20 tps. */
     private static final int WINDOW = 20;
-    /** Ticks the arrow stays up after movement is last seen. */
-    private static final int HOLD = 15;
-    /** Ticks the arrow spends fading out at the end of the hold. */
-    private static final int FADE = 6;
+    /**
+     * Ticks the marker stays up after movement is last seen. Long on purpose: at 15
+     * ticks a short exchange of damage came and went before the eye caught it, and
+     * the whole point of the marker is that you notice the trend without staring.
+     */
+    private static final int HOLD = 30;
+    /** Ticks the marker spends fading out at the end of the hold. */
+    private static final int FADE = 10;
 
     private final float minor;
     private final float major;

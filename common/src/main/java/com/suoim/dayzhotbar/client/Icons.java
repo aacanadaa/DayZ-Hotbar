@@ -79,6 +79,23 @@ public final class Icons {
         "...###..."
     };
 
+    /**
+     * A medical cross, used for health. Drawn in the tier colour rather than being
+     * permanently red, so it still goes yellow and flashes as health drops - a cross
+     * that was always red would say nothing about how much health is left.
+     */
+    public static final String[] CROSS = {
+        "...###...",
+        "...###...",
+        "...###...",
+        "#########",
+        "#########",
+        "#########",
+        "...###...",
+        "...###...",
+        "...###..."
+    };
+
     /** A bubble. */
     public static final String[] BUBBLE = {
         "...###...",
