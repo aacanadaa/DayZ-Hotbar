@@ -28,16 +28,36 @@ offhand slot.
 
 A horizontal row of icons in the bottom-right corner, on the same margin as the hotbar.
 
-| Icon | Notes |
+The row is divided into three sections, left to right:
+
+| Section | Icons |
 | :--- | :--- |
-| Apple | Food level, with saturation drawn over it as a brighter wash |
-| Bubble | Air. Only appears while you are underwater |
-| Gem | Experience, with the level number on it |
-| Gold cross | Absorption. Only appears while you have golden hearts |
-| Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
+| **Effects** | One mark per family of active potion effect |
+| **Sustenance** | Apple for food, with saturation drawn over it as a brighter wash; bubble for air, only while you are underwater |
+| **Vitals** | Gem for experience with the level number on it; gold cross for absorption; cross for health, or your mount's health while riding |
+
+An upright line separates the sections, and only where both sides have something in them
+— so the effects divider comes and goes with the effects themselves, while the one
+between sustenance and vitals is always there.
 
 Absorption is drawn as a **second health cross**, badged with a small plus in its top
 right, rather than as an icon of its own — the plus is what tells the two apart.
+
+### Effect marks
+
+Active potion effects are collapsed to **one mark per family** rather than one per
+effect, because Minecraft has thirty-odd effects and a row that grew per effect would
+eat the screen edge. What matters at a glance is which *kinds* of thing are on you.
+
+| Mark | Family |
+| :--- | :--- |
+| Star | Beneficial — speed, strength, night vision |
+| Heart | Restorative — regeneration, absorption, saturation |
+| Skull | Harmful — poison, hunger, mining fatigue, everything else bad |
+
+They are drawn **flat white**, with no fill level, no colour banding and no trend
+marker, because an effect is either on or off. When one ends its mark **fades out** over
+a second rather than vanishing.
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.

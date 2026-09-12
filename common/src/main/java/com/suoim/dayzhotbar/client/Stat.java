@@ -33,7 +33,7 @@ public enum Stat {
      * only 20 points, so on that scale the bands land at yellow on 3 or less, red on
      * 1, and the flash on empty.
      */
-    FOOD(Icons.APPLE, new Tiers(0.019F, 0.05F, 0.15F), 0, 0.05F, 4.0F),
+    FOOD(Icons.APPLE, Group.SUSTENANCE, new Tiers(0.019F, 0.05F, 0.15F), 0, 0.05F, 4.0F),
 
     /**
      * Armour has no row entry. It was here as a shield and was removed on request -
@@ -49,14 +49,14 @@ public enum Stat {
      * are the same kind of emergency, and both are on a scale where the last tenth is
      * the part that matters.
      */
-    AIR(Icons.BUBBLE, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.5F, 50.0F),
+    AIR(Icons.BUBBLE, Group.SUSTENANCE, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.5F, 50.0F),
 
     /**
      * Experience, drawn as a gem. Not tiered: how far through a level you are is not a
      * health warning, and a green bar here was the one element on the HUD that did not
      * belong to the same palette as everything else.
      */
-    XP(Icons.DIAMOND, null, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
+    XP(Icons.DIAMOND, Group.VITALS, null, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
 
     /**
      * Absorption. Drawn as a second health cross rather than an icon of its own, and
@@ -66,7 +66,7 @@ public enum Stat {
      * throughout. Sits immediately before health so health stays at the end of the
      * row, where it is looked for.
      */
-    ABSORPTION(Icons.CROSS, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
+    ABSORPTION(Icons.CROSS, Group.VITALS, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
 
     /**
      * Health, or the mount's health while riding. Deliberately last so it sits at the
@@ -78,7 +78,7 @@ public enum Stat {
      * scale the bands land at yellow on 12 or less, red on 6 or less, and the flash
      * under 3.
      */
-    HEALTH(Icons.CROSS, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.05F, 3.0F);
+    HEALTH(Icons.CROSS, Group.VITALS, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.05F, 3.0F);
 
     /** Ticks each half of the critical flash lasts - 4 is a fifth of a second. */
     private static final int FLASH_TICKS = 4;
@@ -117,13 +117,15 @@ public enum Stat {
     }
 
     private final String[] shape;
+    private final Group group;
     private final Tiers tiers;
     private final int fixedColor;
     private final float minor;
     private final float major;
 
-    Stat(String[] shape, Tiers tiers, int fixedColor, float minor, float major) {
+    Stat(String[] shape, Group group, Tiers tiers, int fixedColor, float minor, float major) {
         this.shape = shape;
+        this.group = group;
         this.tiers = tiers;
         this.fixedColor = fixedColor;
         this.minor = minor;
@@ -133,6 +135,11 @@ public enum Stat {
     /** The pixel-art shape this stat draws. */
     public String[] shape() {
         return shape;
+    }
+
+    /** Which section of the readout this stat belongs to. */
+    public Group group() {
+        return group;
     }
 
     /**

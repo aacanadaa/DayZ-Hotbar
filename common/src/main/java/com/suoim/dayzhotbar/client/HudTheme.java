@@ -38,6 +38,13 @@ public final class HudTheme {
     /** 1px separator between stacked elements. */
     public static final int HAIRLINE = 0x10FFFFFF;
 
+    /**
+     * The upright line between two groups of status icons. Brighter than a hairline:
+     * this one is drawn straight over the world with no panel behind it, and at the
+     * hairline's value it disappeared against most terrain.
+     */
+    public static final int DIVIDER = 0x55FFFFFF;
+
     // --- Text -------------------------------------------------------------------
     public static final int TEXT_BRIGHT = 0xFFFFFFFF;
 
