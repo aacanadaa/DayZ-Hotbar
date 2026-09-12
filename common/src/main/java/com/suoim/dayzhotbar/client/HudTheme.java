@@ -98,6 +98,10 @@ public final class HudTheme {
      * wants. The marker eats vertical space out of the HUD, and every row it takes
      * pushes the status icons further up the screen and away from the hotbar.
      * <p>
+     * As written this points <b>down</b>. {@link #chevrons} reverses the rows when the
+     * stat is rising, so the shape is stored in the direction it is most often drawn
+     * and flipped for the other.
+     * <p>
      * Always white. Direction is carried by the orientation and the placement, not
      * the colour, so the marker never competes with the status tier colours.
      */
@@ -133,7 +137,8 @@ public final class HudTheme {
         for (int i = 0; i < count; i++) {
             int top = topY + i * CHEVRON_PITCH;
             for (int row = 0; row < CHEVRON.length; row++) {
-                String line = CHEVRON[up ? row : CHEVRON.length - 1 - row];
+                // The stored shape points down, so a rising marker is the reversed one.
+                String line = CHEVRON[up ? CHEVRON.length - 1 - row : row];
                 for (int col = 0; col < line.length(); col++) {
                     if (line.charAt(col) == '#') {
                         int px = left + col * CHEVRON_PIXEL;
