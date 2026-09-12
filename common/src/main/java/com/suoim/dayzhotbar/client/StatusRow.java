@@ -23,8 +23,8 @@ import java.util.List;
 
 /**
  * The bottom-right status readout: a horizontal row of icons, each drawn as an
- * outlined vessel that fills from the bottom, each with a rank-chevron trend marker
- * hanging underneath.
+ * outlined vessel that fills from the bottom, each with a flat rank-chevron trend
+ * marker on the side it is heading towards.
  * <p>
  * There is deliberately no panel behind the row. An earlier version put one there to
  * match the hotbar, but at this size it read as a dark slab behind the icons rather
@@ -45,17 +45,17 @@ public final class StatusRow {
     /** Gap between adjacent icons. */
     private static final int GAP = 4;
     /**
-     * Space below the icons for the trend marker. The marker stacks two chevrons,
-     * and both the hotbar and this row sit on {@link #MARGIN} so there is room for
-     * them without anything reaching the screen edge.
+     * Space reserved below the icons for a falling marker. A rising marker draws
+     * above the icon instead, into space that is free anyway, so only this side has
+     * to be budgeted for - which is what lets the icons stay down by the hotbar.
      */
     public static final int ARROW_H = HudTheme.CHEVRON_STACK_H + 1;
-    /** Total cell height: icons on top, marker underneath. */
+    /** Total cell height: the icons, plus the marker space underneath them. */
     public static final int CELL_H = ICON + ARROW_H;
-    /** Gap between an icon's bottom and its marker. */
+    /** Gap between an icon's edge and its marker. */
     private static final int MARKER_GAP = 2;
     /** Distance from the right and bottom screen edges. Shared with the hotbar. */
-    private static final int MARGIN = 10;
+    private static final int MARGIN = 4;
 
     /**
      * One rendered stat: how full it is, and what its trend marker should say.
@@ -91,8 +91,11 @@ public final class StatusRow {
     private static void drawIcon(GuiGraphics graphics, Font font, int x, int y,
                                  Sample sample, int guiTicks) {
         Stat stat = sample.stat();
-        Icons.drawVessel(graphics, stat.shape(), x, y, PIXEL, sample.fraction(),
-                HudTheme.ICON_OUTLINE, stat.colorFor(sample.fraction(), guiTicks));
+
+        // Outline and fill take the same colour, so a yellow icon has a yellow
+        // outline. The gap between them is what keeps the two readable apart.
+        int color = stat.colorFor(sample.fraction(), guiTicks);
+        Icons.drawVessel(graphics, stat.shape(), x, y, PIXEL, sample.fraction(), color, color);
 
         // Saturation rides on top of the food level as a brighter wash, the way
         // DayZ distinguishes a full stomach from a full reserve.
@@ -110,7 +113,14 @@ public final class StatusRow {
         }
 
         if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {
-            HudTheme.chevrons(graphics, x + ICON / 2, y + ICON + MARKER_GAP,
+            // The marker goes on the side the stat is heading: above when it is
+            // rising, below when it is falling. Only the space below the icons is
+            // reserved - a rising marker draws into the open space above, which
+            // costs the layout nothing and keeps the icons down near the hotbar.
+            int markerY = sample.up()
+                    ? y - HudTheme.CHEVRON_STACK_H - MARKER_GAP
+                    : y + ICON + MARKER_GAP;
+            HudTheme.chevrons(graphics, x + ICON / 2, markerY,
                     sample.chevrons(), sample.up(), sample.alpha());
         }
     }

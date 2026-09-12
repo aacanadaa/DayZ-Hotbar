@@ -31,8 +31,13 @@ public enum Stat {
     /** Food level. Saturation is drawn over it as a secondary fill. */
     FOOD(Icons.APPLE, true, 0, 0.05F, 4.0F),
 
-    /** Armour points. Hidden when the player has none. */
-    ARMOR(Icons.SHIELD, true, 0, 0.05F, 4.0F),
+    /**
+     * Armour points. Hidden when the player has none, and not tiered: armour is what
+     * you are wearing rather than a warning, so it stays one colour however low it
+     * gets. Losing a chestplate is not the same kind of event as running out of
+     * health.
+     */
+    ARMOR(Icons.SHIELD, false, HudTheme.TIER_NORMAL, 0.05F, 4.0F),
 
     /** Air. Hidden while the player is not underwater. */
     AIR(Icons.BUBBLE, true, 0, 0.5F, 50.0F),
