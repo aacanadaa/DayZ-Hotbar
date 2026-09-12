@@ -204,15 +204,16 @@ public final class Icons {
     }
 
     /**
-     * Cells on the edge of the shape: shape cells with a neighbour outside it, plus
-     * the cells that fill in a concave corner.
+     * Cells on the edge of the shape: shape cells with an orthogonal neighbour
+     * outside it.
      * <p>
-     * The corner case matters. Marking only cells with an outside neighbour leaves
-     * the outline of a plus-shaped figure stepping <em>diagonally</em> where an arm
-     * meets the body: the cell at the inside of the corner has all four neighbours
-     * inside the shape, so it is not an edge by that rule, and the outline appears to
-     * jump a pixel instead of turning. Drawing it makes the outline a continuous
-     * one-cell band all the way round.
+     * Do <b>not</b> extend this to fill in concave corners. It was tried, to close the
+     * diagonal step the outline makes where a cross's arm meets its body, and it
+     * wrecked every other icon: a curve drawn on a grid is a staircase, and every step
+     * of a staircase is a concave corner by that definition. The diamond's outline
+     * went from 28 cells to 52 and the heart's from 34 to 55, so every curved icon
+     * ended up with a two-cell-thick border. The step is the lesser evil - on a curve
+     * it reads as a smooth staircase, and only a sharp corner shows it.
      */
     private static boolean[][] outlineOf(boolean[][] m) {
         int n = m.length;
@@ -222,24 +223,8 @@ public final class Icons {
                 if (!m[row][col]) {
                     continue;
                 }
-
-                if (!inside(m, row - 1, col) || !inside(m, row + 1, col)
-                        || !inside(m, row, col - 1) || !inside(m, row, col + 1)) {
-                    out[row][col] = true;
-                    continue;
-                }
-
-                // A concave corner: a diagonal neighbour is outside while both cells
-                // sharing that corner are inside the shape.
-                for (int dr = -1; dr <= 1; dr += 2) {
-                    for (int dc = -1; dc <= 1; dc += 2) {
-                        if (!inside(m, row + dr, col + dc)
-                                && inside(m, row + dr, col)
-                                && inside(m, row, col + dc)) {
-                            out[row][col] = true;
-                        }
-                    }
-                }
+                out[row][col] = !inside(m, row - 1, col) || !inside(m, row + 1, col)
+                        || !inside(m, row, col - 1) || !inside(m, row, col + 1);
             }
         }
         return out;
