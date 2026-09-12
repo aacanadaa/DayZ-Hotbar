@@ -52,15 +52,21 @@ with a resource pack.
 
 ### Icons change colour as they drop
 
-| Band | Colour |
-| :--- | :--- |
-| Above half | White |
-| Below half | Yellow |
-| Below a fifth | Red |
-| Below about a thirteenth | Red, flashing |
+Health and food use **DayZ's own bands**, which differ from each other. Health is quoted
+against 100 HP; food against a 5,000-point reserve.
 
-On a 20-point scale that puts yellow under 10, red under 4, and the flash under 1.5 — so
-food turns yellow at half a bar, red under two shanks, and flashes on the last one.
+| | White | Yellow | Red | Flashing |
+| :--- | :--- | :--- | :--- | :--- |
+| **Health** | 61–100% | 31–60% | 15–30% | 0–14% |
+| **Food** | 16–100% | 6–15% | 2–5% | 0–1.9% |
+
+Minecraft's bars are 20 points for both, so health turns yellow at 12 or less, red at 6 or
+less, and flashes under 3 — while food turns yellow at 3 or less, red at 1, and flashes
+only when empty. Food is deliberately the more forgiving of the two: in DayZ you are
+warned about hunger far later than about blood loss.
+
+Air has no bands of its own and borrows health's, since drowning and bleeding out are the
+same kind of emergency.
 
 Armor, absorption and experience are deliberately **not** colour-tiered. Armor is what you
 are wearing rather than a warning, and how far through a level you are is not a health
