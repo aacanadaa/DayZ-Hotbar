@@ -59,11 +59,14 @@ public enum Stat {
     XP(Icons.DIAMOND, null, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
 
     /**
-     * Absorption has no entry here. It was the golden-apple hearts, drawn first as a
-     * gold heart of its own and then as a badged second cross, and both were dropped -
-     * the HUD does not report it at all now. The shape is kept in {@link Icons} in
-     * case it comes back.
+     * Absorption. Drawn as a second health cross rather than an icon of its own, and
+     * badged with a plus so the two are not confused. Hidden when there is none.
+     * <p>
+     * Not tiered - having less absorption is not a warning, so it keeps one colour
+     * throughout. Sits immediately before health so health stays at the end of the
+     * row, where it is looked for.
      */
+    ABSORPTION(Icons.CROSS, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
 
     /**
      * Health, or the mount's health while riding. Deliberately last so it sits at the

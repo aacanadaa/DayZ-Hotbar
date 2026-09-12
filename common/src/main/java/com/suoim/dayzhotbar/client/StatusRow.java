@@ -123,6 +123,13 @@ public final class StatusRow {
             Icons.overlayBottom(graphics, x, y, ICON, PIXEL, sample.saturation(), 0x55FFFFFF);
         }
 
+        // Absorption is drawn as a second health cross, so the plus is the only thing
+        // telling the two apart. It sits in the top right, which the cross's shape
+        // leaves empty.
+        if (stat == Stat.ABSORPTION) {
+            Icons.drawSmall(graphics, Icons.PLUS, x + ICON - Icons.PLUS_SIZE, y, color);
+        }
+
         if (stat == Stat.XP) {
             // The level number sits on the icon rather than beside it, which keeps
             // experience in step with every other stat instead of being the one that
