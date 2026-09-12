@@ -35,7 +35,7 @@ public enum EffectGroup {
     RECOVERY(Icons.PILL, 0.5F),
 
     /** Everything harmful. One family, whether it is poison or mining fatigue. */
-    AFFLICTION(Icons.CORONA, 1.0F);
+    AFFLICTION(Icons.DEBUFF, 1.0F);
 
     private final String[] shape;
     private final float fill;
