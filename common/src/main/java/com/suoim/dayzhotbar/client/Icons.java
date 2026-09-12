@@ -134,27 +134,26 @@ public final class Icons {
      * permanently red, so it still goes yellow and flashes as health drops - a cross
      * that was always red would say nothing about how much health is left.
      * <p>
-     * The arms are nine cells wide, and the intersections of the arms are what set
-     * that: an outline and a gap take two cells off each side, so at seven wide the
-     * interior was a three-cell sliver and the cross read as hollow. At nine the
-     * interior is five cells and the shape holds together.
+     * The arms are seven cells wide. A nine-cell version was tried and reverted: it
+     * made the bar in the middle too heavy, and the arms were never the problem - the
+     * corner the outline failed to turn was.
      */
     public static final String[] CROSS = {
-        "...#########...",
-        "...#########...",
-        "...#########...",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
         "###############",
         "###############",
         "###############",
         "###############",
         "###############",
-        "###############",
-        "###############",
-        "###############",
-        "###############",
-        "...#########...",
-        "...#########...",
-        "...#########..."
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######...."
     };
 
     /** A gem, used for experience. */
@@ -204,7 +203,17 @@ public final class Icons {
         return row >= 0 && row < m.length && col >= 0 && col < m.length && m[row][col];
     }
 
-    /** Cells on the edge of the shape: shape cells with a neighbour outside it. */
+    /**
+     * Cells on the edge of the shape: shape cells with a neighbour outside it, plus
+     * the cells that fill in a concave corner.
+     * <p>
+     * The corner case matters. Marking only cells with an outside neighbour leaves
+     * the outline of a plus-shaped figure stepping <em>diagonally</em> where an arm
+     * meets the body: the cell at the inside of the corner has all four neighbours
+     * inside the shape, so it is not an edge by that rule, and the outline appears to
+     * jump a pixel instead of turning. Drawing it makes the outline a continuous
+     * one-cell band all the way round.
+     */
     private static boolean[][] outlineOf(boolean[][] m) {
         int n = m.length;
         boolean[][] out = new boolean[n][n];
@@ -213,8 +222,24 @@ public final class Icons {
                 if (!m[row][col]) {
                     continue;
                 }
-                out[row][col] = !inside(m, row - 1, col) || !inside(m, row + 1, col)
-                        || !inside(m, row, col - 1) || !inside(m, row, col + 1);
+
+                if (!inside(m, row - 1, col) || !inside(m, row + 1, col)
+                        || !inside(m, row, col - 1) || !inside(m, row, col + 1)) {
+                    out[row][col] = true;
+                    continue;
+                }
+
+                // A concave corner: a diagonal neighbour is outside while both cells
+                // sharing that corner are inside the shape.
+                for (int dr = -1; dr <= 1; dr += 2) {
+                    for (int dc = -1; dc <= 1; dc += 2) {
+                        if (!inside(m, row + dr, col + dc)
+                                && inside(m, row + dr, col)
+                                && inside(m, row, col + dc)) {
+                            out[row][col] = true;
+                        }
+                    }
+                }
             }
         }
         return out;
