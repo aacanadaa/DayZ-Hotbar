@@ -182,21 +182,27 @@ public final class Icons {
      * this size, and four knobbed spikes read as a particle where eight bare ones read
      * as a sparkle.
      */
-    public static final String[] CRACK = {
-        "...............",
-        "....###.###....",
-        "...####.####...",
+    /**
+     * A broken heart, the mark for a harmful effect. The heart split down the middle
+     * by a crack, which pairs with the whole heart used for beneficial effects - the
+     * two read as a set, and a heart with a break in it says "afflicted" without
+     * being directional the way an arrow would be.
+     */
+    public static final String[] BROKEN_HEART = {
+        "..###.....###..",
+        ".#####...#####.",
+        "#######.#######",
+        "#######.#######",
+        "#######.#######",
+        "#######.#######",
+        "#######.#######",
+        "#######.#######",
+        ".######.######.",
         "..#####.#####..",
-        ".######.######.",
-        ".#####.#######.",
-        ".#####.#######.",
-        ".######.######.",
-        ".#######.#####.",
-        ".#######.#####.",
-        ".######.######.",
-        "..#####.#####..",
         "...####.####...",
         "....###.###....",
+        ".....##.##.....",
+        "......#.#......",
         "..............."
     };
 
@@ -232,23 +238,26 @@ public final class Icons {
         "..............."
     };
 
-    /** A gem, used for experience. */
-    public static final String[] DIAMOND = {
+    /**
+     * A drop, used for experience. Pointed at the top, round at the bottom, the shape
+     * DayZ uses for blood.
+     */
+    public static final String[] DROP = {
+        ".......#.......",
         ".......#.......",
         "......###......",
-        ".....#####.....",
-        "....#######....",
-        "...#########...",
-        "..###########..",
-        ".#############.",
-        "###############",
-        ".#############.",
-        "..###########..",
-        "...#########...",
-        "....#######....",
-        ".....#####.....",
         "......###......",
-        ".......#......."
+        ".....#####.....",
+        "....#######....",
+        "...#########...",
+        "..###########..",
+        ".#############.",
+        ".#############.",
+        ".#############.",
+        "..###########..",
+        "...#########...",
+        "....#######....",
+        ".....#####....."
     };
 
     /**

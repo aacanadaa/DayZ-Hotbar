@@ -34,7 +34,7 @@ The row is divided into three sections, left to right:
 | :--- | :--- |
 | **Effects** | One mark per family of active potion effect |
 | **Sustenance** | Apple for food, with saturation drawn over it as a brighter wash; bubble for air, only while you are underwater |
-| **Vitals** | Gem for experience with the level number on it; gold cross for absorption; cross for health, or your mount's health while riding |
+| **Vitals** | Drop for experience with the level number on it; gold cross for absorption; cross for health, or your mount's health while riding |
 
 An upright line separates the sections, and only where both sides have something in them
 — so the effects divider comes and goes with the effects themselves, while the one
@@ -53,7 +53,12 @@ eat the screen edge. What matters at a glance is which *kinds* of thing are on y
 | :--- | :--- |
 | Heart | Beneficial — speed, strength, night vision |
 | Pill | Restorative — regeneration, absorption, saturation |
-| Virus | Harmful — poison, hunger, mining fatigue, everything else bad |
+| Broken heart | Harmful — poison, hunger, mining fatigue, everything else bad |
+
+The two hearts are a pair: whole for beneficial, split down the middle for harmful. That
+was deliberate over a down arrow, which was tried first and rejected — this HUD already
+uses down chevrons to mean "this value is falling", so an arrow in the effects row read
+as a direction rather than as a status, and said nothing about being afflicted.
 
 They are drawn **white**, with the same outline-gap-fill treatment as every other icon,
 but no colour banding and no trend marker — an effect is either on or off, so there is
