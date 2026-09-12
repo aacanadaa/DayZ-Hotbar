@@ -37,14 +37,19 @@ public final class HotbarRenderer {
     private static final int BOX = PITCH - 1;
     /** Gap separating the offhand slot from the nine. */
     private static final int SEPARATOR = 8;
-    /** Distance from the bottom of the screen. The status readout shares this value. */
-    private static final int MARGIN = 10;
+    /**
+     * Distance from the bottom of the screen.
+     * <p>
+     * Larger than the status readout's own bottom margin on purpose. Both rows are
+     * anchored by their bottom edge, but a box is 22px tall against an icon's 15, and
+     * the readout reserves 8px under its icons for the trend markers - so at equal
+     * margins the icons sit in the top of the boxes' band and read as floating above
+     * the hotbar. Four extra pixels centres the boxes on the icons.
+     */
+    private static final int MARGIN = 14;
 
     /** Alpha of the held slot's coloured wash. The colour alone marks the held slot. */
     private static final int ACTIVE_WASH_ALPHA = 0x66;
-
-    private static final int ATTACK_W = 4;
-    private static final int ATTACK_GAP = 6;
 
     /**
      * Draws the hotbar.
@@ -83,7 +88,6 @@ public final class HotbarRenderer {
         ItemStack offhand = player.getOffhandItem();
         drawSlot(graphics, minecraft, offhandX, top, offhand, 0, offhand.isEmpty());
 
-        drawAttackIndicator(graphics, player, offhandX + PITCH + ATTACK_GAP, top);
         return true;
     }
 
@@ -119,25 +123,9 @@ public final class HotbarRenderer {
         }
     }
 
-    /**
-     * Cancelling vanilla's hotbar also removes the attack-strength indicator that
-     * lives inside it. Losing that would be a real combat regression, so a compact
-     * replacement is drawn to the right of the offhand slot: empty while the swing
-     * is still charging, full and green when the next hit will be a full one.
-     */
-    private static void drawAttackIndicator(GuiGraphics graphics, LocalPlayer player, int x, int y) {
-        if (player.isCreative() || player.isSpectator()) {
-            return;
-        }
-
-        float strength = player.getAttackStrengthScale(0.0F);
-        if (strength >= 1.0F) {
-            return;
-        }
-
-        graphics.fill(x, y, x + ATTACK_W, y + BOX, HudTheme.SLOT_INNER);
-        int filled = Math.max(1, Math.round(BOX * strength));
-        graphics.fill(x, y + BOX - filled, x + ATTACK_W, y + BOX,
-                HudTheme.wash(HudTheme.STATE_ACTIVE, 0xB0));
-    }
+    // No attack-strength indicator is drawn. One used to sit to the right of the
+    // offhand slot, replacing the one vanilla draws inside its hotbar, which
+    // cancelling renderHotbar removes. It was taken out on request. Vanilla's own can
+    // still be had by setting Options > Video Settings > Attack Indicator to
+    // "Crosshair" - only the hotbar position is lost with the vanilla hotbar.
 }
