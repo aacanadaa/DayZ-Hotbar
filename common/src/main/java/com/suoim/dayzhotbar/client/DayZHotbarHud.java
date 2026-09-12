@@ -32,19 +32,24 @@ import java.util.List;
  * two things the HUD draws.
  * <p>
  * Sampling happens once per client tick, not once per frame, because velocities
- * are measured in ticks. The tick is detected from the GUI's own tick counter, so
- * no extra game event is needed and a paused or hidden HUD cannot leave a gap in
- * the history that would read as a sudden change.
+ * and the hotbar swap animation are both measured in ticks. The tick is detected
+ * from the GUI's own tick counter, so no extra game event is needed and a paused
+ * or hidden HUD cannot leave a gap in the history that would read as a sudden
+ * change.
  */
 public final class DayZHotbarHud {
     public static final DayZHotbarHud INSTANCE = new DayZHotbarHud();
 
     /** Food and health are both out of 20, which is the unit the fill uses. */
     private static final float MAX_FOOD = 20.0F;
+    /** Ticks the held slot spends resolving from yellow to green after a swap. */
+    private static final int SWAP_TICKS = 6;
 
     private final EnumMap<Stat, VelocityTracker> trackers = new EnumMap<>(Stat.class);
 
     private int lastGuiTicks = Integer.MIN_VALUE;
+    private int lastSelected = Integer.MIN_VALUE;
+    private int swapTicks = 0;
 
     private DayZHotbarHud() {
         for (Stat stat : Stat.values()) {
@@ -78,10 +83,11 @@ public final class DayZHotbarHud {
         LocalPlayer player = minecraft.player;
         if (player == null) {
             resetTrackers();
+            lastSelected = Integer.MIN_VALUE;
             return;
         }
 
-        // Tick the hold timers before recording this tick's movement, so an arrow
+        // Tick the hold timers before recording this tick's movement, so a marker
         // raised below survives until the next tick rather than ageing immediately.
         for (VelocityTracker tracker : trackers.values()) {
             tracker.tick();
@@ -97,6 +103,38 @@ public final class DayZHotbarHud {
         // Experience is scaled so a level-up (+100) clearly outranks a single orb
         // (+10), which is what makes the level-up read as a two-chevron event.
         trackers.get(Stat.XP).push(player.experienceLevel * 100.0F + player.experienceProgress * 100.0F);
+
+        updateSwap(player);
+    }
+
+    /**
+     * Starts the yellow-to-green transition when the held slot changes. The first
+     * sample only seeds the value, so joining a world does not animate a swap that
+     * never happened.
+     */
+    private void updateSwap(LocalPlayer player) {
+        int selected = player.getInventory().selected;
+
+        if (lastSelected == Integer.MIN_VALUE) {
+            lastSelected = selected;
+            swapTicks = 0;
+            return;
+        }
+
+        if (selected != lastSelected) {
+            lastSelected = selected;
+            swapTicks = SWAP_TICKS;
+        } else if (swapTicks > 0) {
+            swapTicks--;
+        }
+    }
+
+    /** 0 the instant the held slot changes, 1 once the swap has settled. */
+    private float swapProgress() {
+        if (swapTicks <= 0) {
+            return 1.0F;
+        }
+        return 1.0F - (swapTicks / (float) SWAP_TICKS);
     }
 
     private void resetTrackers() {
@@ -110,7 +148,8 @@ public final class DayZHotbarHud {
         if (minecraft.options.hideGui) {
             return false;
         }
-        return HotbarRenderer.render(graphics, minecraft, graphics.guiWidth(), graphics.guiHeight());
+        return HotbarRenderer.render(graphics, minecraft, graphics.guiWidth(), graphics.guiHeight(),
+                swapProgress());
     }
 
     /** Draws the status readout. Returns false to let vanilla render instead. */
@@ -125,7 +164,7 @@ public final class DayZHotbarHud {
         }
 
         StatusRow.render(graphics, minecraft.font, graphics.guiWidth(), graphics.guiHeight(),
-                buildSamples(player));
+                buildSamples(player), lastGuiTicks);
         return true;
     }
 
@@ -134,16 +173,16 @@ public final class DayZHotbarHud {
 
         // While riding something with health, vanilla shows the mount's health
         // instead of yours. Matching that keeps the two readings consistent.
-        float health = health(player);
         float maxHealth = maxHealth(player);
         if (maxHealth <= 0.0F) {
             maxHealth = 20.0F;
         }
+        float health = health(player);
 
         FoodData food = player.getFoodData();
         float foodFraction = clamp(food.getFoodLevel() / MAX_FOOD);
-        // Saturation can never exceed the food level, so cap it to keep the
-        // overlay from ever sitting higher than the fill it rides on.
+        // Saturation can never exceed the food level, so cap it to keep the overlay
+        // from ever sitting higher than the fill it rides on.
         float saturationFraction = Math.min(foodFraction, clamp(food.getSaturationLevel() / MAX_FOOD));
 
         int air = player.getAirSupply();

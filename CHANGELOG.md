@@ -5,72 +5,90 @@ status readout. Fabric only, for now.
 
 ## The hotbar
 
-Nine slots plus the offhand, drawn as individual flat panels instead of one long
-bar, in the same near-black translucent style as the DayZ Inventory screen.
-
-Each slot's outline carries its state:
+Nine slots plus the offhand, drawn on a single flat panel in the same near-black
+translucent style as the DayZ Inventory screen. The slot geometry is that mod's own:
+an 18px pitch with a 16x16 inner wash and **no outline** — state is carried by the
+colour of the wash, never by a border.
 
 | State | Meaning |
 | :--- | :--- |
-| Grey | Empty |
-| Light grey | Holds an item |
-| Green | The slot currently in hand |
-| Red | In hand, but the item cannot be used right now (on cooldown) |
+| Dim wash | Empty |
+| Lifted wash | Holds an item |
+| Green wash + underline | The slot currently in hand |
+| Red wash + underline | In hand, but the item cannot be used right now (on cooldown) |
 
-The held slot also gets a coloured wash behind the item, so it reads at a glance
-without having to compare outline colours.
+Switching slots animates: the newly held slot starts **yellow** and resolves to green
+over about a third of a second, so a swap reads as an event rather than an instant
+flip.
 
-Durability is deliberately **not** part of this yet — that is a separate feature
-for later.
+Durability is deliberately **not** part of this yet — that is a separate feature for
+later.
 
-Vanilla draws the attack-strength indicator inside the hotbar, so replacing the
-hotbar would have silently removed it. A compact replacement is drawn to the
-right of the offhand slot.
+Vanilla draws the attack-strength indicator inside the hotbar, so replacing the hotbar
+would have silently removed it. A compact replacement is drawn to the right of the
+offhand slot.
 
 ## The status readout
 
-A horizontal row of icons in the bottom-right corner, each filled to its current
-level rather than showing a number.
+A horizontal row of icons on a shared panel in the bottom-right corner, each filled to
+its current level rather than showing a number.
 
 | Icon | Notes |
 | :--- | :--- |
-| Health | Shows your mount's health while riding, as vanilla does |
-| Food | Saturation is drawn over the food level as a brighter wash |
-| Armor | Only appears when you are wearing some |
-| Air | Only appears while you are underwater |
-| Absorption | Only appears while you have golden hearts |
-| Experience | A bar with the level number above it |
+| Heart | Health, or your mount's health while riding |
+| Apple | Food level, with saturation drawn over it as a brighter wash |
+| Chestplate | Armor. Only appears when you are wearing some |
+| Bubble | Air. Only appears while you are underwater |
+| Gold heart | Absorption. Only appears while you have golden hearts |
+| Bar + number | Experience, with the level above it |
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.
 
-### Trend arrows
+### Icons change colour as they drop
 
-Under each icon, a small chevron shows which way the stat is moving:
+Each icon is coloured by how much is left, so a glance is enough:
+
+| Band | Colour |
+| :--- | :--- |
+| Above half | White |
+| Below half | Yellow |
+| Below a fifth | Red |
+| Below about a thirteenth | Red, flashing |
+
+On a 20-point scale that puts yellow under 10, red under 4, and the flash under 1.5 —
+so food turns yellow at half a bar, red under two shanks, and flashes on the last one.
+
+### Trend chevrons
+
+Under each icon, a marker shows which way the stat is moving — drawn as a bold stacked
+chevron in the shape of a US Army rank insignia rather than a thin arrow, and always
+white so it never competes with the tier colours above it.
 
 - **One chevron** — ordinary drift
 - **Two chevrons** — a significant change, which is what makes a poison tick or a
   regeneration effect read differently from hunger ticking down on its own
-- **Green** rising, **red** falling
-- The arrow fades out a moment after the movement stops, rather than flickering
+- Pointing up when rising, down when falling
+- Fades out a moment after the movement stops, rather than flickering
 
-Thresholds are per stat and measured over one second. They are deliberately low
-for stats that move slowly — natural health regeneration is only about 0.25 HP
-per second, so a threshold of 1.0 would never fire and you would never see that
-you were healing.
+Thresholds are per stat and measured over one second. They are deliberately low for
+stats that move slowly — natural health regeneration is only about 0.25 HP per second,
+so a threshold of 1.0 would never fire and you would never see that you were healing.
 
-## Reusing Minecraft's own icons
+## Hand-drawn icons
 
-The status icons are Minecraft's own sprites, read from the vanilla
-`textures/gui/icons.png` sheet and cropped to a fraction of their height. That
-means the mod ships no icon art of its own, cannot clash with a resource pack,
-and still reads as Minecraft rather than as a texture pack someone bolted on.
+The icons are pixel art defined in the source as 9x9 character grids, drawn as
+rectangles at 2px per cell and cropped to the fill level. Nothing is loaded from a
+texture, so the mod ships no icon art of its own and cannot clash with a resource pack.
+
+Drawing them rather than blitting them is also what makes the recolouring possible: a
+bitmap would need redrawing for every tier, while a shape just gets drawn twice.
 
 ## Notes
 
-- **No Fabric API required.** The HUD is installed with Mixin against vanilla's
-  own `Gui`, so Fabric Loader is the only dependency.
+- **No Fabric API required.** The HUD is installed with Mixin against vanilla's own
+  `Gui`, so Fabric Loader is the only dependency.
 - The vanilla health, hunger, armour, air and experience elements are suppressed
   rather than drawn over, so nothing double-draws.
-- Vanilla's own visibility rules are inherited: the HUD still hides behind an
-  open screen, in spectator mode, and when you press F1.
+- Vanilla's own visibility rules are inherited: the HUD still hides behind an open
+  screen, in spectator mode, and when you press F1.
