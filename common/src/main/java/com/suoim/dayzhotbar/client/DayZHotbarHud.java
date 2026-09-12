@@ -93,6 +93,7 @@ public final class DayZHotbarHud {
         trackers.get(Stat.HEALTH).push(health(player));
         trackers.get(Stat.FOOD).push(food.getFoodLevel());
         trackers.get(Stat.AIR).push(player.getAirSupply());
+        trackers.get(Stat.ABSORPTION).push(player.getAbsorptionAmount());
 
         // Experience is scaled so a level-up (+100) clearly outranks a single orb
         // (+10), which is what makes the level-up read as a two-chevron event.
@@ -181,16 +182,22 @@ public final class DayZHotbarHud {
 
         int air = player.getAirSupply();
         int maxAir = Math.max(1, player.getMaxAirSupply());
+        float absorption = player.getAbsorptionAmount();
 
         for (Stat stat : Stat.values()) {
             switch (stat) {
                 case HEALTH -> samples.add(sample(stat, clamp(health / maxHealth), 0.0F, 0));
                 case FOOD -> samples.add(sample(stat, foodFraction, saturationFraction, 0));
-                // Armor and absorption have no case: both were removed on request.
+                // Armor has no case: it was removed from the row on request.
                 case AIR -> {
                     // Only while submerged, exactly like vanilla's bubbles.
                     if (air < maxAir) {
                         samples.add(sample(stat, clamp(air / (float) maxAir), 0.0F, 0));
+                    }
+                }
+                case ABSORPTION -> {
+                    if (absorption > 0.0F) {
+                        samples.add(sample(stat, clamp(absorption / maxHealth), 0.0F, 0));
                     }
                 }
                 case XP -> samples.add(sample(stat, clamp(player.experienceProgress), 0.0F,
