@@ -23,11 +23,9 @@ import net.minecraft.client.gui.GuiGraphics;
  * Two panels stacked. The upper one is the held item - its condition as a coloured dot
  * and its name beside it. The lower one is a row of stance, armour, and an armour bar.
  * <p>
- * Both are drawn on the same flat panel the rest of the HUD uses, and the stack is
- * anchored to the hotbar rather than to the screen: its right edge sits a fixed gap
- * from the hotbar's left edge and its bottom lines up with the hotbar's. So the whole
- * cluster moves together if the hotbar ever moves, and nothing is pinned to a corner
- * where it would drift apart from the bar at a different window size.
+ * Both are drawn on the same flat panel the rest of the HUD uses. The stack sits in the
+ * bottom-left corner of the screen, with its bottom edge on the hotbar's line so the
+ * two read as one row across the width of the HUD.
  */
 public final class PlayerPanel {
     private PlayerPanel() {}
@@ -42,8 +40,11 @@ public final class PlayerPanel {
     private static final int BAR_H = 20;
     /** Inset from a panel's edge to its contents. */
     private static final int PAD = 4;
-    /** Space between this stack and the hotbar it is anchored to. */
-    private static final int HOTBAR_GAP = 10;
+    /**
+     * Distance from the left screen edge. Matches the right margin the status readout
+     * uses, so the HUD is inset the same amount at both ends.
+     */
+    private static final int LEFT_MARGIN = 16;
 
     private static final int DOT_RADIUS = 2;
     /** Marks in the lower panel are drawn at one screen pixel per cell. */
@@ -60,14 +61,16 @@ public final class PlayerPanel {
     private static final float DAMAGED_AT = 0.50F;
     private static final float BADLY_DAMAGED_AT = 0.25F;
 
-    /** Draws the whole stack, anchored to the hotbar. */
+    /** Draws the whole stack in the bottom-left corner. */
     public static void render(GuiGraphics graphics, Minecraft minecraft, int screenWidth, int screenHeight) {
         LocalPlayer player = minecraft.player;
         if (player == null) {
             return;
         }
 
-        int left = HotbarRenderer.leftEdge(screenWidth) - HOTBAR_GAP - WIDTH;
+        int left = LEFT_MARGIN;
+        // Bottom edge on the hotbar's line, so the HUD reads as one row even though the
+        // panel itself hugs the left edge.
         int bottom = HotbarRenderer.bottomEdge(screenHeight);
 
         int barTop = bottom - BAR_H;
