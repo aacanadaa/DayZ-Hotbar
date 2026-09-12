@@ -11,7 +11,10 @@ near-black panels, hairline separators, desaturated grey text, no borders or chr
 
 - **Group / package root**: `com.suoim.dayzhotbar`
 - **Mod ID**: `dayz_hotbar`
-- **License**: Apache License 2.0 (see `LICENSE`)
+- **License**: PolyForm Noncommercial 1.0.0 (see `LICENSE`). Note this is
+  **source-available, not open source** — it forbids commercial use, unlike the sibling
+  DayZ Inventory repo which is Apache 2.0. Every source file carries a `Required Notice:`
+  line because the licence requires it to travel with the software.
 - **Environment**: client only
 
 ## Repository Layout

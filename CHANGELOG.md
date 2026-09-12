@@ -1,14 +1,14 @@
 # DayZ Hotbar 1.0.0 (Minecraft 1.20.1)
 
-First release. Replaces the vanilla HUD with a DayZ-style hotbar and a DayZ-style
-status readout. Fabric only, for now.
+First release. Replaces the vanilla HUD with a DayZ-style hotbar and a DayZ-style status
+readout. Fabric only, for now.
 
 ## The hotbar
 
 Nine slots plus the offhand, drawn on a single flat panel in the same near-black
-translucent style as the DayZ Inventory screen. The grey slot itself is 18x18 with
-only a one-pixel dark edge around it — a wider margin read as a frame rather than as
-a slot. State is carried by the colour of that wash, never by a border or an underline.
+translucent style as the DayZ Inventory screen. The grey slot is 18x18 with only a
+one-pixel dark edge around it, and there are no outlines anywhere — slot state is carried
+by the colour of the wash.
 
 | State | Meaning |
 | :--- | :--- |
@@ -17,12 +17,8 @@ a slot. State is carried by the colour of that wash, never by a border or an und
 | Green wash | The slot currently in hand |
 | Red wash | In hand, but the item cannot be used right now (on cooldown) |
 
-Switching slots animates: the newly held slot starts **yellow** and resolves to green
-over about a third of a second, so a swap reads as an event rather than an instant
-flip.
-
-Durability is deliberately **not** part of this yet — that is a separate feature for
-later.
+Switching slots animates: the newly held slot starts yellow and resolves to green over
+about a third of a second, so a swap reads as an event rather than an instant flip.
 
 Vanilla draws the attack-strength indicator inside the hotbar, so replacing the hotbar
 would have silently removed it. A compact replacement is drawn to the right of the
@@ -30,8 +26,7 @@ offhand slot.
 
 ## The status readout
 
-A horizontal row of icons on a shared panel in the bottom-right corner, each filled to
-its current level rather than showing a number.
+A horizontal row of icons in the bottom-right corner, on the same margin as the hotbar.
 
 | Icon | Notes |
 | :--- | :--- |
@@ -39,28 +34,23 @@ its current level rather than showing a number.
 | Shield | Armor. Only appears when you are wearing some |
 | Bubble | Air. Only appears while you are underwater |
 | Gold heart | Absorption. Only appears while you have golden hearts |
-| Gem | Experience, with the level number above it |
+| Gem | Experience, with the level number on it |
 | Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
-
-Each icon is drawn as a **vessel**: an outline, a one-cell clear gap inside it, and an
-interior that fills from the bottom as the value rises. The outline and gap are computed
-from the silhouette by erosion, so an icon is authored as one shape and the two inner
-layers come out of it. The outline takes the same colour as the fill, so a yellow icon
-has a yellow outline.
-
-There is no panel behind the readout — the icons stand on their own over the world.
-
-The icons are drawn on a 15x15 grid. They were 9x9, then 11x11, and both were too coarse:
-an outline and a gap take two cells off every edge, which left the more complicated
-silhouettes with almost no contour. Armor is deliberately **not** colour-tiered — armor is
-what you are wearing rather than a warning, so it stays one colour however low it gets.
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.
 
-### Icons change colour as they drop
+### Icons are drawn as vessels
 
-Each icon is coloured by how much is left, so a glance is enough:
+Each icon is an outline, a one-cell clear gap, and an interior that fills from the bottom
+as the value rises. The outline takes the same colour as the fill, so a yellow icon has a
+yellow outline.
+
+The icons are hand-drawn pixel art on a 15x15 grid, defined in the source rather than
+loaded from a texture. The mod therefore ships no icon art of its own and cannot clash
+with a resource pack.
+
+### Icons change colour as they drop
 
 | Band | Colour |
 | :--- | :--- |
@@ -69,46 +59,40 @@ Each icon is coloured by how much is left, so a glance is enough:
 | Below a fifth | Red |
 | Below about a thirteenth | Red, flashing |
 
-On a 20-point scale that puts yellow under 10, red under 4, and the flash under 1.5 —
-so food turns yellow at half a bar, red under two shanks, and flashes on the last one.
+On a 20-point scale that puts yellow under 10, red under 4, and the flash under 1.5 — so
+food turns yellow at half a bar, red under two shanks, and flashes on the last one.
 
-### Trend chevrons
+Armor, absorption and experience are deliberately **not** colour-tiered. Armor is what you
+are wearing rather than a warning, and how far through a level you are is not a health
+warning either.
 
-A marker shows which way each stat is moving — a stacked chevron in the shape of a US
-Army rank insignia, always white so it never competes with the tier colours. It sits
-**above** the icon when the stat is rising and **below** it when falling, so the marker
-is on the side the value is heading.
+## Trend markers
 
-Only the space below the icons is reserved in the layout: a rising marker draws into the
-open space above, which costs nothing and keeps the icons down near the hotbar. The
-chevron is deliberately flat — three rows rather than the five or six a "proper" chevron
-wants — because every row it takes pushes the icons further up the screen.
+A marker shows which way each stat is moving — a stacked chevron in the shape of a US Army
+rank insignia, always white so it never competes with the tier colours. It sits **above**
+the icon when the stat is rising and **below** it when falling, so the marker is on the
+side the value is heading.
 
 - **One chevron** — ordinary drift
 - **Two chevrons** — a significant change, which is what makes a poison tick or a
   regeneration effect read differently from hunger ticking down on its own
-- Pointing up when rising, down when falling
-- Held for a second and a half after the movement stops, then faded out — long
-  enough that a short exchange of damage does not come and go before you see it
+- Held for a second and a half after the movement stops, then faded out — long enough
+  that a short exchange of damage does not come and go before you see it
 
-Thresholds are per stat and measured over one second. They are deliberately low for
-stats that move slowly — natural health regeneration is only about 0.25 HP per second,
-so a threshold of 1.0 would never fire and you would never see that you were healing.
-
-## Hand-drawn icons
-
-The icons are pixel art defined in the source as 9x9 character grids, drawn as
-rectangles at 2px per cell and cropped to the fill level. Nothing is loaded from a
-texture, so the mod ships no icon art of its own and cannot clash with a resource pack.
-
-Drawing them rather than blitting them is also what makes the recolouring possible: a
-bitmap would need redrawing for every tier, while a shape just gets drawn twice.
+Thresholds are per stat and measured over one second. They are deliberately low for stats
+that move slowly — natural health regeneration is only about 0.25 HP per second, so a
+threshold of 1.0 would never fire and you would never see that you were healing.
 
 ## Notes
 
-- **No Fabric API required.** The HUD is installed with Mixin against vanilla's own
-  `Gui`, so Fabric Loader is the only dependency.
-- The vanilla health, hunger, armour, air and experience elements are suppressed
-  rather than drawn over, so nothing double-draws.
-- Vanilla's own visibility rules are inherited: the HUD still hides behind an open
-  screen, in spectator mode, and when you press F1.
+- **No Fabric API required.** The HUD is installed with Mixin against vanilla's own `Gui`,
+  so Fabric Loader is the only dependency.
+- The vanilla health, hunger, armour, air and experience elements are suppressed rather
+  than drawn over, so nothing double-draws.
+- Vanilla's own visibility rules are inherited: the HUD still hides behind an open screen,
+  in spectator mode, and when you press F1.
+
+## Licence
+
+PolyForm Noncommercial 1.0.0 — source-available, not open source. Free to use, modify and
+redistribute, but not for commercial purposes.
