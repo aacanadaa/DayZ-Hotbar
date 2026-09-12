@@ -29,25 +29,39 @@ import net.minecraft.world.effect.MobEffects;
  */
 public enum EffectGroup {
     /** Beneficial effects that are not about health: speed, strength, night vision. */
-    GOOD(Icons.HEART, 1.0F),
+    GOOD(Icons.HEART, 1.0F, false),
 
     /** Effects that restore or buffer health: regeneration, absorption, saturation. */
-    RECOVERY(Icons.PILL, 0.5F),
+    RECOVERY(Icons.PILL, 0.5F, false),
 
     /** Everything harmful. One family, whether it is poison or mining fatigue. */
-    AFFLICTION(Icons.DEBUFF, 1.0F);
+    AFFLICTION(Icons.CRACK, 1.0F, true);
 
     private final String[] shape;
     private final float fill;
+    private final boolean solid;
 
-    EffectGroup(String[] shape, float fill) {
+    EffectGroup(String[] shape, float fill, boolean solid) {
         this.shape = shape;
         this.fill = fill;
+        this.solid = solid;
     }
 
     /** The mark drawn for this family. */
     public String[] shape() {
         return shape;
+    }
+
+    /**
+     * Draw the shape flat rather than as a vessel.
+     * <p>
+     * The crack is the one mark that needs it. A vessel gives its outline and its
+     * fill a cell of clear space apart, which is fine for a solid figure but turns two
+     * halves of a broken shape into two ringed halves - a waffle. Flat, the break is
+     * the only thing in the figure and reads at a glance.
+     */
+    public boolean solid() {
+        return solid;
     }
 
     /**
