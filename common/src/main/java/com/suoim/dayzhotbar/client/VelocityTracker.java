@@ -37,8 +37,14 @@ public final class VelocityTracker {
      * without staring. Two and a half seconds is long enough to glance away and back.
      */
     private static final int HOLD = 50;
+    /**
+     * Ticks before the end of the hold at which a double marker drops to a single one.
+     * The alpha fade below starts at {@link #FADE}, so the last stretch of a double
+     * marker's life runs two chevrons, then one, then one fading out, then nothing.
+     */
+    private static final int STEP_DOWN = 20;
     /** Ticks the marker spends fading out at the end of the hold. */
-    private static final int FADE = 15;
+    private static final int FADE = 10;
 
     private final float minor;
     private final float major;
@@ -48,7 +54,7 @@ public final class VelocityTracker {
     private int samples = 0;
     private float previous = Float.NaN;
 
-    private int chevrons = 0;
+    private int peak = 0;
     private boolean up = false;
     private int holdTicks = 0;
 
@@ -79,11 +85,11 @@ public final class VelocityTracker {
         float magnitude = Math.abs(delta);
 
         if (magnitude >= major) {
-            chevrons = 2;
+            peak = 2;
             up = delta > 0.0F;
             holdTicks = HOLD;
         } else if (magnitude >= minor) {
-            chevrons = 1;
+            peak = 1;
             up = delta > 0.0F;
             holdTicks = HOLD;
         }
@@ -98,9 +104,22 @@ public final class VelocityTracker {
         }
     }
 
-    /** 0, 1 or 2 chevrons. */
+    /**
+     * 0, 1 or 2 chevrons.
+     * <p>
+     * A double marker steps down to a single one before it goes, rather than just
+     * fading out at two. The count is the part that carries meaning - two means
+     * "something significant is happening" - so easing it off by degree reads as the
+     * event passing rather than as the HUD flickering.
+     */
     public int chevrons() {
-        return holdTicks > 0 ? chevrons : 0;
+        if (holdTicks <= 0) {
+            return 0;
+        }
+        if (peak == 2 && holdTicks <= STEP_DOWN) {
+            return 1;
+        }
+        return peak;
     }
 
     /** True when the trend is upward. Only meaningful when {@link #chevrons()} is non-zero. */
@@ -126,7 +145,7 @@ public final class VelocityTracker {
         previous = Float.NaN;
         head = 0;
         samples = 0;
-        chevrons = 0;
+        peak = 0;
         holdTicks = 0;
     }
 }

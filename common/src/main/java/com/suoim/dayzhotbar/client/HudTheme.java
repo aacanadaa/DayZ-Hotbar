@@ -112,7 +112,7 @@ public final class HudTheme {
     };
 
     /** Size of one chevron source cell. Matches the status icons' scale. */
-    private static final int CHEVRON_PIXEL = 2;
+    private static final int CHEVRON_PIXEL = 1;
 
     /** Height of one chevron. */
     public static final int CHEVRON_H = CHEVRON.length * CHEVRON_PIXEL;

@@ -34,9 +34,13 @@ import java.util.List;
 public final class StatusRow {
     private StatusRow() {}
 
-    /** Size of one source pixel of an icon. */
-    private static final int PIXEL = 2;
-    /** Icon edge length: a 15x15 shape at 2px per cell. */
+    /**
+     * Size of one source pixel of an icon. One, not two: the whole readout has to fit
+     * inside the hotbar's own height, markers included, and at 2px per cell an icon
+     * alone was taller than the bar.
+     */
+    private static final int PIXEL = 1;
+    /** Icon edge length: a 15x15 shape at 1px per cell. */
     public static final int ICON = Icons.GRID * PIXEL;
     /** Gap between adjacent icons. */
     private static final int GAP = 4;
@@ -49,7 +53,7 @@ public final class StatusRow {
     /** Total cell height: the icons, plus the marker space underneath them. */
     public static final int CELL_H = ICON + ARROW_H;
     /** Gap between an icon's edge and its marker. */
-    private static final int MARKER_GAP = 2;
+    private static final int MARKER_GAP = 1;
     /** Distance from the right and bottom screen edges. Shared with the hotbar. */
     private static final int MARGIN = 4;
 
