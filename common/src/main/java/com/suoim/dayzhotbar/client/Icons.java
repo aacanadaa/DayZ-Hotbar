@@ -282,64 +282,72 @@ public final class Icons {
         }
     }
 
+    // --- Marks for the player panel ---------------------------------------------
+    // Authored eleven cells square rather than on the fifteen-cell status grid: they
+    // sit beside one line of text, where a fifteen-cell figure is taller than the text
+    // it labels.
+
     /**
      * A standing figure, the stance mark for walking. One of three: the same figure
-     * with its legs together, apart, or folded under it.
+     * with its legs straight, folded under it, or stretched out mid-stride.
      */
     public static final String[] STANCE_WALK = {
-        "...............",
-        "......###......",
-        "......###......",
-        "...............",
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
-        "....##...##....",
-        "....#.....#....",
-        "....#.....#....",
-        "...............",
-        "...............",
-        "...............",
-        "...............",
-        "..............."
+        "....###....",
+        "....###....",
+        "...........",
+        "...#####...",
+        "...#####...",
+        "...#####...",
+        "..##...##..",
+        "..#.....#..",
+        "..#.....#..",
+        "..#.....#..",
+        "..........."
     };
 
-    /** The same figure with its legs drawn together and its body lower. */
+    /** The same figure crouched: body lower, legs folded out to the sides. */
     public static final String[] STANCE_CROUCH = {
-        "...............",
-        "...............",
-        "......###......",
-        "......###......",
-        "...............",
-        ".....#####.....",
-        "....#######....",
-        "....#######....",
-        "...##.....##...",
-        "...##.....##...",
-        "...............",
-        "...............",
-        "...............",
-        "...............",
-        "..............."
+        "...........",
+        "....###....",
+        "....###....",
+        "...........",
+        "...#####...",
+        "..#######..",
+        "..#######..",
+        ".##.....##.",
+        ".##.....##.",
+        "...........",
+        "..........."
     };
 
-    /** The same figure leaning forward with its legs stretched out behind. */
+    /** The same figure mid-stride: body forward, legs stretched apart. */
     public static final String[] STANCE_RUN = {
-        "...............",
-        ".....###.......",
-        ".....###.......",
-        "...............",
-        "....#####......",
-        "...######......",
-        "...#####.......",
-        "..###..##......",
-        ".##......##....",
-        "#.........#....",
-        "...............",
-        "...............",
-        "...............",
-        "...............",
-        "..............."
+        "...###.....",
+        "...###.....",
+        "...........",
+        "..#####....",
+        "..#####....",
+        "..####.....",
+        ".###..##...",
+        "##.....##..",
+        "#.......##.",
+        "...........",
+        "..........."
+    };
+
+    /** A shield, eleven cells, sized to sit level with the stance figures. */
+    public static final String[] SHIELD_MARK = {
+        "###########",
+        "###########",
+        "###########",
+        ".#########.",
+        ".#########.",
+        "..#######..",
+        "..#######..",
+        "...#####...",
+        "...#####...",
+        "....###....",
+        ".....#....."
     };
 
     /** Draws one shape's cells in a single flat colour. */
@@ -518,7 +526,9 @@ public final class Icons {
             return;
         }
 
-        graphics.enableScissor(x, regionBottom - filled, x + GRID * pixel, regionBottom);
+        // The shape's own width, not the grid constant: marks are authored at smaller
+        // sizes than the status icons and would otherwise be clipped to the wrong box.
+        graphics.enableScissor(x, regionBottom - filled, x + m.length * pixel, regionBottom);
         plot(graphics, fill, x, y, pixel, fillColor);
         graphics.disableScissor();
     }

@@ -23,21 +23,22 @@ import net.minecraft.client.gui.GuiGraphics;
  * Two panels stacked. The upper one is the held item - its condition as a coloured dot
  * and its name beside it. The lower one is a row of stance, armour, and an armour bar.
  * <p>
- * Both are drawn on the same flat panel the rest of the HUD uses. The stack sits in the
- * bottom-left corner of the screen, with its bottom edge on the hotbar's line so the
- * two read as one row across the width of the HUD.
+ * Both sit on the same wash the hotbar's slots use, not the darker section panel: the
+ * hotbar has no backing plate, so a dark card beside it reads as a different material.
+ * The stack occupies the bottom-left corner of the screen, with its bottom edge on the
+ * hotbar's line so the two read as one row across the width of the HUD.
  */
 public final class PlayerPanel {
     private PlayerPanel() {}
 
-    /** Panel width. Also the length of the armour bar plus its icons. */
+    /** Panel width. Also the length of the armour bar plus its marks. */
     private static final int WIDTH = 132;
     /** Held-item panel height: one line of text with room to breathe. */
-    private static final int ITEM_H = 18;
+    private static final int ITEM_H = 14;
     /** Space between the two panels. */
-    private static final int GAP = 3;
+    private static final int GAP = 2;
     /** Lower panel height, sized to the stance and shield marks. */
-    private static final int BAR_H = 20;
+    private static final int BAR_H = 14;
     /** Inset from a panel's edge to its contents. */
     private static final int PAD = 4;
     /**
@@ -47,9 +48,12 @@ public final class PlayerPanel {
     private static final int LEFT_MARGIN = 16;
 
     private static final int DOT_RADIUS = 2;
-    /** Marks in the lower panel are drawn at one screen pixel per cell. */
-    private static final int MARK = Icons.GRID;
-    private static final int ARMOR_BAR_H = 5;
+    /** Marks in the lower panel are eleven cells, drawn a screen pixel per cell. */
+    private static final int MARK = Icons.SHIELD_MARK.length;
+    private static final int ARMOR_BAR_H = 4;
+    /** The bar's own track, so it reads as a trough rather than a bright stripe. */
+    private static final int ARMOR_TRACK = 0x18FFFFFF;
+    private static final int ARMOR_FILL = 0xCCEDEDED;
 
     /** Armour runs to 20, the same scale as the vanilla bar. */
     private static final float MAX_ARMOR = 20.0F;
@@ -89,7 +93,7 @@ public final class PlayerPanel {
      */
     private static void drawHeldItem(GuiGraphics graphics, Minecraft minecraft, int x, int y,
                                      LocalPlayer player) {
-        HudTheme.panel(graphics, x, y, WIDTH, ITEM_H);
+        HudTheme.card(graphics, x, y, WIDTH, ITEM_H);
 
         ItemStack stack = player.getMainHandItem();
         int dotX = x + PAD + DOT_RADIUS;
@@ -106,28 +110,27 @@ public final class PlayerPanel {
     /** Stance mark, shield, then the armour bar filling whatever is left. */
     private static void drawEquipmentBar(GuiGraphics graphics, Minecraft minecraft, int x, int y,
                                          LocalPlayer player) {
-        HudTheme.panel(graphics, x, y, WIDTH, BAR_H);
+        HudTheme.card(graphics, x, y, WIDTH, BAR_H);
 
         int markY = y + (BAR_H - MARK) / 2;
 
         Icons.drawSolid(graphics, stanceShape(player), x + PAD, markY, HudTheme.TEXT_BRIGHT);
 
         int shieldX = x + PAD + MARK + PAD;
-        // Outlined rather than solid. Filled, a fifteen-cell shield is a white blob
-        // beside a one-pixel stance figure; as a vessel it matches the status icons it
-        // sits near.
-        Icons.drawVessel(graphics, Icons.SHIELD, shieldX, markY, 1, 1.0F,
+        // Outlined rather than solid. Filled, an eleven-cell shield is a white blob
+        // beside the thin stance figure; as a vessel it matches the status icons.
+        Icons.drawVessel(graphics, Icons.SHIELD_MARK, shieldX, markY, 1, 1.0F,
                 HudTheme.TEXT_BRIGHT, HudTheme.TEXT_BRIGHT);
 
         int barX = shieldX + MARK + PAD;
         int barWidth = x + WIDTH - PAD - barX;
         int barY = y + (BAR_H - ARMOR_BAR_H) / 2;
 
-        graphics.fill(barX, barY, barX + barWidth, barY + ARMOR_BAR_H, HudTheme.SLOT_INNER);
+        graphics.fill(barX, barY, barX + barWidth, barY + ARMOR_BAR_H, ARMOR_TRACK);
 
         int filled = Math.round(barWidth * Math.min(1.0F, player.getArmorValue() / MAX_ARMOR));
         if (filled > 0) {
-            graphics.fill(barX, barY, barX + filled, barY + ARMOR_BAR_H, HudTheme.TIER_NORMAL);
+            graphics.fill(barX, barY, barX + filled, barY + ARMOR_BAR_H, ARMOR_FILL);
         }
     }
 
