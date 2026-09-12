@@ -35,6 +35,12 @@ public final class StatusRow {
     private StatusRow() {}
 
     /**
+     * Height of a digit as actually drawn, shadow included. The font reports a line
+     * height two pixels taller than its glyphs, which is leading rather than ink and
+     * is the wrong thing to centre against.
+     */
+    private static final int GLYPH_HEIGHT = 8;
+    /**
      * Size of one source pixel of an icon. One, not two: the whole readout has to fit
      * inside the hotbar's own height, markers included, and at 2px per cell an icon
      * alone was taller than the bar.
@@ -117,8 +123,12 @@ public final class StatusRow {
             // experience in step with every other stat instead of being the one that
             // needed extra room for a label.
             String label = Integer.toString(sample.level());
+            // Centred on the digits' own height rather than the font's line height,
+            // which carries two pixels of leading under them, and lifted a further
+            // pixel because the drop shadow adds weight below the glyph. Both biases
+            // are downward, which is what put the number low in the first place.
             graphics.drawString(font, label, x + (ICON - font.width(label)) / 2,
-                    y + (ICON - font.lineHeight) / 2 + 1, HudTheme.TEXT_BRIGHT, true);
+                    y + (ICON - GLYPH_HEIGHT) / 2, HudTheme.TEXT_BRIGHT, true);
         }
 
         if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {
