@@ -171,18 +171,6 @@ public final class Icons {
     };
 
     /**
-     * A virus particle, the mark for a harmful effect: a round body with four spikes,
-     * each ending in a knob.
-     * <p>
-     * The knobs are the point. Plain spikes radiating from a ball read as a star or a
-     * sun - which is what the first version looked like - and it is the rounded tips
-     * that say virus rather than starburst.
-     * <p>
-     * Only four spikes, not eight. Eight leaves no room for a knob on any of them at
-     * this size, and four knobbed spikes read as a particle where eight bare ones read
-     * as a sparkle.
-     */
-    /**
      * A broken heart, the mark for a harmful effect. The heart split down the middle
      * by a crack, which pairs with the whole heart used for beneficial effects - the
      * two read as a set, and a heart with a break in it says "afflicted" without
