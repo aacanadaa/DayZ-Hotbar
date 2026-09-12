@@ -50,6 +50,14 @@ public final class StatusRow {
      */
     private static final float LEVEL_TEXT_SCALE = 0.75F;
     /**
+     * Pixels to drop the level number below the centre of its cell.
+     * <p>
+     * Centring it on the cell puts it high on the drop, because a drop's mass is in
+     * its bulb and the bulb sits below the middle of the box - the thin tail at the
+     * top pulls the geometric centre upward of where the shape actually looks.
+     */
+    private static final float LEVEL_TEXT_DROP = 3.0F;
+    /**
      * Size of one source pixel of an icon. One, not two: the whole readout has to fit
      * inside the hotbar's own height, markers included, and at 2px per cell an icon
      * alone was taller than the bar.
@@ -206,7 +214,8 @@ public final class StatusRow {
         String label = Integer.toString(level);
         float glyphHeight = GLYPH_HEIGHT * LEVEL_TEXT_SCALE;
         graphics.pose().pushPose();
-        graphics.pose().translate(x + ICON / 2.0F, y + (ICON - glyphHeight) / 2.0F, 0.0F);
+        graphics.pose().translate(x + ICON / 2.0F,
+                y + (ICON - glyphHeight) / 2.0F + LEVEL_TEXT_DROP, 0.0F);
         graphics.pose().scale(LEVEL_TEXT_SCALE, LEVEL_TEXT_SCALE, 1.0F);
         graphics.drawString(font, label, -font.width(label) / 2, 0, HudTheme.TEXT_BRIGHT, true);
         graphics.pose().popPose();
