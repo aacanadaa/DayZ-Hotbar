@@ -43,12 +43,8 @@ public final class HotbarRenderer {
     private static final int SEPARATOR = 8;
     /** Padding between the slots and the panel edge. Barely there - it is an edge, not a frame. */
     private static final int PAD = 1;
-    /**
-     * Distance from the bottom of the screen. Raised from 4 so the status readout's
-     * trend markers have somewhere to hang below the icons; the readout shares this
-     * value so the two stay on one baseline.
-     */
-    private static final int MARGIN = 10;
+    /** Distance from the bottom of the screen. The status readout shares this value. */
+    private static final int MARGIN = 4;
 
     /** Alpha of the held slot's coloured wash. The colour alone marks the held slot. */
     private static final int ACTIVE_WASH_ALPHA = 0x66;

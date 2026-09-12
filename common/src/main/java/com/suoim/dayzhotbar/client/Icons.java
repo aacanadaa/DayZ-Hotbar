@@ -21,7 +21,7 @@ import net.minecraft.client.gui.GuiGraphics;
 /**
  * The status icons, drawn as pixel art rather than borrowed from a sheet.
  * <p>
- * Each icon is an 11x11 character grid where {@code #} marks a cell of the shape.
+ * Each icon is a 15x15 character grid where {@code #} marks a cell of the shape.
  * Every shape is drawn in three derived layers rather than as a solid mass:
  * <ol>
  *   <li>an <b>outline</b> - the cells on the shape's edge, always drawn;</li>
@@ -32,29 +32,35 @@ import net.minecraft.client.gui.GuiGraphics;
  * The layers are computed from the mask by erosion, so an icon is authored as a
  * single silhouette and the outline and gap come out of it for free.
  * <p>
- * The grid is 11x11 rather than 9x9 because three layers need the room: an outline
- * and a gap take two cells off every edge, and at 9x9 that left almost no interior
- * to fill.
+ * The grid is 15x15. It was 9x9, then 11x11, and both were too coarse: an outline
+ * and a gap take two cells off every edge, so at 11x11 a shape like the shield had
+ * barely any contour left and read as a blob. The apple survived the smaller grids
+ * because a round shape with a straight stem is the one silhouette that does not
+ * need many cells to say what it is.
  */
 public final class Icons {
     private Icons() {}
 
     /** Source grid dimension. Every shape below is exactly this wide and tall. */
-    public static final int GRID = 11;
+    public static final int GRID = 15;
 
     /** A heart. Used for absorption. */
     public static final String[] HEART = {
-        "...........",
-        "..##...##..",
-        ".#########.",
-        "###########",
-        "###########",
-        "###########",
-        ".#########.",
-        "..#######..",
-        "...#####...",
-        "....###....",
-        ".....#....."
+        "...............",
+        "...##.....##...",
+        "..###########..",
+        ".#############.",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        ".#############.",
+        "..###########..",
+        "...#########...",
+        "....#######....",
+        ".....#####.....",
+        "......###......",
+        ".......#......."
     };
 
     /**
@@ -64,17 +70,21 @@ public final class Icons {
      * says "apple" rather than "any round fruit".
      */
     public static final String[] APPLE = {
-        ".....#.....",
-        ".....#.##..",
-        "..#######..",
-        ".#########.",
-        "###########",
-        "###########",
-        "###########",
-        "###########",
-        ".#########.",
-        "..#######..",
-        "...#####..."
+        "......#........",
+        "......#.##.....",
+        "...########....",
+        "..##########...",
+        ".############..",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        ".#############.",
+        "..###########..",
+        "...#########...",
+        "....#######....",
+        ".....#####....."
     };
 
     /**
@@ -84,32 +94,40 @@ public final class Icons {
      * to have. A flat top cannot be misread that way.
      */
     public static final String[] SHIELD = {
-        "###########",
-        "###########",
-        "###########",
-        "###########",
-        ".#########.",
-        ".#########.",
-        "..#######..",
-        "..#######..",
-        "...#####...",
-        "....###....",
-        ".....#....."
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        ".#############.",
+        ".#############.",
+        "..###########..",
+        "..###########..",
+        "...#########...",
+        "...#########...",
+        "....#######....",
+        ".....#####.....",
+        "......###......",
+        ".......#......."
     };
 
     /** A bubble. */
     public static final String[] BUBBLE = {
-        "...#####...",
-        ".#########.",
-        ".#########.",
-        "###########",
-        "###########",
-        "###########",
-        "###########",
-        "###########",
-        ".#########.",
-        ".#########.",
-        "...#####..."
+        ".....#####.....",
+        "...#########...",
+        "..###########..",
+        ".#############.",
+        ".#############.",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        ".#############.",
+        ".#############.",
+        "..###########..",
+        "...#########...",
+        ".....#####....."
     };
 
     /**
@@ -117,36 +135,44 @@ public final class Icons {
      * permanently red, so it still goes yellow and flashes as health drops - a cross
      * that was always red would say nothing about how much health is left.
      * <p>
-     * The arms are five cells wide so that an outline and a gap still leave three
+     * The arms are seven cells wide so that an outline and a gap still leave five
      * cells of interior to fill.
      */
     public static final String[] CROSS = {
-        "...#####...",
-        "...#####...",
-        "...#####...",
-        "...#####...",
-        "###########",
-        "###########",
-        "###########",
-        "...#####...",
-        "...#####...",
-        "...#####...",
-        "...#####..."
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######...."
     };
 
     /** A gem, used for experience. */
     public static final String[] DIAMOND = {
-        ".....#.....",
-        "....###....",
-        "...#####...",
-        "..#######..",
-        ".#########.",
-        "###########",
-        ".#########.",
-        "..#######..",
-        "...#####...",
-        "....###....",
-        ".....#....."
+        ".......#.......",
+        "......###......",
+        ".....#####.....",
+        "....#######....",
+        "...#########...",
+        "..###########..",
+        ".#############.",
+        "###############",
+        ".#############.",
+        "..###########..",
+        "...#########...",
+        "....#######....",
+        ".....#####.....",
+        "......###......",
+        ".......#......."
     };
 
     /** Draws one shape's cells in a single flat colour. */

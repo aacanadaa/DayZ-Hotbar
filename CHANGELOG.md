@@ -42,12 +42,18 @@ its current level rather than showing a number.
 | Gem | Experience, with the level number above it |
 | Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
 
-Each icon is drawn as a **vessel**: a static outline, a one-cell clear gap inside it,
-and an interior that fills from the bottom as the value rises. The outline and gap are
-computed from the silhouette by erosion, so an icon is authored as one shape and the
-two inner layers come out of it.
+Each icon is drawn as a **vessel**: an outline, a one-cell clear gap inside it, and an
+interior that fills from the bottom as the value rises. The outline and gap are computed
+from the silhouette by erosion, so an icon is authored as one shape and the two inner
+layers come out of it. The outline takes the same colour as the fill, so a yellow icon
+has a yellow outline.
 
 There is no panel behind the readout — the icons stand on their own over the world.
+
+The icons are drawn on a 15x15 grid. They were 9x9, then 11x11, and both were too coarse:
+an outline and a gap take two cells off every edge, which left the more complicated
+silhouettes with almost no contour. Armor is deliberately **not** colour-tiered — armor is
+what you are wearing rather than a warning, so it stays one colour however low it gets.
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.
@@ -68,14 +74,15 @@ so food turns yellow at half a bar, red under two shanks, and flashes on the las
 
 ### Trend chevrons
 
-Below each icon, a marker shows which way the stat is moving — a stacked chevron in the
-shape of a US Army rank insignia, always white so it never competes with the tier
-colours above it. Its arms are one pixel-cell thick; an earlier version used two and
-read as a heavy block sitting beside the icons rather than as a marker.
+A marker shows which way each stat is moving — a stacked chevron in the shape of a US
+Army rank insignia, always white so it never competes with the tier colours. It sits
+**above** the icon when the stat is rising and **below** it when falling, so the marker
+is on the side the value is heading.
 
-The whole HUD sits ten pixels off the bottom of the screen rather than four, which is
-what leaves room for the markers to hang below the icons without anything being pushed
-off the edge.
+Only the space below the icons is reserved in the layout: a rising marker draws into the
+open space above, which costs nothing and keeps the icons down near the hotbar. The
+chevron is deliberately flat — three rows rather than the five or six a "proper" chevron
+wants — because every row it takes pushes the icons further up the screen.
 
 - **One chevron** — ordinary drift
 - **Two chevrons** — a significant change, which is what makes a poison tick or a
