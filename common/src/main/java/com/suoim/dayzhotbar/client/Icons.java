@@ -21,127 +21,139 @@ import net.minecraft.client.gui.GuiGraphics;
 /**
  * The status icons, drawn as pixel art rather than borrowed from a sheet.
  * <p>
- * Each icon is a 9x9 character grid; every {@code #} becomes one square of the
- * requested pixel size. At the size the HUD uses that is a 2px square, giving an
- * 18x18 icon whose pixels match the scale of everything else in the mod.
+ * Each icon is an 11x11 character grid where {@code #} marks a cell of the shape.
+ * Every shape is drawn in three derived layers rather than as a solid mass:
+ * <ol>
+ *   <li>an <b>outline</b> - the cells on the shape's edge, always drawn;</li>
+ *   <li>a one-cell <b>gap</b>, left transparent, so the fill never touches the
+ *       outline and the two stay readable apart;</li>
+ *   <li>the <b>fill</b> - everything left over, drawn up to the current level.</li>
+ * </ol>
+ * The layers are computed from the mask by erosion, so an icon is authored as a
+ * single silhouette and the outline and gap come out of it for free.
  * <p>
- * Drawing them here rather than shipping a PNG keeps the mod assetless, but the
- * real reason is that these need to be recoloured by status tier and clipped to a
- * fill fraction. A bitmap would have to be redrawn for every colour; a shape can
- * simply be drawn twice.
+ * The grid is 11x11 rather than 9x9 because three layers need the room: an outline
+ * and a gap take two cells off every edge, and at 9x9 that left almost no interior
+ * to fill.
  */
 public final class Icons {
     private Icons() {}
 
     /** Source grid dimension. Every shape below is exactly this wide and tall. */
-    public static final int GRID = 9;
+    public static final int GRID = 11;
 
-    /**
-     * A heart. The notch between the lobes is three cells wide on purpose - at one
-     * or two it is invisible once the shape is drawn solid, and the whole thing
-     * reads as a blob.
-     */
+    /** A heart. Used for absorption. */
     public static final String[] HEART = {
-        ".........",
-        ".##...##.",
-        "#########",
-        "#########",
-        "#########",
-        ".#######.",
-        "..#####..",
-        "...###...",
-        "....#...."
+        "...........",
+        "..##...##..",
+        ".#########.",
+        "###########",
+        "###########",
+        "###########",
+        ".#########.",
+        "..#######..",
+        "...#####...",
+        "....###....",
+        ".....#....."
     };
 
     /**
      * An apple. The top has to be its widest part, with the stem sunk into a dip -
-     * tapering up to the stem instead produces a water droplet, which is exactly
-     * what the first attempt looked like. The leaf beside the stem is the other
-     * thing that says "apple" rather than "any round fruit".
+     * tapering up to the stem instead produces a water droplet, which is what the
+     * first attempt looked like. The leaf beside the stem is the other thing that
+     * says "apple" rather than "any round fruit".
      */
     public static final String[] APPLE = {
-        "....#.##.",
-        ".#######.",
-        "#########",
-        "#########",
-        "#########",
-        "#########",
-        ".#######.",
-        "..#####..",
-        "...###..."
+        ".....#.....",
+        ".....#.##..",
+        "..#######..",
+        ".#########.",
+        "###########",
+        "###########",
+        "###########",
+        "###########",
+        ".#########.",
+        "..#######..",
+        "...#####..."
     };
 
     /**
-     * A shield. This started as a chestplate, but shoulders drawn as {@code .##...##.}
-     * over a taper read as a heart - which is what it was being mistaken for, and
-     * the same silhouette the health icon used to have. A flat top narrowing to a
-     * point cannot be misread.
+     * A shield: a flat top narrowing to a point. This started as a chestplate, but
+     * shoulders drawn as {@code .##...##.} over a taper read as a heart - which is
+     * what it kept being mistaken for, and the same silhouette the health icon used
+     * to have. A flat top cannot be misread that way.
      */
     public static final String[] SHIELD = {
-        "#########",
-        "#########",
-        "#########",
-        "#########",
-        ".#######.",
-        ".#######.",
-        "..#####..",
-        "...###...",
-        "....#...."
+        "###########",
+        "###########",
+        "###########",
+        "###########",
+        ".#########.",
+        ".#########.",
+        "..#######..",
+        "..#######..",
+        "...#####...",
+        "....###....",
+        ".....#....."
     };
 
-    /** A gem, used for experience. */
-    public static final String[] DIAMOND = {
-        "....#....",
-        "...###...",
-        "..#####..",
-        ".#######.",
-        "#########",
-        ".#######.",
-        "..#####..",
-        "...###...",
-        "....#...."
+    /** A bubble. */
+    public static final String[] BUBBLE = {
+        "...#####...",
+        ".#########.",
+        ".#########.",
+        "###########",
+        "###########",
+        "###########",
+        "###########",
+        "###########",
+        ".#########.",
+        ".#########.",
+        "...#####..."
     };
 
     /**
      * A medical cross, used for health. Drawn in the tier colour rather than being
      * permanently red, so it still goes yellow and flashes as health drops - a cross
      * that was always red would say nothing about how much health is left.
+     * <p>
+     * The arms are five cells wide so that an outline and a gap still leave three
+     * cells of interior to fill.
      */
     public static final String[] CROSS = {
-        "...###...",
-        "...###...",
-        "...###...",
-        "#########",
-        "#########",
-        "#########",
-        "...###...",
-        "...###...",
-        "...###..."
+        "...#####...",
+        "...#####...",
+        "...#####...",
+        "...#####...",
+        "###########",
+        "###########",
+        "###########",
+        "...#####...",
+        "...#####...",
+        "...#####...",
+        "...#####..."
     };
 
-    /** A bubble. */
-    public static final String[] BUBBLE = {
-        "...###...",
-        ".#######.",
-        ".#######.",
-        "#########",
-        "#########",
-        "#########",
-        ".#######.",
-        ".#######.",
-        "...###..."
+    /** A gem, used for experience. */
+    public static final String[] DIAMOND = {
+        ".....#.....",
+        "....###....",
+        "...#####...",
+        "..#######..",
+        ".#########.",
+        "###########",
+        ".#########.",
+        "..#######..",
+        "...#####...",
+        "....###....",
+        ".....#....."
     };
 
-    /**
-     * Draws one shape in a single flat colour.
-     *
-     * @param pixel size of one source cell on screen
-     */
-    public static void draw(GuiGraphics graphics, String[] shape, int x, int y, int pixel, int color) {
-        for (int row = 0; row < shape.length; row++) {
-            String line = shape[row];
-            for (int col = 0; col < line.length(); col++) {
-                if (line.charAt(col) == '#') {
+    /** Draws one shape's cells in a single flat colour. */
+    private static void plot(GuiGraphics graphics, boolean[][] cells, int x, int y, int pixel, int color) {
+        for (int row = 0; row < cells.length; row++) {
+            for (int col = 0; col < cells[row].length; col++) {
+                if (cells[row][col]) {
                     int px = x + col * pixel;
                     int py = y + row * pixel;
                     graphics.fill(px, py, px + pixel, py + pixel, color);
@@ -150,39 +162,124 @@ public final class Icons {
         }
     }
 
+    private static boolean[][] mask(String[] shape) {
+        int n = shape.length;
+        boolean[][] m = new boolean[n][n];
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                m[row][col] = shape[row].charAt(col) == '#';
+            }
+        }
+        return m;
+    }
+
+    private static boolean inside(boolean[][] m, int row, int col) {
+        return row >= 0 && row < m.length && col >= 0 && col < m.length && m[row][col];
+    }
+
+    /** Cells on the edge of the shape: shape cells with a neighbour outside it. */
+    private static boolean[][] outlineOf(boolean[][] m) {
+        int n = m.length;
+        boolean[][] out = new boolean[n][n];
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (!m[row][col]) {
+                    continue;
+                }
+                out[row][col] = !inside(m, row - 1, col) || !inside(m, row + 1, col)
+                        || !inside(m, row, col - 1) || !inside(m, row, col + 1);
+            }
+        }
+        return out;
+    }
+
     /**
-     * Draws a shape filled to {@code fraction} from the bottom up: the whole shape
-     * first as a dim silhouette, then again in the fill colour with the scissor box
-     * clipped to the filled height.
+     * The interior worth filling: shape cells that are neither outline nor touching
+     * an outline cell. The untouched ring between the two is the gap.
+     */
+    private static boolean[][] fillOf(boolean[][] m, boolean[][] outline) {
+        int n = m.length;
+        boolean[][] fill = new boolean[n][n];
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (!m[row][col] || outline[row][col] || touches(outline, row, col)) {
+                    continue;
+                }
+                fill[row][col] = true;
+            }
+        }
+        return fill;
+    }
+
+    private static boolean touches(boolean[][] outline, int row, int col) {
+        return at(outline, row - 1, col) || at(outline, row + 1, col)
+                || at(outline, row, col - 1) || at(outline, row, col + 1);
+    }
+
+    private static boolean at(boolean[][] grid, int row, int col) {
+        return row >= 0 && row < grid.length && col >= 0 && col < grid.length && grid[row][col];
+    }
+
+    /**
+     * Draws a shape as a vessel: a static outline, a clear gap, and an interior that
+     * fills from the bottom up.
      * <p>
-     * 1.20.1 has no {@code blitSprite}, and there is nothing to blit here anyway -
-     * scissoring is simply how a partial fill of any drawn shape is done.
+     * The fill is measured against the interior's own vertical extent rather than the
+     * icon's, so a shape that does not reach the bottom of its grid still fills from
+     * empty to full across exactly the range it occupies.
      *
      * @param fraction 0.0 (empty) to 1.0 (full); values outside are clamped
      */
-    public static void drawFilled(GuiGraphics graphics, String[] shape, int x, int y, int pixel,
-                                  float fraction, int fillColor) {
-        draw(graphics, shape, x, y, pixel, HudTheme.ICON_EMPTY);
+    public static void drawVessel(GuiGraphics graphics, String[] shape, int x, int y, int pixel,
+                                  float fraction, int outlineColor, int fillColor) {
+        boolean[][] m = mask(shape);
+        boolean[][] outline = outlineOf(m);
+        boolean[][] fill = fillOf(m, outline);
+
+        plot(graphics, outline, x, y, pixel, outlineColor);
 
         if (fraction <= 0.0F) {
             return;
         }
 
-        int size = GRID * pixel;
-        if (fraction >= 1.0F) {
-            draw(graphics, shape, x, y, pixel, fillColor);
+        int top = -1;
+        int bottom = -1;
+        for (int row = 0; row < fill.length; row++) {
+            for (int col = 0; col < fill[row].length; col++) {
+                if (fill[row][col]) {
+                    if (top < 0) {
+                        top = row;
+                    }
+                    bottom = row;
+                    break;
+                }
+            }
+        }
+        if (top < 0) {
             return;
         }
 
-        int filled = Math.max(1, Math.round(size * fraction));
-        graphics.enableScissor(x, y + size - filled, x + size, y + size);
-        draw(graphics, shape, x, y, pixel, fillColor);
+        int regionTop = y + top * pixel;
+        int regionBottom = y + (bottom + 1) * pixel;
+        int regionHeight = regionBottom - regionTop;
+        int filled = Math.round(regionHeight * Math.min(1.0F, fraction));
+
+        if (filled <= 0) {
+            return;
+        }
+        if (filled >= regionHeight) {
+            plot(graphics, fill, x, y, pixel, fillColor);
+            return;
+        }
+
+        graphics.enableScissor(x, regionBottom - filled, x + GRID * pixel, regionBottom);
+        plot(graphics, fill, x, y, pixel, fillColor);
         graphics.disableScissor();
     }
 
     /**
-     * A translucent wash over the bottom {@code fraction} of a shape's bounding
-     * box, used to show food saturation on top of the food level.
+     * A translucent wash over the bottom {@code fraction} of the interior, used to
+     * show food saturation on top of the food level.
      */
     public static void overlayBottom(GuiGraphics graphics, int x, int y, int size, int pixel,
                                      float fraction, int color) {
@@ -190,6 +287,7 @@ public final class Icons {
             return;
         }
         int filled = Math.max(1, Math.round(size * Math.min(1.0F, fraction)));
-        graphics.fill(x + pixel, y + size - filled, x + size - pixel, y + size - pixel, color);
+        graphics.fill(x + pixel * 2, y + size - filled, x + size - pixel * 2, y + size - pixel * 2,
+                color);
     }
 }

@@ -57,10 +57,11 @@ public final class HudTheme {
     /** The dark half of the critical flash. */
     public static final int TIER_CRITICAL_DIM = 0x66FF3B30;
     /**
-     * The un-filled remainder of a status icon. Kept faint: at a brighter value the
-     * empty part of the shape looks solid and the fill level stops reading.
+     * The outline of a status icon. This is the icon's whole silhouette, so it has to
+     * carry on its own - there is no panel behind the readout any more, and it sits
+     * over whatever the player happens to be looking at.
      */
-    public static final int ICON_EMPTY = 0x2AFFFFFF;
+    public static final int ICON_OUTLINE = 0xFFEDEDED;
     /** Absorption is always its own colour - it is a bonus, not a warning. */
     public static final int TIER_ABSORPTION = 0xFFF2C94C;
 
@@ -98,20 +99,19 @@ public final class HudTheme {
 
     // --- Rank-insignia trend chevron --------------------------------------------
     /**
-     * The trend marker, drawn as a bold stacked chevron in the shape of a US Army
-     * rank insignia rather than a thin arrow. Each source cell is drawn at the same
-     * 2px scale the status icons use, so the marker is 18x10 with four-pixel arms -
-     * a thin 1px arrow disappears next to icons this size.
+     * The trend marker: a stacked chevron in the shape of a US Army rank insignia.
+     * <p>
+     * The arms are one cell thick. An earlier version used two-cell arms and read as
+     * a heavy block sitting next to the icons rather than as a marker.
      * <p>
      * Always white. Direction is carried by the orientation, not the colour, so the
      * marker never competes with the status tier colours above it.
      */
     private static final String[] CHEVRON = {
-        "....#....",
-        "...###...",
-        "..#####..",
-        ".##...##.",
-        "##.....##"
+        "...##...",
+        "..#..#..",
+        ".#....#.",
+        "#......#"
     };
 
     /** Size of one chevron source cell. Matches the status icons' scale. */

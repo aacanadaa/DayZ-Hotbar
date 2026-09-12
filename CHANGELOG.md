@@ -42,8 +42,12 @@ its current level rather than showing a number.
 | Gem | Experience, with the level number above it |
 | Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
 
-The readout shares the hotbar's bottom margin, so the two sit on the same baseline
-rather than the icons floating above it.
+Each icon is drawn as a **vessel**: a static outline, a one-cell clear gap inside it,
+and an interior that fills from the bottom as the value rises. The outline and gap are
+computed from the silhouette by erosion, so an icon is authored as one shape and the
+two inner layers come out of it.
+
+There is no panel behind the readout — the icons stand on their own over the world.
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.
@@ -64,13 +68,14 @@ so food turns yellow at half a bar, red under two shanks, and flashes on the las
 
 ### Trend chevrons
 
-Above each icon, a marker shows which way the stat is moving — drawn as a bold stacked
-chevron in the shape of a US Army rank insignia rather than a thin arrow, and always
-white so it never competes with the tier colours below it.
+Below each icon, a marker shows which way the stat is moving — a stacked chevron in the
+shape of a US Army rank insignia, always white so it never competes with the tier
+colours above it. Its arms are one pixel-cell thick; an earlier version used two and
+read as a heavy block sitting beside the icons rather than as a marker.
 
-It sits above rather than below because an 18px icon plus a 21px marker stack is 41px,
-which is taller than the hotbar's own band: with the marker underneath, the icons were
-pushed up off the bottom of the screen instead of sitting on the hotbar's baseline.
+The whole HUD sits ten pixels off the bottom of the screen rather than four, which is
+what leaves room for the markers to hang below the icons without anything being pushed
+off the edge.
 
 - **One chevron** — ordinary drift
 - **Two chevrons** — a significant change, which is what makes a poison tick or a

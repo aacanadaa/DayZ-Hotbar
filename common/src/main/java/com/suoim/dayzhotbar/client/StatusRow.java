@@ -22,15 +22,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import java.util.List;
 
 /**
- * The bottom-right status readout: a horizontal row of icons on a shared panel,
- * each filled to its current level and coloured by how much is left, each with a
- * rank-chevron trend marker.
+ * The bottom-right status readout: a horizontal row of icons, each drawn as an
+ * outlined vessel that fills from the bottom, each with a rank-chevron trend marker
+ * hanging underneath.
  * <p>
- * The marker sits <em>above</em> its icon rather than below. That is not an
- * arbitrary choice: an 18px icon plus a 21px marker stack is 41px, which is taller
- * than the hotbar's own band, so with the marker underneath the icons were forced
- * up off the bottom of the screen. Above, the icons can sit exactly on the hotbar's
- * baseline where they belong.
+ * There is deliberately no panel behind the row. An earlier version put one there to
+ * match the hotbar, but at this size it read as a dark slab behind the icons rather
+ * than as a backing, so the icons now stand on their own over the world and the
+ * outline carries them.
  * <p>
  * The row is right-aligned, so stats that come and go (armour you are not wearing,
  * air while you are on land) do not shift the ones that are always there - the row
@@ -41,21 +40,22 @@ public final class StatusRow {
 
     /** Size of one source pixel of an icon. */
     private static final int PIXEL = 2;
-    /** Icon edge length. A 9x9 shape at 2px per cell. */
+    /** Icon edge length. An 11x11 shape at 2px per cell. */
     public static final int ICON = Icons.GRID * PIXEL;
     /** Gap between adjacent icons. */
-    private static final int GAP = 6;
-    /** Space reserved above the icons for the trend marker and the level number. */
-    public static final int ARROW_H = HudTheme.CHEVRON_STACK_H + 1;
-    /** Total cell height. Note there is no headroom below - the panel bottom is the row bottom. */
-    public static final int CELL_H = ARROW_H + ICON;
-    /** Padding between the cell contents and the panel edge. Kept tight, as on the hotbar. */
-    private static final int PAD = 2;
+    private static final int GAP = 4;
     /**
-     * Distance from the right and bottom screen edges. Matches the hotbar's own
-     * margin, so the two rows share a baseline instead of merely looking close.
+     * Space below the icons for the trend marker. The marker stacks two chevrons,
+     * and both the hotbar and this row sit on {@link #MARGIN} so there is room for
+     * them without anything reaching the screen edge.
      */
-    private static final int MARGIN = 4;
+    public static final int ARROW_H = HudTheme.CHEVRON_STACK_H + 1;
+    /** Total cell height: icons on top, marker underneath. */
+    public static final int CELL_H = ICON + ARROW_H;
+    /** Gap between an icon's bottom and its marker. */
+    private static final int MARKER_GAP = 2;
+    /** Distance from the right and bottom screen edges. Shared with the hotbar. */
+    private static final int MARGIN = 10;
 
     /**
      * One rendered stat: how full it is, and what its trend marker should say.
@@ -65,7 +65,7 @@ public final class StatusRow {
      * @param chevrons   0, 1 or 2
      * @param up         trend direction; only meaningful when chevrons &gt; 0
      * @param alpha      marker opacity, so it fades rather than snapping off
-     * @param level      experience level, only used by XP
+     * @param level      experience level, drawn on the XP icon
      */
     public record Sample(Stat stat, float fraction, float saturation,
                          int chevrons, boolean up, float alpha, int level) {}
@@ -81,15 +81,9 @@ public final class StatusRow {
         int rowX = screenWidth - MARGIN - rowWidth;
         int rowY = screenHeight - MARGIN - CELL_H;
 
-        // One flat panel behind the whole readout, the way every DayZ Inventory
-        // element sits on a section panel rather than floating over the world.
-        HudTheme.panel(graphics, rowX - PAD, rowY - PAD, rowWidth + PAD * 2, CELL_H + PAD * 2);
-
-        // Icons sit on the bottom of the cell; the marker takes the space above.
-        int iconY = rowY + ARROW_H;
         int x = rowX;
         for (Sample sample : samples) {
-            drawIcon(graphics, font, x, iconY, sample, guiTicks);
+            drawIcon(graphics, font, x, rowY, sample, guiTicks);
             x += ICON + GAP;
         }
     }
@@ -97,8 +91,8 @@ public final class StatusRow {
     private static void drawIcon(GuiGraphics graphics, Font font, int x, int y,
                                  Sample sample, int guiTicks) {
         Stat stat = sample.stat();
-        Icons.drawFilled(graphics, stat.shape(), x, y, PIXEL, sample.fraction(),
-                stat.colorFor(sample.fraction(), guiTicks));
+        Icons.drawVessel(graphics, stat.shape(), x, y, PIXEL, sample.fraction(),
+                HudTheme.ICON_OUTLINE, stat.colorFor(sample.fraction(), guiTicks));
 
         // Saturation rides on top of the food level as a brighter wash, the way
         // DayZ distinguishes a full stomach from a full reserve.
@@ -107,17 +101,16 @@ public final class StatusRow {
         }
 
         if (stat == Stat.XP) {
-            // The level number takes the marker's place rather than sharing it. It
-            // says more about experience than a chevron would, and experience only
-            // ever moves one way.
+            // The level number sits on the icon rather than beside it, which keeps
+            // experience in step with every other stat instead of being the one that
+            // needed extra room for a label.
             String label = Integer.toString(sample.level());
             graphics.drawString(font, label, x + (ICON - font.width(label)) / 2,
-                    y - ARROW_H + 2, HudTheme.TEXT_BRIGHT, true);
-            return;
+                    y + (ICON - font.lineHeight) / 2 + 1, HudTheme.TEXT_BRIGHT, true);
         }
 
         if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {
-            HudTheme.chevrons(graphics, x + ICON / 2, y - HudTheme.CHEVRON_STACK_H - 1,
+            HudTheme.chevrons(graphics, x + ICON / 2, y + ICON + MARKER_GAP,
                     sample.chevrons(), sample.up(), sample.alpha());
         }
     }
