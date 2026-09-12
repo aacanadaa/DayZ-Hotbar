@@ -66,7 +66,7 @@ public enum Stat {
      * throughout. Sits immediately before health so health stays at the end of the
      * row, where it is looked for.
      */
-    ABSORPTION(Icons.CROSS, Group.VITALS, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
+    ABSORPTION(Icons.HEART, Group.VITALS, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
 
     /**
      * Health, or the mount's health while riding. Deliberately last so it sits at the
@@ -78,7 +78,7 @@ public enum Stat {
      * scale the bands land at yellow on 12 or less, red on 6 or less, and the flash
      * under 3.
      */
-    HEALTH(Icons.CROSS, Group.VITALS, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.05F, 3.0F);
+    HEALTH(Icons.HEART, Group.VITALS, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.05F, 3.0F);
 
     /** Ticks each half of the critical flash lasts - 4 is a fifth of a second. */
     private static final int FLASH_TICKS = 4;
