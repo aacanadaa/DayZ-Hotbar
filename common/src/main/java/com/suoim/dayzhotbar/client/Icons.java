@@ -204,27 +204,31 @@ public final class Icons {
      * A capsule, the mark for a restorative effect. Filled to half, which is what makes
      * it read as a pill rather than as a lozenge.
      * <p>
-     * It lies level. A diagonal capsule was tried at two widths and read as a needle
-     * both times: the outline takes a cell off each side, and on the diagonal the
-     * remaining interior is a thin strip. The sloping ends are what do it - a capsule
-     * needs blunt ends, and a blunt end on a slope is a step. Only a level one keeps
-     * enough body to read as a capsule.
+     * Upright, and that is the only orientation that works here. A capsule on the
+     * diagonal was tried at three widths and read as a needle every time: a tilted
+     * capsule needs its rows to span its width times the root of two, so one fat enough
+     * to read needs rows wider than the run left to taper over, and the ends come out
+     * as points. Upright it has room to be both blunt-ended and wide.
+     * <p>
+     * It also puts the half on the right axis. The fill is the lower half of whatever
+     * the shape occupies, so upright a pill reads as half used; laid on its side the
+     * same fill cut across the capsule, which is not how a pill is ever drawn.
      */
     public static final String[] PILL = {
         "...............",
-        "...............",
-        "...............",
-        ".....######....",
-        "...##########..",
-        "..############.",
-        ".#############.",
-        ".#############.",
-        ".#############.",
-        "..############.",
-        "...##########..",
-        ".....######....",
-        "...............",
-        "...............",
+        ".....#####.....",
+        "....#######....",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "...#########...",
+        "....#######....",
+        ".....#####.....",
         "..............."
     };
 
