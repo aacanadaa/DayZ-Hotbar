@@ -95,11 +95,9 @@ public final class StatusRow {
      * level, no marker and no level number, and a stat has an alpha of 1.
      *
      * @param shape       silhouette to draw
-     * @param fillShape   for a mark, the part drawn solid while the rest stays hollow;
-     *                    null for a stat, and for a mark that is solid throughout
-     * @param fraction    0..1 fill; ignored when {@link #mark()}
+     * @param fraction    0..1 fill; an effect mark is full except for the pill
      * @param saturation  0..1 secondary fill, food only
-     * @param mark        this is an effect mark rather than a stat vessel
+     * @param mark        this is an effect mark rather than a stat
      * @param chevrons    0, 1 or 2
      * @param up          trend direction; only meaningful when chevrons &gt; 0
      * @param markerAlpha marker opacity, so it fades rather than snapping off
@@ -108,8 +106,8 @@ public final class StatusRow {
      * @param group       which section this cell belongs to
      * @param alpha       opacity of the whole cell, used to fade an effect out
      */
-    public record Cell(String[] shape, String[] fillShape, int color, float fraction,
-                       float saturation, boolean mark, int chevrons, boolean up, float markerAlpha,
+    public record Cell(String[] shape, int color, float fraction, float saturation,
+                       boolean mark, int chevrons, boolean up, float markerAlpha,
                        int level, boolean plusBadge, Group group, float alpha) {}
 
     public static void render(GuiGraphics graphics, Font font, int screenWidth, int screenHeight,
@@ -155,20 +153,14 @@ public final class StatusRow {
                                  Cell cell, int guiTicks) {
         int color = withAlpha(cell.color(), cell.alpha());
 
+        // Marks are drawn with the same vessel treatment as the stats - outline, gap,
+        // fill - so the whole row reads as one set. What makes a mark a mark is that it
+        // has no fill level of its own, no marker, no badge and no colour banding.
+        Icons.drawVessel(graphics, cell.shape(), x, y, PIXEL, cell.fraction(), color, color);
+
         if (cell.mark()) {
-            // An effect mark: flat, one colour, no fill level and no marker. The pill
-            // is the exception - it is hollow with one half filled, which is what makes
-            // it read as a capsule rather than as a blob.
-            if (cell.fillShape() == null) {
-                Icons.drawSolid(graphics, cell.shape(), x, y, color);
-            } else {
-                Icons.drawOutline(graphics, cell.shape(), x, y, color);
-                Icons.drawSolid(graphics, cell.fillShape(), x, y, color);
-            }
             return;
         }
-
-        Icons.drawVessel(graphics, cell.shape(), x, y, PIXEL, cell.fraction(), color, color);
 
         // Saturation rides on top of the food level as a brighter wash, the way DayZ
         // distinguishes a full stomach from a full reserve.
