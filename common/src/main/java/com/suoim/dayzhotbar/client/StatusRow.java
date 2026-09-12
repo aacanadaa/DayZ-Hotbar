@@ -22,8 +22,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import java.util.List;
 
 /**
- * The bottom-right status readout: a horizontal row of icons, each filled to its
- * current level, each with a trend arrow underneath.
+ * The bottom-right status readout: a horizontal row of icons on a shared panel,
+ * each filled to its current level and coloured by how much is left, each with a
+ * rank-chevron trend marker underneath.
  * <p>
  * The row is right-aligned, so stats that come and go (armour you are not
  * wearing, air while you are on land) do not shift the ones that are always
@@ -32,78 +33,90 @@ import java.util.List;
 public final class StatusRow {
     private StatusRow() {}
 
-    /** Icon edge length. Twice the 9px source tile, which keeps the pixels crisp. */
-    public static final int ICON = 18;
+    /** Size of one source pixel of an icon. */
+    private static final int PIXEL = 2;
+    /** Icon edge length. A 9x9 shape at 2px per cell. */
+    public static final int ICON = Icons.GRID * PIXEL;
     /** Gap between adjacent icons. */
-    public static final int GAP = 6;
-    /** Vertical space reserved below the icons for the trend arrows. */
-    public static final int ARROW_H = 10;
+    private static final int GAP = 6;
+    /** Vertical space reserved below the icons for the trend marker. */
+    public static final int ARROW_H = HudTheme.CHEVRON_STACK_H + 1;
     /** Vertical space reserved above the icons, used by the XP level number. */
     public static final int HEADROOM = 9;
     /** Total cell height. */
     public static final int CELL_H = HEADROOM + ICON + ARROW_H;
+    /** Padding between the cell contents and the panel edge. */
+    private static final int PAD = 4;
     /** Distance from the right and bottom screen edges. */
-    public static final int MARGIN = 6;
+    private static final int MARGIN = 6;
 
     /** Vanilla's experience-bar green. */
     private static final int XP_GREEN = 0xFF80FF20;
 
     /**
-     * One rendered stat: how full it is, and what its trend arrow should say.
+     * One rendered stat: how full it is, and what its trend marker should say.
      *
-     * @param fraction  0..1 fill amount
+     * @param fraction   0..1 fill amount
      * @param saturation 0..1 secondary fill, only used by food
      * @param chevrons   0, 1 or 2
      * @param up         trend direction; only meaningful when chevrons &gt; 0
-     * @param alpha      arrow opacity, so it fades rather than snapping off
+     * @param alpha      marker opacity, so it fades rather than snapping off
      * @param level      experience level, only used by XP
      */
     public record Sample(Stat stat, float fraction, float saturation,
                          int chevrons, boolean up, float alpha, int level) {}
 
     public static void render(GuiGraphics graphics, Font font, int screenWidth, int screenHeight,
-                              List<Sample> samples) {
+                              List<Sample> samples, int guiTicks) {
         if (samples.isEmpty()) {
             return;
         }
 
         int count = samples.size();
         int rowWidth = count * ICON + (count - 1) * GAP;
-        int x = screenWidth - MARGIN - rowWidth;
-        int iconY = screenHeight - MARGIN - CELL_H + HEADROOM;
+        int rowX = screenWidth - MARGIN - rowWidth;
+        int rowY = screenHeight - MARGIN - CELL_H;
 
+        // One flat panel behind the whole readout, the way every DayZ Inventory
+        // element sits on a section panel rather than floating over the world.
+        HudTheme.panel(graphics, rowX - PAD, rowY - PAD, rowWidth + PAD * 2, CELL_H + PAD * 2);
+
+        int iconY = rowY + HEADROOM;
+        int x = rowX;
         for (Sample sample : samples) {
-            drawIcon(graphics, font, x, iconY, sample);
+            drawIcon(graphics, font, x, iconY, sample, guiTicks);
             x += ICON + GAP;
         }
     }
 
-    private static void drawIcon(GuiGraphics graphics, Font font, int x, int y, Sample sample) {
+    private static void drawIcon(GuiGraphics graphics, Font font, int x, int y,
+                                 Sample sample, int guiTicks) {
         Stat stat = sample.stat();
 
-        if (stat.usesSprite()) {
-            IconSprites.fill(graphics, x, y, ICON,
-                    stat.uEmpty(), stat.vEmpty(), stat.uFull(), stat.vFull(), sample.fraction());
-        } else {
+        if (stat.shape() == null) {
             drawExperience(graphics, font, x, y, sample);
-        }
+        } else {
+            int color = stat.tiered()
+                    ? Stat.tierColor(sample.fraction(), guiTicks)
+                    : HudTheme.TIER_ABSORPTION;
+            Icons.drawFilled(graphics, stat.shape(), x, y, PIXEL, sample.fraction(), color);
 
-        // Saturation rides on top of the food level as a brighter wash, the way
-        // DayZ distinguishes a full stomach from a full reserve.
-        if (stat == Stat.FOOD && sample.saturation() > 0.0F) {
-            IconSprites.overlay(graphics, x, y, ICON, sample.saturation(), 0x55FFFFFF);
+            // Saturation rides on top of the food level as a brighter wash, the way
+            // DayZ distinguishes a full stomach from a full reserve.
+            if (stat == Stat.FOOD && sample.saturation() > 0.0F) {
+                Icons.overlayBottom(graphics, x, y, ICON, PIXEL, sample.saturation(), 0x55FFFFFF);
+            }
         }
 
         if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {
-            int color = withAlpha(sample.up() ? HudTheme.STATE_ACTIVE : HudTheme.ACCENT_RED, sample.alpha());
             HudTheme.chevrons(graphics, x + ICON / 2, y + ICON + 2,
-                    sample.chevrons(), sample.up(), color);
+                    sample.chevrons(), sample.up(), sample.alpha());
         }
     }
 
     /**
-     * Experience has no sprite on the sheet, so it is drawn as a narrow bar with
-     * the level number sitting in the headroom above it.
+     * Experience has no shape, so it is drawn as a narrow bar with the level
+     * number sitting in the headroom above it.
      */
     private static void drawExperience(GuiGraphics graphics, Font font, int x, int y, Sample sample) {
         String label = Integer.toString(sample.level());
@@ -119,10 +132,5 @@ public final class StatusRow {
             int filled = Math.max(1, Math.round((ICON - 2) * Math.min(1.0F, sample.fraction())));
             graphics.fill(barX + 1, y + ICON - 1 - filled, barX + barWidth - 1, y + ICON - 1, XP_GREEN);
         }
-    }
-
-    private static int withAlpha(int argb, float alpha) {
-        int a = Math.round(255.0F * Math.max(0.0F, Math.min(1.0F, alpha)));
-        return (a << 24) | (argb & 0x00FFFFFF);
     }
 }

@@ -95,6 +95,24 @@ and both `processResources` and `jar` in `fabric/build.gradle` exclude a stale
 
 ## Design Notes
 
+- **Icons are hand-drawn pixel art, not a texture.** Each one is a 9x9 character grid
+  in `Icons` where `#` is a cell; it is drawn as 2px rectangles and clipped to the fill
+  fraction. If you add one, keep every row exactly 9 characters — the renderer does not
+  pad, a short row just draws fewer cells.
+  - Shapes are drawn **solid**, which means fine detail is lost: a one-cell notch
+    disappears and the icon reads as a blob. The heart's lobe notch is three cells
+    wide for exactly this reason, and the apple narrows to its stem so it does not
+    read as an egg.
+  - There is no outline pass. `ICON_EMPTY` (the un-filled remainder) has to stay faint
+    or the empty part of a shape looks solid and the fill level stops reading.
+- **Colour bands live in `Stat.tierColor`.** They are fractions, not absolute values,
+  so they apply to health, food, armour and air alike. Absorption opts out via
+  `Stat.tiered()` because having less of it is not a warning.
+- **The trend chevron is a rank insignia, not an arrow** — 9x5 cells at 2px, which is
+  18x10 with four-pixel arms. A 1px arrow is invisible next to 18px icons. It is always
+  white; direction is the orientation, not the colour.
+
+
 - **All rendering is procedural.** Every panel, slot, outline and chevron is drawn with
   `GuiGraphics.fill`; the only texture used is vanilla's own `textures/gui/icons.png`
   for the status icons. No new assets ship with the mod beyond the icon.
