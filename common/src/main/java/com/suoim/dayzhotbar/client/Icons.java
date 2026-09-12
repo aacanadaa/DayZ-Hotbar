@@ -164,6 +164,47 @@ public final class Icons {
         "....#######...."
     };
 
+    /** A four-point star, the mark for a beneficial effect. */
+    public static final String[] STAR = {
+        ".......#.......",
+        "......###......",
+        "......###......",
+        "......###......",
+        ".....#####.....",
+        "...#########...",
+        ".#############.",
+        "###############",
+        ".#############.",
+        "...#########...",
+        ".....#####.....",
+        "......###......",
+        "......###......",
+        "......###......",
+        ".......#......."
+    };
+
+    /**
+     * A skull, the mark for a harmful effect. The eye sockets are gaps in the mask,
+     * so they come out as holes rather than needing a second colour.
+     */
+    public static final String[] SKULL = {
+        "....#######....",
+        "..###########..",
+        ".#############.",
+        "###############",
+        "###############",
+        "###..#####..###",
+        "###..#####..###",
+        "###############",
+        "###############",
+        ".#############.",
+        "..###########..",
+        "..###.###.###..",
+        "..###.###.###..",
+        "...#########...",
+        "....#######...."
+    };
+
     /** A gem, used for experience. */
     public static final String[] DIAMOND = {
         ".......#.......",
@@ -200,10 +241,11 @@ public final class Icons {
     public static final int PLUS_SIZE = PLUS.length;
 
     /**
-     * Draws a small shape at one screen pixel per cell. For marks that sit on top of
-     * an icon rather than being one - {@link #PLUS} is the only user.
+     * Draws a shape filled solid, one screen pixel per cell, with no outline or
+     * interior of its own. Used for the effect marks and for the plus badge on the
+     * absorption cross.
      */
-    public static void drawSmall(GuiGraphics graphics, String[] shape, int x, int y, int color) {
+    public static void drawSolid(GuiGraphics graphics, String[] shape, int x, int y, int color) {
         for (int row = 0; row < shape.length; row++) {
             for (int col = 0; col < shape[row].length(); col++) {
                 if (shape[row].charAt(col) == '#') {

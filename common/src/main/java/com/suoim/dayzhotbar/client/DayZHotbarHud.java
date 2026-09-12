@@ -15,23 +15,24 @@ package com.suoim.dayzhotbar.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodData;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 
 /**
- * Holds the per-stat trend history and turns the player's current state into the
- * two things the HUD draws.
+ * Holds the per-stat trend history and turns the player's current state into the cells
+ * the readout draws.
  * <p>
- * Sampling happens once per client tick, not once per frame, because velocities
- * and the hotbar swap animation are both measured in ticks. The tick is detected
- * from the GUI's own tick counter, so no extra game event is needed and a paused
- * or hidden HUD cannot leave a gap in the history that would read as a sudden
- * change.
+ * Sampling happens once per client tick, not once per frame, because velocities and
+ * the hotbar swap animation are both measured in ticks. The tick is detected from the
+ * GUI's own tick counter, so no extra game event is needed and a paused or hidden HUD
+ * cannot leave a gap in the history that would read as a sudden change.
  */
 public final class DayZHotbarHud {
     public static final DayZHotbarHud INSTANCE = new DayZHotbarHud();
@@ -40,8 +41,12 @@ public final class DayZHotbarHud {
     private static final float MAX_FOOD = 20.0F;
     /** Ticks the held slot spends resolving from yellow to green after a swap. */
     private static final int SWAP_TICKS = 6;
+    /** Ticks an effect mark takes to fade out once the effect is gone. */
+    private static final int EFFECT_FADE_TICKS = 20;
 
     private final EnumMap<Stat, VelocityTracker> trackers = new EnumMap<>(Stat.class);
+    /** Ticks of fade left per effect family. Full means the family is active. */
+    private final EnumMap<EffectGroup, Integer> effectFade = new EnumMap<>(EffectGroup.class);
 
     private int lastGuiTicks = Integer.MIN_VALUE;
     private int lastSelected = Integer.MIN_VALUE;
@@ -50,6 +55,9 @@ public final class DayZHotbarHud {
     private DayZHotbarHud() {
         for (Stat stat : Stat.values()) {
             trackers.put(stat, new VelocityTracker(stat.minor(), stat.major()));
+        }
+        for (EffectGroup group : EffectGroup.values()) {
+            effectFade.put(group, 0);
         }
     }
 
@@ -62,9 +70,9 @@ public final class DayZHotbarHud {
             return;
         }
 
-        // More than a tick or two missing means the HUD was not rendering - a
-        // screen was open, or the game was paused. Comparing across that gap would
-        // report a large phantom velocity, so start the history over instead.
+        // More than a tick or two missing means the HUD was not rendering - a screen
+        // was open, or the game was paused. Comparing across that gap would report a
+        // large phantom velocity, so start the history over instead.
         boolean gap = lastGuiTicks != Integer.MIN_VALUE && guiTicks - lastGuiTicks > 2;
         lastGuiTicks = guiTicks;
 
@@ -99,7 +107,27 @@ public final class DayZHotbarHud {
         // (+10), which is what makes the level-up read as a two-chevron event.
         trackers.get(Stat.XP).push(player.experienceLevel * 100.0F + player.experienceProgress * 100.0F);
 
+        updateEffectFades(player);
         updateSwap(player);
+    }
+
+    /**
+     * Collapses the player's active effects to one mark per family, and ages out the
+     * families that are no longer active so their marks fade rather than vanish.
+     */
+    private void updateEffectFades(LocalPlayer player) {
+        boolean[] active = new boolean[EffectGroup.values().length];
+        for (MobEffectInstance instance : player.getActiveEffects()) {
+            active[EffectGroup.of(instance.getEffect()).ordinal()] = true;
+        }
+
+        for (EffectGroup group : EffectGroup.values()) {
+            if (active[group.ordinal()]) {
+                effectFade.put(group, EFFECT_FADE_TICKS);
+            } else {
+                effectFade.put(group, Math.max(0, effectFade.getOrDefault(group, 0) - 1));
+            }
+        }
     }
 
     /**
@@ -159,59 +187,81 @@ public final class DayZHotbarHud {
         }
 
         StatusRow.render(graphics, minecraft.font, graphics.guiWidth(), graphics.guiHeight(),
-                buildSamples(player), lastGuiTicks);
+                buildCells(player), lastGuiTicks);
         return true;
     }
 
-    private List<StatusRow.Sample> buildSamples(LocalPlayer player) {
-        List<StatusRow.Sample> samples = new ArrayList<>(Stat.values().length);
+    /**
+     * Builds the readout's cells in draw order: effects on the left, then stats grouped
+     * as they appear in {@link Group}. Effects come first because their section is the
+     * leftmost, and a section with nothing in it simply contributes no cells - which is
+     * what makes its divider appear and disappear with it.
+     */
+    private List<StatusRow.Cell> buildCells(LocalPlayer player) {
+        List<StatusRow.Cell> cells = new ArrayList<>();
 
-        // While riding something with health, vanilla shows the mount's health
-        // instead of yours. Matching that keeps the two readings consistent.
+        for (EffectGroup group : EffectGroup.values()) {
+            int remaining = effectFade.getOrDefault(group, 0);
+            if (remaining <= 0) {
+                continue;
+            }
+            cells.add(new StatusRow.Cell(group.shape(), HudTheme.TEXT_BRIGHT,
+                    0.0F, 0.0F, true, 0, false, 0.0F,
+                    StatusRow.NO_LEVEL, false, Group.EFFECTS,
+                    remaining / (float) EFFECT_FADE_TICKS));
+        }
+
+        // While riding something with health, vanilla shows the mount's health instead
+        // of yours. Matching that keeps the two readings consistent.
         float maxHealth = maxHealth(player);
         if (maxHealth <= 0.0F) {
             maxHealth = 20.0F;
         }
-        float health = health(player);
 
         FoodData food = player.getFoodData();
         float foodFraction = clamp(food.getFoodLevel() / MAX_FOOD);
         // Saturation can never exceed the food level, so cap it to keep the overlay
         // from ever sitting higher than the fill it rides on.
         float saturationFraction = Math.min(foodFraction, clamp(food.getSaturationLevel() / MAX_FOOD));
-
         int air = player.getAirSupply();
         int maxAir = Math.max(1, player.getMaxAirSupply());
-        float absorption = player.getAbsorptionAmount();
 
-        for (Stat stat : Stat.values()) {
-            switch (stat) {
-                case HEALTH -> samples.add(sample(stat, clamp(health / maxHealth), 0.0F, 0));
-                case FOOD -> samples.add(sample(stat, foodFraction, saturationFraction, 0));
-                // Armor has no case: it was removed from the row on request.
-                case AIR -> {
-                    // Only while submerged, exactly like vanilla's bubbles.
-                    if (air < maxAir) {
-                        samples.add(sample(stat, clamp(air / (float) maxAir), 0.0F, 0));
-                    }
-                }
+        // Declaration order decides the order within a section, so this only has to
+        // put the sections themselves in order.
+        List<Stat> stats = new ArrayList<>(List.of(Stat.values()));
+        stats.sort(Comparator.comparingInt(stat -> stat.group().ordinal()));
+
+        for (Stat stat : stats) {
+            StatusRow.Cell cell = switch (stat) {
+                case HEALTH -> statCell(stat, clamp(health(player) / maxHealth), 0.0F, StatusRow.NO_LEVEL);
+                case FOOD -> statCell(stat, foodFraction, saturationFraction, StatusRow.NO_LEVEL);
+                // Only while submerged, exactly like vanilla's bubbles.
+                case AIR -> air < maxAir
+                        ? statCell(stat, clamp(air / (float) maxAir), 0.0F, StatusRow.NO_LEVEL)
+                        : null;
                 case ABSORPTION -> {
-                    if (absorption > 0.0F) {
-                        samples.add(sample(stat, clamp(absorption / maxHealth), 0.0F, 0));
-                    }
+                    float absorption = player.getAbsorptionAmount();
+                    yield absorption > 0.0F
+                            ? statCell(stat, clamp(absorption / maxHealth), 0.0F, StatusRow.NO_LEVEL)
+                            : null;
                 }
-                case XP -> samples.add(sample(stat, clamp(player.experienceProgress), 0.0F,
-                        player.experienceLevel));
+                case XP -> statCell(stat, clamp(player.experienceProgress), 0.0F,
+                        player.experienceLevel);
+            };
+            if (cell != null) {
+                cells.add(cell);
             }
         }
 
-        return samples;
+        return cells;
     }
 
-    private StatusRow.Sample sample(Stat stat, float fraction, float saturation, int level) {
+    private StatusRow.Cell statCell(Stat stat, float fraction, float saturation, int level) {
         VelocityTracker tracker = trackers.get(stat);
-        return new StatusRow.Sample(stat, fraction, saturation,
-                tracker.chevrons(), tracker.up(), tracker.alpha(), level);
+        return new StatusRow.Cell(stat.shape(), stat.colorFor(fraction, lastGuiTicks),
+                fraction, saturation, false,
+                tracker.chevrons(), tracker.up(), tracker.alpha(),
+                level, stat == Stat.ABSORPTION, stat.group(), 1.0F);
     }
 
     /** The player's own health, or their mount's while riding something alive. */

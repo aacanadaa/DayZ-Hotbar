@@ -18,18 +18,22 @@ import net.minecraft.client.gui.GuiGraphics;
 import java.util.List;
 
 /**
- * The bottom-right status readout: a horizontal row of icons, each drawn as an
- * outlined vessel that fills from the bottom, each with a flat rank-chevron trend
- * marker on the side it is heading towards.
+ * The bottom-right status readout: a horizontal row of icons divided into sections,
+ * each stat drawn as an outlined vessel that fills from the bottom, each effect as a
+ * flat white mark.
+ * <p>
+ * Sections are separated by an upright line, and only where both sides have something
+ * in them - a section that is not laid out cannot have a line beside it, so the
+ * effects divider appears and disappears with the effects themselves.
  * <p>
  * There is deliberately no panel behind the row. An earlier version put one there to
  * match the hotbar, but at this size it read as a dark slab behind the icons rather
  * than as a backing, so the icons now stand on their own over the world and the
  * outline carries them.
  * <p>
- * The row is right-aligned, so stats that come and go (armour you are not wearing,
- * air while you are on land) do not shift the ones that are always there - the row
- * simply grows and shrinks from the left.
+ * The row is right-aligned, so stats that come and go (air while you are on land) do
+ * not shift the ones that are always there - the row simply grows and shrinks from the
+ * left.
  */
 public final class StatusRow {
     private StatusRow() {}
@@ -53,8 +57,10 @@ public final class StatusRow {
     private static final int PIXEL = 1;
     /** Icon edge length: a 15x15 shape at 1px per cell. */
     public static final int ICON = Icons.GRID * PIXEL;
-    /** Gap between adjacent icons. */
+    /** Gap between adjacent icons in the same section. */
     private static final int GAP = 4;
+    /** Gap between sections. Wider, so the divider has room to sit in it. */
+    private static final int GROUP_GAP = 11;
     /**
      * Space reserved below the icons for a falling marker. A rising marker draws
      * above the icon instead, into space that is free anyway, so only this side has
@@ -77,86 +83,130 @@ public final class StatusRow {
      */
     private static final int RIGHT_MARGIN = 16;
 
+    /** Passed as {@link Cell#level()} for everything that is not experience. */
+    public static final int NO_LEVEL = -1;
+
     /**
-     * One rendered stat: how full it is, and what its trend marker should say.
+     * One icon in the readout.
+     * <p>
+     * Two kinds share this: a stat, drawn as a vessel with a fill level and possibly a
+     * trend marker, and an effect mark, drawn solid. {@link #solid()} says which, and
+     * the fields that do not apply to that kind are ignored - an effect has no fill
+     * level, no marker and no level number, and a stat has an alpha of 1.
      *
-     * @param fraction   0..1 fill amount
-     * @param saturation 0..1 secondary fill, only used by food
-     * @param chevrons   0, 1 or 2
-     * @param up         trend direction; only meaningful when chevrons &gt; 0
-     * @param alpha      marker opacity, so it fades rather than snapping off
-     * @param level      experience level, drawn on the XP icon
+     * @param fraction    0..1 fill; ignored when {@link #solid()}
+     * @param saturation  0..1 secondary fill, food only
+     * @param solid       draw filled rather than as a vessel
+     * @param chevrons    0, 1 or 2
+     * @param up          trend direction; only meaningful when chevrons &gt; 0
+     * @param markerAlpha marker opacity, so it fades rather than snapping off
+     * @param level       experience level, or {@link #NO_LEVEL}
+     * @param plusBadge   draw the plus in the top right, absorption only
+     * @param group       which section this cell belongs to
+     * @param alpha       opacity of the whole cell, used to fade an effect out
      */
-    public record Sample(Stat stat, float fraction, float saturation,
-                         int chevrons, boolean up, float alpha, int level) {}
+    public record Cell(String[] shape, int color, float fraction, float saturation,
+                       boolean solid, int chevrons, boolean up, float markerAlpha,
+                       int level, boolean plusBadge, Group group, float alpha) {}
 
     public static void render(GuiGraphics graphics, Font font, int screenWidth, int screenHeight,
-                              List<Sample> samples, int guiTicks) {
-        if (samples.isEmpty()) {
+                              List<Cell> cells, int guiTicks) {
+        if (cells.isEmpty()) {
             return;
         }
 
-        int count = samples.size();
-        int rowWidth = count * ICON + (count - 1) * GAP;
-        int rowX = screenWidth - RIGHT_MARGIN - rowWidth;
-        int rowY = screenHeight - BOTTOM_MARGIN - CELL_H;
+        int width = 0;
+        Group previous = null;
+        for (Cell cell : cells) {
+            if (previous != null) {
+                width += cell.group() == previous ? GAP : GROUP_GAP;
+            }
+            width += ICON;
+            previous = cell.group();
+        }
 
-        int x = rowX;
-        for (Sample sample : samples) {
-            drawIcon(graphics, font, x, rowY, sample, guiTicks);
-            x += ICON + GAP;
+        int x = screenWidth - RIGHT_MARGIN - width;
+        int y = screenHeight - BOTTOM_MARGIN - CELL_H;
+
+        previous = null;
+        for (Cell cell : cells) {
+            if (previous != null) {
+                if (cell.group() == previous) {
+                    x += GAP;
+                } else {
+                    // Divider centred in the wider gap. It is only ever reached when
+                    // both sides have cells, which is exactly when it is wanted.
+                    int dividerX = x + GROUP_GAP / 2;
+                    graphics.fill(dividerX, y, dividerX + 1, y + ICON, HudTheme.DIVIDER);
+                    x += GROUP_GAP;
+                }
+            }
+
+            drawCell(graphics, font, x, y, cell, guiTicks);
+            x += ICON;
+            previous = cell.group();
         }
     }
 
-    private static void drawIcon(GuiGraphics graphics, Font font, int x, int y,
-                                 Sample sample, int guiTicks) {
-        Stat stat = sample.stat();
+    private static void drawCell(GuiGraphics graphics, Font font, int x, int y,
+                                 Cell cell, int guiTicks) {
+        int color = withAlpha(cell.color(), cell.alpha());
 
-        // Outline and fill take the same colour, so a yellow icon has a yellow
-        // outline. The gap between them is what keeps the two readable apart.
-        int color = stat.colorFor(sample.fraction(), guiTicks);
-        Icons.drawVessel(graphics, stat.shape(), x, y, PIXEL, sample.fraction(), color, color);
+        if (cell.solid()) {
+            // An effect mark: flat, one colour, no interior and no marker.
+            Icons.drawSolid(graphics, cell.shape(), x, y, color);
+            return;
+        }
 
-        // Saturation rides on top of the food level as a brighter wash, the way
-        // DayZ distinguishes a full stomach from a full reserve.
-        if (stat == Stat.FOOD && sample.saturation() > 0.0F) {
-            Icons.overlayBottom(graphics, x, y, ICON, PIXEL, sample.saturation(), 0x55FFFFFF);
+        Icons.drawVessel(graphics, cell.shape(), x, y, PIXEL, cell.fraction(), color, color);
+
+        // Saturation rides on top of the food level as a brighter wash, the way DayZ
+        // distinguishes a full stomach from a full reserve.
+        if (cell.saturation() > 0.0F) {
+            Icons.overlayBottom(graphics, x, y, ICON, PIXEL, cell.saturation(), 0x55FFFFFF);
         }
 
         // Absorption is drawn as a second health cross, so the plus is the only thing
         // telling the two apart. It sits in the top right, which the cross's shape
         // leaves empty.
-        if (stat == Stat.ABSORPTION) {
-            Icons.drawSmall(graphics, Icons.PLUS, x + ICON - Icons.PLUS_SIZE, y, color);
+        if (cell.plusBadge()) {
+            Icons.drawSolid(graphics, Icons.PLUS, x + ICON - Icons.PLUS_SIZE, y, color);
         }
 
-        if (stat == Stat.XP) {
-            // The level number sits on the icon rather than beside it, which keeps
-            // experience in step with every other stat instead of being the one that
-            // needed extra room for a label.
-            String label = Integer.toString(sample.level());
-            // Centred on the digits' own height rather than the font's line height,
-            // which carries two pixels of leading under them - that two is leading,
-            // not ink - and lifted a further pixel because the drop shadow adds weight
-            // below the glyph. Both biases point downward.
-            float glyphHeight = GLYPH_HEIGHT * LEVEL_TEXT_SCALE;
-            graphics.pose().pushPose();
-            graphics.pose().translate(x + ICON / 2.0F, y + (ICON - glyphHeight) / 2.0F, 0.0F);
-            graphics.pose().scale(LEVEL_TEXT_SCALE, LEVEL_TEXT_SCALE, 1.0F);
-            graphics.drawString(font, label, -font.width(label) / 2, 0, HudTheme.TEXT_BRIGHT, true);
-            graphics.pose().popPose();
+        if (cell.level() != NO_LEVEL) {
+            drawLevel(graphics, font, x, y, cell.level());
         }
 
-        if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {
-            // The marker goes on the side the stat is heading: above when it is
-            // rising, below when it is falling. Only the space below the icons is
-            // reserved - a rising marker draws into the open space above, which
-            // costs the layout nothing and keeps the icons down near the hotbar.
-            int markerY = sample.up()
+        if (cell.chevrons() > 0 && cell.markerAlpha() > 0.0F) {
+            int markerY = cell.up()
                     ? y - HudTheme.CHEVRON_STACK_H - MARKER_GAP
                     : y + ICON + MARKER_GAP;
             HudTheme.chevrons(graphics, x + ICON / 2, markerY,
-                    sample.chevrons(), sample.up(), sample.alpha());
+                    cell.chevrons(), cell.up(), cell.markerAlpha());
         }
+    }
+
+    /**
+     * The experience level, drawn on the gem rather than beside it so experience stays
+     * in step with every other stat.
+     * <p>
+     * Centred on the digits' own height rather than the font's line height, which
+     * carries two pixels of leading under them - that two is leading, not ink - and
+     * the drop shadow adds weight below the glyph on top of that. Both biases point
+     * downward.
+     */
+    private static void drawLevel(GuiGraphics graphics, Font font, int x, int y, int level) {
+        String label = Integer.toString(level);
+        float glyphHeight = GLYPH_HEIGHT * LEVEL_TEXT_SCALE;
+        graphics.pose().pushPose();
+        graphics.pose().translate(x + ICON / 2.0F, y + (ICON - glyphHeight) / 2.0F, 0.0F);
+        graphics.pose().scale(LEVEL_TEXT_SCALE, LEVEL_TEXT_SCALE, 1.0F);
+        graphics.drawString(font, label, -font.width(label) / 2, 0, HudTheme.TEXT_BRIGHT, true);
+        graphics.pose().popPose();
+    }
+
+    private static int withAlpha(int argb, float alpha) {
+        int a = Math.round(255.0F * Math.max(0.0F, Math.min(1.0F, alpha)));
+        return (a << 24) | (argb & 0x00FFFFFF);
     }
 }
