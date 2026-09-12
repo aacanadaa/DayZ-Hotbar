@@ -41,6 +41,11 @@ public final class StatusRow {
      */
     private static final int GLYPH_HEIGHT = 8;
     /**
+     * Scale the experience level number is drawn at. At full size two digits filled
+     * the icon edge to edge, so the digits shrink to leave them some air.
+     */
+    private static final float LEVEL_TEXT_SCALE = 0.75F;
+    /**
      * Size of one source pixel of an icon. One, not two: the whole readout has to fit
      * inside the hotbar's own height, markers included, and at 2px per cell an icon
      * alone was taller than the bar.
@@ -118,17 +123,28 @@ public final class StatusRow {
             Icons.overlayBottom(graphics, x, y, ICON, PIXEL, sample.saturation(), 0x55FFFFFF);
         }
 
+        // Absorption is drawn as a second health cross, so the plus is the only thing
+        // telling the two apart. It sits in the top right, which the cross's shape
+        // leaves empty.
+        if (stat == Stat.ABSORPTION) {
+            Icons.drawSmall(graphics, Icons.PLUS, x + ICON - Icons.PLUS_SIZE, y, color);
+        }
+
         if (stat == Stat.XP) {
             // The level number sits on the icon rather than beside it, which keeps
             // experience in step with every other stat instead of being the one that
             // needed extra room for a label.
             String label = Integer.toString(sample.level());
             // Centred on the digits' own height rather than the font's line height,
-            // which carries two pixels of leading under them, and lifted a further
-            // pixel because the drop shadow adds weight below the glyph. Both biases
-            // are downward, which is what put the number low in the first place.
-            graphics.drawString(font, label, x + (ICON - font.width(label)) / 2,
-                    y + (ICON - GLYPH_HEIGHT) / 2, HudTheme.TEXT_BRIGHT, true);
+            // which carries two pixels of leading under them - that two is leading,
+            // not ink - and lifted a further pixel because the drop shadow adds weight
+            // below the glyph. Both biases point downward.
+            float glyphHeight = GLYPH_HEIGHT * LEVEL_TEXT_SCALE;
+            graphics.pose().pushPose();
+            graphics.pose().translate(x + ICON / 2.0F, y + (ICON - glyphHeight) / 2.0F, 0.0F);
+            graphics.pose().scale(LEVEL_TEXT_SCALE, LEVEL_TEXT_SCALE, 1.0F);
+            graphics.drawString(font, label, -font.width(label) / 2, 0, HudTheme.TEXT_BRIGHT, true);
+            graphics.pose().popPose();
         }
 
         if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {

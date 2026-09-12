@@ -183,6 +183,36 @@ public final class Icons {
         ".......#......."
     };
 
+    /**
+     * A small plus, badged onto the absorption cross to distinguish it from health.
+     * Five cells square, drawn a screen pixel per cell rather than at the icons'
+     * scale, so it stays a mark rather than a second figure.
+     */
+    public static final String[] PLUS = {
+        "..#..",
+        "..#..",
+        "#####",
+        "..#..",
+        "..#.."
+    };
+
+    /** Edge length of {@link #PLUS}. */
+    public static final int PLUS_SIZE = PLUS.length;
+
+    /**
+     * Draws a small shape at one screen pixel per cell. For marks that sit on top of
+     * an icon rather than being one - {@link #PLUS} is the only user.
+     */
+    public static void drawSmall(GuiGraphics graphics, String[] shape, int x, int y, int color) {
+        for (int row = 0; row < shape.length; row++) {
+            for (int col = 0; col < shape[row].length(); col++) {
+                if (shape[row].charAt(col) == '#') {
+                    graphics.fill(x + col, y + row, x + col + 1, y + row + 1, color);
+                }
+            }
+        }
+    }
+
     /** Draws one shape's cells in a single flat colour. */
     private static void plot(GuiGraphics graphics, boolean[][] cells, int x, int y, int pixel, int color) {
         for (int row = 0; row < cells.length; row++) {

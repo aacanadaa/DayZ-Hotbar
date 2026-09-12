@@ -32,9 +32,12 @@ A horizontal row of icons in the bottom-right corner, on the same margin as the 
 | :--- | :--- |
 | Apple | Food level, with saturation drawn over it as a brighter wash |
 | Bubble | Air. Only appears while you are underwater |
-| Gold heart | Absorption. Only appears while you have golden hearts |
 | Gem | Experience, with the level number on it |
+| Gold cross | Absorption. Only appears while you have golden hearts |
 | Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
+
+Absorption is drawn as a **second health cross**, badged with a small plus in its top
+right, rather than as an icon of its own — the plus is what tells the two apart.
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.

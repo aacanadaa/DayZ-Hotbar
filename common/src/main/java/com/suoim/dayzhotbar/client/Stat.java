@@ -52,17 +52,21 @@ public enum Stat {
     AIR(Icons.BUBBLE, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.5F, 50.0F),
 
     /**
-     * Golden absorption hearts. Hidden when there are none. Not tiered - having less
-     * absorption is not a warning, so it keeps one colour throughout.
-     */
-    ABSORPTION(Icons.HEART, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
-
-    /**
-     * Experience, drawn as a gem. Not tiered either: how far through a level you are
-     * is not a health warning, and a green bar here was the one element on the HUD
-     * that did not belong to the same palette as everything else.
+     * Experience, drawn as a gem. Not tiered: how far through a level you are is not a
+     * health warning, and a green bar here was the one element on the HUD that did not
+     * belong to the same palette as everything else.
      */
     XP(Icons.DIAMOND, null, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
+
+    /**
+     * Absorption. Drawn as a second health cross rather than an icon of its own, and
+     * badged with a plus so the two are not confused. Hidden when there is none.
+     * <p>
+     * Not tiered - having less absorption is not a warning, so it keeps one colour
+     * throughout. Sits immediately before health so health stays at the end of the
+     * row, where it is looked for.
+     */
+    ABSORPTION(Icons.CROSS, null, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
 
     /**
      * Health, or the mount's health while riding. Deliberately last so it sits at the
