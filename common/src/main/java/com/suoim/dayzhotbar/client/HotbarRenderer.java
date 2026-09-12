@@ -38,7 +38,7 @@ public final class HotbarRenderer {
     /** Gap separating the offhand slot from the nine. */
     private static final int SEPARATOR = 8;
     /** Distance from the bottom of the screen. The status readout shares this value. */
-    private static final int MARGIN = 4;
+    private static final int MARGIN = 10;
 
     /** Alpha of the held slot's coloured wash. The colour alone marks the held slot. */
     private static final int ACTIVE_WASH_ALPHA = 0x66;

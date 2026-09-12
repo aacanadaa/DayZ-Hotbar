@@ -31,7 +31,6 @@ A horizontal row of icons in the bottom-right corner, on the same margin as the 
 | Icon | Notes |
 | :--- | :--- |
 | Apple | Food level, with saturation drawn over it as a brighter wash |
-| Shield | Armor. Only appears when you are wearing some |
 | Bubble | Air. Only appears while you are underwater |
 | Gold heart | Absorption. Only appears while you have golden hearts |
 | Gem | Experience, with the level number on it |
@@ -68,9 +67,8 @@ warned about hunger far later than about blood loss.
 Air has no bands of its own and borrows health's, since drowning and bleeding out are the
 same kind of emergency.
 
-Armor, absorption and experience are deliberately **not** colour-tiered. Armor is what you
-are wearing rather than a warning, and how far through a level you are is not a health
-warning either.
+Absorption and experience are deliberately **not** colour-tiered: having less absorption is
+not a warning, and neither is how far through a level you are.
 
 ## Trend markers
 

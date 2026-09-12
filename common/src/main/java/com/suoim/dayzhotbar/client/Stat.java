@@ -36,12 +36,11 @@ public enum Stat {
     FOOD(Icons.APPLE, new Tiers(0.019F, 0.05F, 0.15F), 0, 0.05F, 4.0F),
 
     /**
-     * Armour points. Hidden when the player has none, and not tiered: armour is what
-     * you are wearing rather than a warning, so it stays one colour however low it
-     * gets. Losing a chestplate is not the same kind of event as running out of
-     * health.
+     * Armour has no row entry. It was here as a shield and was removed on request -
+     * the shape is still in {@link Icons} for wherever it lands next. Armour is what
+     * you are wearing rather than a warning, so whenever it returns it should not be
+     * colour-tiered.
      */
-    ARMOR(Icons.SHIELD, null, HudTheme.TIER_NORMAL, 0.05F, 4.0F),
 
     /**
      * Air. Hidden while the player is not underwater.
