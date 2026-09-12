@@ -184,25 +184,77 @@ public final class Icons {
     };
 
     /**
-     * A skull, the mark for a harmful effect. The eye sockets are gaps in the mask,
-     * so they come out as holes rather than needing a second colour.
+     * A virus particle, the mark for a harmful effect: a round body with eight spikes.
+     * <p>
+     * The left and right spikes sit flush against the body rather than on stalks, which
+     * makes the middle row a single bar across the figure. At fifteen cells there is no
+     * room for a stalk and a knob on both, and a detached spike reads as debris rather
+     * than as part of the shape.
      */
-    public static final String[] SKULL = {
+    public static final String[] CORONA = {
+        "...............",
+        ".......#.......",
+        "..#....#....#..",
+        "...#.#####.#...",
         "....#######....",
-        "..###########..",
-        ".#############.",
-        "###############",
-        "###############",
-        "###..#####..###",
-        "###..#####..###",
-        "###############",
-        "###############",
-        ".#############.",
-        "..###########..",
-        "..###.###.###..",
-        "..###.###.###..",
         "...#########...",
-        "....#######...."
+        "...#########...",
+        ".#############.",
+        "...#########...",
+        "...#########...",
+        "....#######....",
+        "...#.#####.#...",
+        "..#....#....#..",
+        ".......#.......",
+        "..............."
+    };
+
+    /**
+     * A capsule, the mark for a restorative effect. Drawn as an outline with one half
+     * filled, which is what makes it read as a pill rather than as a lozenge -
+     * {@link #PILL_FILLED} is the half that gets filled in.
+     * <p>
+     * It lies level. A diagonal capsule was tried at two widths and read as a needle
+     * both times: the outline takes a cell off each side, and on the diagonal the
+     * remaining interior is a thin strip that the half-fill then reduces to a line.
+     * The sloping ends are what do it - a capsule needs blunt ends, and a blunt end on
+     * a slope is a step. Only a level one keeps enough body to read as a capsule.
+     */
+    public static final String[] PILL = {
+        "...............",
+        "...............",
+        "...............",
+        ".....######....",
+        "...##########..",
+        "..############.",
+        ".#############.",
+        ".#############.",
+        ".#############.",
+        "..############.",
+        "...##########..",
+        ".....######....",
+        "...............",
+        "...............",
+        "..............."
+    };
+
+    /** The left half of {@link #PILL}, drawn solid while the rest stays hollow. */
+    public static final String[] PILL_FILLED = {
+        "...............",
+        "...............",
+        "...............",
+        ".....###.......",
+        "...#####.......",
+        "..######.......",
+        ".#######.......",
+        ".#######.......",
+        ".#######.......",
+        "..######.......",
+        "...#####.......",
+        ".....###.......",
+        "...............",
+        "...............",
+        "..............."
     };
 
     /** A gem, used for experience. */
@@ -239,6 +291,11 @@ public final class Icons {
 
     /** Edge length of {@link #PLUS}. */
     public static final int PLUS_SIZE = PLUS.length;
+
+    /** Draws just the outline of a shape, one screen pixel per cell. */
+    public static void drawOutline(GuiGraphics graphics, String[] shape, int x, int y, int color) {
+        plot(graphics, outlineOf(mask(shape)), x, y, 1, color);
+    }
 
     /**
      * Draws a shape filled solid, one screen pixel per cell, with no outline or

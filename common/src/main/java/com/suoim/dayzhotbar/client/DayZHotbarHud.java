@@ -205,7 +205,7 @@ public final class DayZHotbarHud {
             if (remaining <= 0) {
                 continue;
             }
-            cells.add(new StatusRow.Cell(group.shape(), HudTheme.TEXT_BRIGHT,
+            cells.add(new StatusRow.Cell(group.shape(), group.filledHalf(), HudTheme.TEXT_BRIGHT,
                     0.0F, 0.0F, true, 0, false, 0.0F,
                     StatusRow.NO_LEVEL, false, Group.EFFECTS,
                     remaining / (float) EFFECT_FADE_TICKS));
@@ -258,7 +258,7 @@ public final class DayZHotbarHud {
 
     private StatusRow.Cell statCell(Stat stat, float fraction, float saturation, int level) {
         VelocityTracker tracker = trackers.get(stat);
-        return new StatusRow.Cell(stat.shape(), stat.colorFor(fraction, lastGuiTicks),
+        return new StatusRow.Cell(stat.shape(), null, stat.colorFor(fraction, lastGuiTicks),
                 fraction, saturation, false,
                 tracker.chevrons(), tracker.up(), tracker.alpha(),
                 level, stat == Stat.ABSORPTION, stat.group(), 1.0F);
