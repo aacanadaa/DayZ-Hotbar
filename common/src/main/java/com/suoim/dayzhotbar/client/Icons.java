@@ -93,15 +93,15 @@ public final class Icons {
      * silhouette the health icon used to have.
      */
     public static final String[] SHIELD = {
-        "###############",
-        "###############",
-        "###############",
-        "###############",
-        "###############",
-        "###############",
-        "###############",
-        "###############",
+        "...#########...",
+        "..###########..",
         ".#############.",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
         ".#############.",
         "..###########..",
         "..###########..",
@@ -311,15 +311,15 @@ public final class Icons {
     public static void drawVessel(GuiGraphics graphics, String[] shape, int x, int y, int pixel,
                                   float fraction, int outlineColor, int fillColor) {
         boolean[][] m = mask(shape);
-        boolean[][] edge = outlineOf(m);
-        // The fill is measured against the pure edge, not the drawn outline. Marked
-        // corner cells are added to the outline only for drawing, so they close the
-        // outline without also registering as an obstacle the gap has to keep clear
-        // of - which would eat a pixel out of the fill at every corner.
-        boolean[][] fill = fillOf(m, edge);
-        boolean[][] drawn = union(edge, forcedOf(shape));
+        // The fill is measured against the outline as actually drawn, marked corners
+        // included. Measuring it against the pure edge instead was tried, to stop the
+        // corners eating a pixel of fill - it worked, but the fill then ran right up
+        // against the outline with no gap left between them, which reads worse than
+        // the narrower fill did. The gap matters more than the last pixel of width.
+        boolean[][] outline = union(outlineOf(m), forcedOf(shape));
+        boolean[][] fill = fillOf(m, outline);
 
-        plot(graphics, drawn, x, y, pixel, outlineColor);
+        plot(graphics, outline, x, y, pixel, outlineColor);
 
         if (fraction <= 0.0F) {
             return;
