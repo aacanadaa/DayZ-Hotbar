@@ -147,13 +147,13 @@ public final class Icons {
         "....#######....",
         "....#######....",
         "....#######....",
+        "####+#####+####",
         "###############",
         "###############",
         "###############",
         "###############",
         "###############",
-        "###############",
-        "###############",
+        "####+#####+####",
         "....#######....",
         "....#######....",
         "....#######....",
@@ -192,15 +192,40 @@ public final class Icons {
         }
     }
 
+    /**
+     * Cells of the shape. {@code +} counts as part of the shape and additionally
+     * forces that cell to be drawn as outline - see {@link #outlineOf}.
+     */
     private static boolean[][] mask(String[] shape) {
         int n = shape.length;
         boolean[][] m = new boolean[n][n];
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
-                m[row][col] = shape[row].charAt(col) == '#';
+                char c = shape[row].charAt(col);
+                m[row][col] = c == '#' || c == '+';
             }
         }
         return m;
+    }
+
+    /**
+     * The cells the shape author marked {@code +}, which are drawn as outline even
+     * though the edge rule would not pick them.
+     * <p>
+     * This exists because a sharp concave corner and a step on a curve are the same
+     * pattern at the cell level, so no rule can fill one without wrecking the other.
+     * Marking them per shape is the only precise option, and it costs one character
+     * where the corner actually is.
+     */
+    private static boolean[][] forcedOf(String[] shape) {
+        int n = shape.length;
+        boolean[][] forced = new boolean[n][n];
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                forced[row][col] = shape[row].charAt(col) == '+';
+            }
+        }
+        return forced;
     }
 
     private static boolean inside(boolean[][] m, int row, int col) {
@@ -209,17 +234,17 @@ public final class Icons {
 
     /**
      * Cells on the edge of the shape: shape cells with an orthogonal neighbour
-     * outside it.
+     * outside it, plus any cell the shape author marked with {@code +}.
      * <p>
-     * Do <b>not</b> extend this to fill in concave corners. It was tried, to close the
-     * diagonal step the outline makes where a cross's arm meets its body, and it
-     * wrecked every other icon: a curve drawn on a grid is a staircase, and every step
-     * of a staircase is a concave corner by that definition. The diamond's outline
-     * went from 28 cells to 52 and the heart's from 34 to 55, so every curved icon
-     * ended up with a two-cell-thick border. The step is the lesser evil - on a curve
-     * it reads as a smooth staircase, and only a sharp corner shows it.
+     * Do <b>not</b> extend the edge rule itself to fill in concave corners. It was
+     * tried, to close the diagonal step the outline makes where a cross's arm meets
+     * its body, and it wrecked every other icon: a curve drawn on a grid is a
+     * staircase, and every step of a staircase is a concave corner by that
+     * definition. The diamond's outline went from 28 cells to 52 and the heart's from
+     * 34 to 55, so every curved icon ended up with a two-cell-thick border. Only
+     * sharp corners show the step, and those are marked by hand instead.
      */
-    private static boolean[][] outlineOf(boolean[][] m) {
+    private static boolean[][] outlineOf(boolean[][] m, boolean[][] forced) {
         int n = m.length;
         boolean[][] out = new boolean[n][n];
         for (int row = 0; row < n; row++) {
@@ -227,7 +252,8 @@ public final class Icons {
                 if (!m[row][col]) {
                     continue;
                 }
-                out[row][col] = !inside(m, row - 1, col) || !inside(m, row + 1, col)
+                out[row][col] = forced[row][col]
+                        || !inside(m, row - 1, col) || !inside(m, row + 1, col)
                         || !inside(m, row, col - 1) || !inside(m, row, col + 1);
             }
         }
@@ -274,7 +300,7 @@ public final class Icons {
     public static void drawVessel(GuiGraphics graphics, String[] shape, int x, int y, int pixel,
                                   float fraction, int outlineColor, int fillColor) {
         boolean[][] m = mask(shape);
-        boolean[][] outline = outlineOf(m);
+        boolean[][] outline = outlineOf(m, forcedOf(shape));
         boolean[][] fill = fillOf(m, outline);
 
         plot(graphics, outline, x, y, pixel, outlineColor);
