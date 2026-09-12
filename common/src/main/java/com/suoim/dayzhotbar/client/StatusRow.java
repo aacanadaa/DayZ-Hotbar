@@ -24,11 +24,17 @@ import java.util.List;
 /**
  * The bottom-right status readout: a horizontal row of icons on a shared panel,
  * each filled to its current level and coloured by how much is left, each with a
- * rank-chevron trend marker underneath.
+ * rank-chevron trend marker.
  * <p>
- * The row is right-aligned, so stats that come and go (armour you are not
- * wearing, air while you are on land) do not shift the ones that are always
- * there - the row simply grows and shrinks from the left.
+ * The marker sits <em>above</em> its icon rather than below. That is not an
+ * arbitrary choice: an 18px icon plus a 21px marker stack is 41px, which is taller
+ * than the hotbar's own band, so with the marker underneath the icons were forced
+ * up off the bottom of the screen. Above, the icons can sit exactly on the hotbar's
+ * baseline where they belong.
+ * <p>
+ * The row is right-aligned, so stats that come and go (armour you are not wearing,
+ * air while you are on land) do not shift the ones that are always there - the row
+ * simply grows and shrinks from the left.
  */
 public final class StatusRow {
     private StatusRow() {}
@@ -39,23 +45,17 @@ public final class StatusRow {
     public static final int ICON = Icons.GRID * PIXEL;
     /** Gap between adjacent icons. */
     private static final int GAP = 6;
-    /** Vertical space reserved below the icons for the trend marker. */
+    /** Space reserved above the icons for the trend marker and the level number. */
     public static final int ARROW_H = HudTheme.CHEVRON_STACK_H + 1;
-    /** Vertical space reserved above the icons, used by the XP level number. */
-    public static final int HEADROOM = 9;
-    /** Total cell height. */
-    public static final int CELL_H = HEADROOM + ICON + ARROW_H;
+    /** Total cell height. Note there is no headroom below - the panel bottom is the row bottom. */
+    public static final int CELL_H = ARROW_H + ICON;
     /** Padding between the cell contents and the panel edge. Kept tight, as on the hotbar. */
     private static final int PAD = 2;
     /**
-     * Distance from the right and bottom screen edges. Deliberately small so the
-     * readout sits down at the hotbar's level rather than floating above it - the
-     * icons cannot go any lower than this while the trend marker hangs below them.
+     * Distance from the right and bottom screen edges. Matches the hotbar's own
+     * margin, so the two rows share a baseline instead of merely looking close.
      */
-    private static final int MARGIN = 2;
-
-    /** Vanilla's experience-bar green. */
-    private static final int XP_GREEN = 0xFF80FF20;
+    private static final int MARGIN = 4;
 
     /**
      * One rendered stat: how full it is, and what its trend marker should say.
@@ -85,7 +85,8 @@ public final class StatusRow {
         // element sits on a section panel rather than floating over the world.
         HudTheme.panel(graphics, rowX - PAD, rowY - PAD, rowWidth + PAD * 2, CELL_H + PAD * 2);
 
-        int iconY = rowY + HEADROOM;
+        // Icons sit on the bottom of the cell; the marker takes the space above.
+        int iconY = rowY + ARROW_H;
         int x = rowX;
         for (Sample sample : samples) {
             drawIcon(graphics, font, x, iconY, sample, guiTicks);
@@ -96,45 +97,28 @@ public final class StatusRow {
     private static void drawIcon(GuiGraphics graphics, Font font, int x, int y,
                                  Sample sample, int guiTicks) {
         Stat stat = sample.stat();
+        Icons.drawFilled(graphics, stat.shape(), x, y, PIXEL, sample.fraction(),
+                stat.colorFor(sample.fraction(), guiTicks));
 
-        if (stat.shape() == null) {
-            drawExperience(graphics, font, x, y, sample);
-        } else {
-            int color = stat.tiered()
-                    ? Stat.tierColor(sample.fraction(), guiTicks)
-                    : HudTheme.TIER_ABSORPTION;
-            Icons.drawFilled(graphics, stat.shape(), x, y, PIXEL, sample.fraction(), color);
+        // Saturation rides on top of the food level as a brighter wash, the way
+        // DayZ distinguishes a full stomach from a full reserve.
+        if (stat == Stat.FOOD && sample.saturation() > 0.0F) {
+            Icons.overlayBottom(graphics, x, y, ICON, PIXEL, sample.saturation(), 0x55FFFFFF);
+        }
 
-            // Saturation rides on top of the food level as a brighter wash, the way
-            // DayZ distinguishes a full stomach from a full reserve.
-            if (stat == Stat.FOOD && sample.saturation() > 0.0F) {
-                Icons.overlayBottom(graphics, x, y, ICON, PIXEL, sample.saturation(), 0x55FFFFFF);
-            }
+        if (stat == Stat.XP) {
+            // The level number takes the marker's place rather than sharing it. It
+            // says more about experience than a chevron would, and experience only
+            // ever moves one way.
+            String label = Integer.toString(sample.level());
+            graphics.drawString(font, label, x + (ICON - font.width(label)) / 2,
+                    y - ARROW_H + 2, HudTheme.TEXT_BRIGHT, true);
+            return;
         }
 
         if (sample.chevrons() > 0 && sample.alpha() > 0.0F) {
-            HudTheme.chevrons(graphics, x + ICON / 2, y + ICON + 2,
+            HudTheme.chevrons(graphics, x + ICON / 2, y - HudTheme.CHEVRON_STACK_H - 1,
                     sample.chevrons(), sample.up(), sample.alpha());
-        }
-    }
-
-    /**
-     * Experience has no shape, so it is drawn as a narrow bar with the level
-     * number sitting in the headroom above it.
-     */
-    private static void drawExperience(GuiGraphics graphics, Font font, int x, int y, Sample sample) {
-        String label = Integer.toString(sample.level());
-        graphics.drawString(font, label, x + (ICON - font.width(label)) / 2, y - HEADROOM + 1,
-                HudTheme.TEXT_BRIGHT, true);
-
-        int barWidth = 8;
-        int barX = x + (ICON - barWidth) / 2;
-        HudTheme.panel(graphics, barX, y, barWidth, ICON);
-        graphics.fill(barX + 1, y + 1, barX + barWidth - 1, y + ICON - 1, HudTheme.SLOT_INNER);
-
-        if (sample.fraction() > 0.0F) {
-            int filled = Math.max(1, Math.round((ICON - 2) * Math.min(1.0F, sample.fraction())));
-            graphics.fill(barX + 1, y + ICON - 1 - filled, barX + barWidth - 1, y + ICON - 1, XP_GREEN);
         }
     }
 }

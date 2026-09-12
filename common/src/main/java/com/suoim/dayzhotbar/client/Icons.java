@@ -53,30 +53,53 @@ public final class Icons {
         "....#...."
     };
 
-    /** An apple: it narrows to a stem, which is what stops it reading as an egg. */
+    /**
+     * An apple. The top has to be its widest part, with the stem sunk into a dip -
+     * tapering up to the stem instead produces a water droplet, which is exactly
+     * what the first attempt looked like. The leaf beside the stem is the other
+     * thing that says "apple" rather than "any round fruit".
+     */
     public static final String[] APPLE = {
+        "....#.##.",
+        ".#######.",
+        "#########",
+        "#########",
+        "#########",
+        "#########",
+        ".#######.",
+        "..#####..",
+        "...###..."
+    };
+
+    /**
+     * A shield. This started as a chestplate, but shoulders drawn as {@code .##...##.}
+     * over a taper read as a heart - which is what it was being mistaken for, and
+     * the same silhouette the health icon used to have. A flat top narrowing to a
+     * point cannot be misread.
+     */
+    public static final String[] SHIELD = {
+        "#########",
+        "#########",
+        "#########",
+        "#########",
+        ".#######.",
+        ".#######.",
+        "..#####..",
+        "...###...",
+        "....#...."
+    };
+
+    /** A gem, used for experience. */
+    public static final String[] DIAMOND = {
         "....#....",
         "...###...",
         "..#####..",
         ".#######.",
         "#########",
-        "#########",
-        "#########",
-        ".#######.",
-        "..#####.."
-    };
-
-    /** A chestplate: wide shoulders, a deep neck notch, tapering to the waist. */
-    public static final String[] ARMOR = {
-        ".........",
-        ".##...##.",
-        "#########",
-        "#########",
-        "#########",
         ".#######.",
         "..#####..",
-        "..#####..",
-        "...###..."
+        "...###...",
+        "....#...."
     };
 
     /**
