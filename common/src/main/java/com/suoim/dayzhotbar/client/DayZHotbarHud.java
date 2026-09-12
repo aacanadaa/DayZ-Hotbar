@@ -92,7 +92,6 @@ public final class DayZHotbarHud {
         FoodData food = player.getFoodData();
         trackers.get(Stat.HEALTH).push(health(player));
         trackers.get(Stat.FOOD).push(food.getFoodLevel());
-        trackers.get(Stat.ARMOR).push(player.getArmorValue());
         trackers.get(Stat.AIR).push(player.getAirSupply());
         trackers.get(Stat.ABSORPTION).push(player.getAbsorptionAmount());
 
@@ -189,12 +188,7 @@ public final class DayZHotbarHud {
             switch (stat) {
                 case HEALTH -> samples.add(sample(stat, clamp(health / maxHealth), 0.0F, 0));
                 case FOOD -> samples.add(sample(stat, foodFraction, saturationFraction, 0));
-                case ARMOR -> {
-                    int armor = player.getArmorValue();
-                    if (armor > 0) {
-                        samples.add(sample(stat, clamp(armor / MAX_FOOD), 0.0F, 0));
-                    }
-                }
+                // Armor has no case: it was removed from the row on request.
                 case AIR -> {
                     // Only while submerged, exactly like vanilla's bubbles.
                     if (air < maxAir) {

@@ -54,8 +54,17 @@ public final class StatusRow {
     public static final int CELL_H = ICON + ARROW_H;
     /** Gap between an icon's edge and its marker. */
     private static final int MARKER_GAP = 1;
-    /** Distance from the right and bottom screen edges. Shared with the hotbar. */
-    private static final int MARGIN = 4;
+    /**
+     * Distance from the bottom screen edge. Matches the hotbar so the two stay on one
+     * baseline.
+     */
+    private static final int BOTTOM_MARGIN = 10;
+    /**
+     * Distance from the right screen edge. Larger than the bottom margin on purpose:
+     * at the same inset the row sat flush against the edge of the screen, which read
+     * as clipped rather than placed.
+     */
+    private static final int RIGHT_MARGIN = 16;
 
     /**
      * One rendered stat: how full it is, and what its trend marker should say.
@@ -78,8 +87,8 @@ public final class StatusRow {
 
         int count = samples.size();
         int rowWidth = count * ICON + (count - 1) * GAP;
-        int rowX = screenWidth - MARGIN - rowWidth;
-        int rowY = screenHeight - MARGIN - CELL_H;
+        int rowX = screenWidth - RIGHT_MARGIN - rowWidth;
+        int rowY = screenHeight - BOTTOM_MARGIN - CELL_H;
 
         int x = rowX;
         for (Sample sample : samples) {

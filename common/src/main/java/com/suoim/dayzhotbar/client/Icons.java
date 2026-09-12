@@ -84,13 +84,17 @@ public final class Icons {
     };
 
     /**
-     * A heater shield: a flat top, sides that stay vertical through the upper half,
-     * and a taper confined to the bottom third that ends on a flat edge.
+     * A heater shield: a domed top, sides that stay vertical through the middle, and
+     * a taper confined to the bottom third that ends on a flat edge.
      * <p>
      * Both extremes were wrong. Tapering evenly from the top gives a funnel; ending
-     * in a single cell gives a spike. It also began life as a chestplate, but
-     * shoulders drawn as {@code .##...##.} over a taper read as a heart - the same
-     * silhouette the health icon used to have.
+     * in a single cell gives a spike; a flat top over eight rows gives a rectangle
+     * with a point bolted on. It also began life as a chestplate, but shoulders drawn
+     * as {@code .##...##.} over a taper read as a heart - the same silhouette the
+     * health icon used to have.
+     * <p>
+     * <b>Not currently drawn.</b> Armour was taken out of the status row on request
+     * and the shape is kept here for wherever it goes next.
      */
     public static final String[] SHIELD = {
         "...#########...",
