@@ -66,10 +66,13 @@ public final class Icons {
     };
 
     /**
-     * An apple. The top has to be its widest part, with the stem sunk into a dip -
-     * tapering up to the stem instead produces a water droplet, which is what the
-     * first attempt looked like. The leaf beside the stem is the other thing that
-     * says "apple" rather than "any round fruit".
+     * An apple: a round body with a stem and a leaf on top.
+     * <p>
+     * A dip at the top with the stem over it was tried and taken back out. It sounds
+     * right - apples do have a dip - but at this size the notch reads as the handle of
+     * a basket, and the fruit turned into a bag. The round body with the stem simply
+     * sitting on it is the silhouette that reads, and it is what the emoji looks like
+     * once the shading is gone.
      */
     public static final String[] APPLE = {
         ".......#.......",
