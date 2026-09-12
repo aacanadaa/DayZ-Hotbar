@@ -31,13 +31,14 @@ public final class VelocityTracker {
     /** Ticks of history the delta is measured over - one second at 20 tps. */
     private static final int WINDOW = 20;
     /**
-     * Ticks the marker stays up after movement is last seen. Long on purpose: at 15
-     * ticks a short exchange of damage came and went before the eye caught it, and
-     * the whole point of the marker is that you notice the trend without staring.
+     * Ticks the marker stays up after movement is last seen. Long on purpose, and
+     * raised twice: at 15 ticks a short exchange of damage came and went before the
+     * eye caught it, and the whole point of the marker is that you notice the trend
+     * without staring. Two and a half seconds is long enough to glance away and back.
      */
-    private static final int HOLD = 30;
+    private static final int HOLD = 50;
     /** Ticks the marker spends fading out at the end of the hold. */
-    private static final int FADE = 10;
+    private static final int FADE = 15;
 
     private final float minor;
     private final float major;
