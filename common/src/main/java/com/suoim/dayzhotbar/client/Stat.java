@@ -28,9 +28,6 @@ package com.suoim.dayzhotbar.client;
  * Order here is draw order, left to right.
  */
 public enum Stat {
-    /** Health, or the mount's health while riding. */
-    HEALTH(Icons.HEART, true, 0.05F, 3.0F),
-
     /** Food level. Saturation is drawn over it as a secondary fill. */
     FOOD(Icons.APPLE, true, 0.05F, 4.0F),
 
@@ -50,7 +47,14 @@ public enum Stat {
      * Experience. Drawn procedurally rather than from a shape, because the bar
      * has to carry the level number alongside it.
      */
-    XP(null, false, 5.0F, 50.0F);
+    XP(null, false, 5.0F, 50.0F),
+
+    /**
+     * Health, or the mount's health while riding. Deliberately last so it sits at
+     * the right-hand end of the row, where DayZ puts it and where the eye goes
+     * first in a fight.
+     */
+    HEALTH(Icons.CROSS, true, 0.05F, 3.0F);
 
     private final String[] shape;
     private final boolean tiered;

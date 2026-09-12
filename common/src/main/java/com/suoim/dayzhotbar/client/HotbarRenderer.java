@@ -37,8 +37,8 @@ public final class HotbarRenderer {
     private static final int PITCH = 18;
     /** Gap separating the offhand slot from the nine. */
     private static final int SEPARATOR = 8;
-    /** Padding between the slots and the panel edge. */
-    private static final int PAD = 4;
+    /** Padding between the slots and the panel edge. Kept tight - it read as a frame. */
+    private static final int PAD = 2;
     /** Distance from the bottom of the screen. */
     private static final int MARGIN = 4;
 

@@ -35,12 +35,12 @@ its current level rather than showing a number.
 
 | Icon | Notes |
 | :--- | :--- |
-| Heart | Health, or your mount's health while riding |
 | Apple | Food level, with saturation drawn over it as a brighter wash |
 | Chestplate | Armor. Only appears when you are wearing some |
 | Bubble | Air. Only appears while you are underwater |
 | Gold heart | Absorption. Only appears while you have golden hearts |
 | Bar + number | Experience, with the level above it |
+| Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.
@@ -69,7 +69,8 @@ white so it never competes with the tier colours above it.
 - **Two chevrons** — a significant change, which is what makes a poison tick or a
   regeneration effect read differently from hunger ticking down on its own
 - Pointing up when rising, down when falling
-- Fades out a moment after the movement stops, rather than flickering
+- Held for a second and a half after the movement stops, then faded out — long
+  enough that a short exchange of damage does not come and go before you see it
 
 Thresholds are per stat and measured over one second. They are deliberately low for
 stats that move slowly — natural health regeneration is only about 0.25 HP per second,
