@@ -25,27 +25,29 @@ import net.minecraft.world.item.ItemStack;
 /**
  * The DayZ-style hotbar: nine slots plus the offhand on a single flat panel.
  * <p>
- * The geometry is DayZ Inventory's own slot geometry - an 18px pitch with a
- * 16x16 inner wash and no outline - so the two mods look like the same piece of
- * software. Slot state is carried by the colour of that wash and by an underline
- * beneath the held slot, never by a border.
+ * The geometry follows DayZ Inventory's slots - an inner wash on a flat panel and
+ * no outlines - so the two mods look like the same piece of software. Slot state is
+ * carried by the colour of that wash alone, never by a border or an underline.
  */
 public final class HotbarRenderer {
     private HotbarRenderer() {}
 
-    /** Cell pitch. The wash inside it is 16x16, matching DayZ Inventory's slots. */
-    private static final int PITCH = 18;
+    /**
+     * Cell pitch. Raised from 18 so the wash inside it grows to 18x18: the grey area
+     * is the slot, and at the old size the dark gap around it read as a frame.
+     */
+    private static final int PITCH = 20;
+    /** Inset of the wash inside its cell. One pixel, so slots stay distinguishable. */
+    private static final int INSET = 1;
     /** Gap separating the offhand slot from the nine. */
     private static final int SEPARATOR = 8;
-    /** Padding between the slots and the panel edge. Kept tight - it read as a frame. */
-    private static final int PAD = 2;
-    /** Distance from the bottom of the screen. */
+    /** Padding between the slots and the panel edge. Barely there - it is an edge, not a frame. */
+    private static final int PAD = 1;
+    /** Distance from the bottom of the screen. The status readout shares this value. */
     private static final int MARGIN = 4;
 
-    /** Alpha of the held slot's coloured wash. Kept low - the underline carries it. */
-    private static final int ACTIVE_WASH_ALPHA = 0x44;
-    /** Thickness of the underline marking the held slot. */
-    private static final int UNDERLINE = 2;
+    /** Alpha of the held slot's coloured wash. The colour alone marks the held slot. */
+    private static final int ACTIVE_WASH_ALPHA = 0x66;
 
     private static final int ATTACK_W = 4;
     private static final int ATTACK_GAP = 6;
@@ -118,17 +120,13 @@ public final class HotbarRenderer {
         int wash = activeColor != 0
                 ? HudTheme.wash(activeColor, ACTIVE_WASH_ALPHA)
                 : (empty ? HudTheme.SLOT_INNER : HudTheme.SLOT_FILLED);
-        graphics.fill(x + 1, y + 1, x + PITCH - 1, y + PITCH - 1, wash);
-
-        // The held slot is marked by an underline in its state colour. It sits in
-        // the panel padding below the slot so it never crosses the item.
-        if (activeColor != 0) {
-            graphics.fill(x + 1, y + PITCH, x + PITCH - 1, y + PITCH + UNDERLINE, activeColor);
-        }
+        graphics.fill(x + INSET, y + INSET, x + PITCH - INSET, y + PITCH - INSET, wash);
 
         if (!stack.isEmpty()) {
-            graphics.renderItem(stack, x + 1, y + 1);
-            graphics.renderItemDecorations(minecraft.font, stack, x + 1, y + 1);
+            int itemX = x + (PITCH - 16) / 2;
+            int itemY = y + (PITCH - 16) / 2;
+            graphics.renderItem(stack, itemX, itemY);
+            graphics.renderItemDecorations(minecraft.font, stack, itemX, itemY);
         }
     }
 

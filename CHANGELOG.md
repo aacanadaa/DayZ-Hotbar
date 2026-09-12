@@ -6,16 +6,16 @@ status readout. Fabric only, for now.
 ## The hotbar
 
 Nine slots plus the offhand, drawn on a single flat panel in the same near-black
-translucent style as the DayZ Inventory screen. The slot geometry is that mod's own:
-an 18px pitch with a 16x16 inner wash and **no outline** — state is carried by the
-colour of the wash, never by a border.
+translucent style as the DayZ Inventory screen. The grey slot itself is 18x18 with
+only a one-pixel dark edge around it — a wider margin read as a frame rather than as
+a slot. State is carried by the colour of that wash, never by a border or an underline.
 
 | State | Meaning |
 | :--- | :--- |
 | Dim wash | Empty |
 | Lifted wash | Holds an item |
-| Green wash + underline | The slot currently in hand |
-| Red wash + underline | In hand, but the item cannot be used right now (on cooldown) |
+| Green wash | The slot currently in hand |
+| Red wash | In hand, but the item cannot be used right now (on cooldown) |
 
 Switching slots animates: the newly held slot starts **yellow** and resolves to green
 over about a third of a second, so a swap reads as an event rather than an instant
@@ -36,11 +36,14 @@ its current level rather than showing a number.
 | Icon | Notes |
 | :--- | :--- |
 | Apple | Food level, with saturation drawn over it as a brighter wash |
-| Chestplate | Armor. Only appears when you are wearing some |
+| Shield | Armor. Only appears when you are wearing some |
 | Bubble | Air. Only appears while you are underwater |
 | Gold heart | Absorption. Only appears while you have golden hearts |
-| Bar + number | Experience, with the level above it |
+| Gem | Experience, with the level number above it |
 | Cross | Health, or your mount's health while riding. Rightmost, as in DayZ |
+
+The readout shares the hotbar's bottom margin, so the two sit on the same baseline
+rather than the icons floating above it.
 
 Icons that come and go do not shift the ones that are always there: the row is
 right-aligned, so it grows and shrinks from the left.
@@ -61,9 +64,13 @@ so food turns yellow at half a bar, red under two shanks, and flashes on the las
 
 ### Trend chevrons
 
-Under each icon, a marker shows which way the stat is moving — drawn as a bold stacked
+Above each icon, a marker shows which way the stat is moving — drawn as a bold stacked
 chevron in the shape of a US Army rank insignia rather than a thin arrow, and always
-white so it never competes with the tier colours above it.
+white so it never competes with the tier colours below it.
+
+It sits above rather than below because an 18px icon plus a 21px marker stack is 41px,
+which is taller than the hotbar's own band: with the marker underneath, the icons were
+pushed up off the bottom of the screen instead of sitting on the hotbar's baseline.
 
 - **One chevron** — ordinary drift
 - **Two chevrons** — a significant change, which is what makes a poison tick or a

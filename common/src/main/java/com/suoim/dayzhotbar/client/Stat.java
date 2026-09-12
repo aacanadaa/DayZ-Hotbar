@@ -29,56 +29,73 @@ package com.suoim.dayzhotbar.client;
  */
 public enum Stat {
     /** Food level. Saturation is drawn over it as a secondary fill. */
-    FOOD(Icons.APPLE, true, 0.05F, 4.0F),
+    FOOD(Icons.APPLE, true, 0, 0.05F, 4.0F),
 
     /** Armour points. Hidden when the player has none. */
-    ARMOR(Icons.ARMOR, true, 0.05F, 4.0F),
+    ARMOR(Icons.SHIELD, true, 0, 0.05F, 4.0F),
 
     /** Air. Hidden while the player is not underwater. */
-    AIR(Icons.BUBBLE, true, 0.5F, 50.0F),
+    AIR(Icons.BUBBLE, true, 0, 0.5F, 50.0F),
 
     /**
      * Golden absorption hearts. Hidden when there are none. Not tiered - having
      * less absorption is not a warning, so it keeps one colour throughout.
      */
-    ABSORPTION(Icons.HEART, false, 0.05F, 3.0F),
+    ABSORPTION(Icons.HEART, false, HudTheme.TIER_ABSORPTION, 0.05F, 3.0F),
 
     /**
-     * Experience. Drawn procedurally rather than from a shape, because the bar
-     * has to carry the level number alongside it.
+     * Experience, drawn as a gem. Not tiered either: how far through a level you
+     * are is not a health warning, and a green bar here was the one element on the
+     * HUD that did not belong to the same palette as everything else.
      */
-    XP(null, false, 5.0F, 50.0F),
+    XP(Icons.DIAMOND, false, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
 
     /**
      * Health, or the mount's health while riding. Deliberately last so it sits at
      * the right-hand end of the row, where DayZ puts it and where the eye goes
      * first in a fight.
      */
-    HEALTH(Icons.CROSS, true, 0.05F, 3.0F);
+    HEALTH(Icons.CROSS, true, 0, 0.05F, 3.0F);
+
+    /** Below this a stat flashes. */
+    private static final float TIER_CRITICAL_AT = 0.075F;
+    /** Below this a stat is red. */
+    private static final float TIER_RED_AT = 0.20F;
+    /** Below this a stat is yellow rather than white. */
+    private static final float TIER_YELLOW_AT = 0.50F;
+    /** Ticks each half of the critical flash lasts - 4 is a fifth of a second. */
+    private static final int FLASH_TICKS = 4;
 
     private final String[] shape;
     private final boolean tiered;
+    private final int fixedColor;
     private final float minor;
     private final float major;
 
-    Stat(String[] shape, boolean tiered, float minor, float major) {
+    Stat(String[] shape, boolean tiered, int fixedColor, float minor, float major) {
         this.shape = shape;
         this.tiered = tiered;
+        this.fixedColor = fixedColor;
         this.minor = minor;
         this.major = major;
     }
 
-    /** The pixel-art shape, or null for stats drawn with geometry. */
+    /** The pixel-art shape this stat draws. */
     public String[] shape() {
         return shape;
     }
 
     /**
      * Whether how full this stat is changes its colour. When false the stat draws
-     * in a single fixed colour regardless of level.
+     * in {@link #fixedColor()} regardless of level.
      */
     public boolean tiered() {
         return tiered;
+    }
+
+    /** The colour used when {@link #tiered()} is false. */
+    public int fixedColor() {
+        return fixedColor;
     }
 
     /** Delta over one second at or above this shows one chevron. */
@@ -89,6 +106,11 @@ public enum Stat {
     /** Delta over one second at or above this shows two chevrons. */
     public float major() {
         return major;
+    }
+
+    /** The colour to draw this stat's shape in, given how full it is. */
+    public int colorFor(float fraction, int guiTicks) {
+        return tiered ? tierColor(fraction, guiTicks) : fixedColor;
     }
 
     /**
@@ -113,13 +135,4 @@ public enum Stat {
         }
         return HudTheme.TIER_NORMAL;
     }
-
-    /** Below this a stat flashes. */
-    private static final float TIER_CRITICAL_AT = 0.075F;
-    /** Below this a stat is red. */
-    private static final float TIER_RED_AT = 0.20F;
-    /** Below this a stat is yellow rather than white. */
-    private static final float TIER_YELLOW_AT = 0.50F;
-    /** Ticks each half of the critical flash lasts - 4 is a fifth of a second. */
-    private static final int FLASH_TICKS = 4;
 }
