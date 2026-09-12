@@ -134,30 +134,30 @@ public final class Icons {
      * permanently red, so it still goes yellow and flashes as health drops - a cross
      * that was always red would say nothing about how much health is left.
      * <p>
-     * All four arms are five cells thick and five cells long, so the figure is
-     * symmetric in both directions and no arm is thicker than it is long.
+     * All four arms are seven cells thick and four cells long, so the figure is
+     * symmetric in both directions. It was not, briefly: the vertical arm was seven
+     * wide while the horizontal band was only five tall, which made the top and
+     * bottom arms visibly wider than the sides.
      * <p>
-     * That ratio is what the earlier versions got wrong. Seven cells thick but
-     * protruding only four made a fat plus that read as heavier than every other icon
-     * on the row, and an asymmetric nine-wide one was worse. A cross needs its arms
-     * longer than they are thick or it does not look like a cross.
+     * A nine-cell version was also tried and reverted - it made the bar across the
+     * middle too heavy.
      */
     public static final String[] CROSS = {
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
-        "#####+###+#####",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "####+#####+####",
         "###############",
         "###############",
         "###############",
-        "#####+###+#####",
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
-        ".....#####....."
+        "###############",
+        "###############",
+        "####+#####+####",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######...."
     };
 
     /** A gem, used for experience. */
