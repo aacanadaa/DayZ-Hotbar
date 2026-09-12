@@ -282,6 +282,66 @@ public final class Icons {
         }
     }
 
+    /**
+     * A standing figure, the stance mark for walking. One of three: the same figure
+     * with its legs together, apart, or folded under it.
+     */
+    public static final String[] STANCE_WALK = {
+        "...............",
+        "......###......",
+        "......###......",
+        "...............",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        "....##...##....",
+        "....#.....#....",
+        "....#.....#....",
+        "...............",
+        "...............",
+        "...............",
+        "...............",
+        "..............."
+    };
+
+    /** The same figure with its legs drawn together and its body lower. */
+    public static final String[] STANCE_CROUCH = {
+        "...............",
+        "...............",
+        "......###......",
+        "......###......",
+        "...............",
+        ".....#####.....",
+        "....#######....",
+        "....#######....",
+        "...##.....##...",
+        "...##.....##...",
+        "...............",
+        "...............",
+        "...............",
+        "...............",
+        "..............."
+    };
+
+    /** The same figure leaning forward with its legs stretched out behind. */
+    public static final String[] STANCE_RUN = {
+        "...............",
+        ".....###.......",
+        ".....###.......",
+        "...............",
+        "....#####......",
+        "...######......",
+        "...#####.......",
+        "..###..##......",
+        ".##......##....",
+        "#.........#....",
+        "...............",
+        "...............",
+        "...............",
+        "...............",
+        "..............."
+    };
+
     /** Draws one shape's cells in a single flat colour. */
     private static void plot(GuiGraphics graphics, boolean[][] cells, int x, int y, int pixel, int color) {
         for (int row = 0; row < cells.length; row++) {

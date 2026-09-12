@@ -52,6 +52,20 @@ public final class HotbarRenderer {
     private static final int ACTIVE_WASH_ALPHA = 0x66;
 
     /**
+     * The x of the hotbar's left edge. Exposed so other elements can anchor to the bar
+     * rather than to a screen corner.
+     */
+    public static int leftEdge(int screenWidth) {
+        int totalWidth = 9 * PITCH + SEPARATOR + PITCH;
+        return (screenWidth - totalWidth) / 2;
+    }
+
+    /** The y of the hotbar's bottom edge, which is one pixel inside its last cell. */
+    public static int bottomEdge(int screenHeight) {
+        return screenHeight - MARGIN - 1;
+    }
+
+    /**
      * Draws the hotbar.
      *
      * @param swapProgress 0 the instant the held slot changes, 1 once the swap has

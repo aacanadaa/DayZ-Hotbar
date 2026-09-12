@@ -171,8 +171,14 @@ public final class DayZHotbarHud {
         if (minecraft.options.hideGui) {
             return false;
         }
-        return HotbarRenderer.render(graphics, minecraft, graphics.guiWidth(), graphics.guiHeight(),
-                swapProgress());
+        boolean drawn = HotbarRenderer.render(graphics, minecraft,
+                graphics.guiWidth(), graphics.guiHeight(), swapProgress());
+        if (drawn) {
+            // Anchored to the hotbar, so it goes wherever the bar goes and only draws
+            // when the bar did.
+            PlayerPanel.render(graphics, minecraft, graphics.guiWidth(), graphics.guiHeight());
+        }
+        return drawn;
     }
 
     /** Draws the status readout. Returns false to let vanilla render instead. */
