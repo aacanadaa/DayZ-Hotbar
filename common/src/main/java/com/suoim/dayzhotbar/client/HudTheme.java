@@ -73,6 +73,28 @@ public final class HudTheme {
     /** The slot in hand, but the item cannot be used right now. */
     public static final int STATE_BLOCKED = 0xFFE04040;
 
+    // --- Item condition ---------------------------------------------------------
+    // DayZ grades an item by how much of its durability is left, and the grade is
+    // shown as a coloured dot rather than a number or a bar.
+    /** Full. */
+    public static final int CONDITION_PRISTINE = 0xFF5FBF4F;
+    /** Scratched. */
+    public static final int CONDITION_WORN = 0xFFE8C33A;
+    /** Half gone. */
+    public static final int CONDITION_DAMAGED = 0xFFE08A2E;
+    /** Nearly gone. */
+    public static final int CONDITION_BADLY_DAMAGED = 0xFFE04040;
+    /** Gone. */
+    public static final int CONDITION_RUINED = 0xFF6E1414;
+
+    /** A filled circle, for the condition dot. */
+    public static void dot(GuiGraphics graphics, int centerX, int centerY, int radius, int color) {
+        for (int dy = -radius; dy <= radius; dy++) {
+            int half = (int) Math.sqrt(radius * radius - dy * dy);
+            graphics.fill(centerX - half, centerY + dy, centerX + half + 1, centerY + dy + 1, color);
+        }
+    }
+
     /** Translucent version of a colour, for slot washes. */
     public static int wash(int argb, int alpha) {
         return (alpha << 24) | (argb & 0x00FFFFFF);
