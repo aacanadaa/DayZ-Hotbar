@@ -119,6 +119,15 @@ public final class HudTheme {
         graphics.fill(x, y, x + width, y + height, PANEL_BG);
     }
 
+    /**
+     * The plate a HUD card sits on. Deliberately the same wash the hotbar's slots use
+     * rather than the darker section panel: the hotbar has no backing plate of its own,
+     * so a dark card beside it reads as a different material.
+     */
+    public static void card(GuiGraphics graphics, int x, int y, int width, int height) {
+        graphics.fill(x, y, x + width, y + height, SLOT_FILLED);
+    }
+
     // --- Rank-insignia trend chevron --------------------------------------------
     /**
      * The trend marker: a stacked chevron in the shape of a US Army rank insignia.
