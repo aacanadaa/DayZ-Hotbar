@@ -164,25 +164,6 @@ public final class Icons {
         "....#######...."
     };
 
-    /** A four-point star, the mark for a beneficial effect. */
-    public static final String[] STAR = {
-        ".......#.......",
-        "......###......",
-        "......###......",
-        "......###......",
-        ".....#####.....",
-        "...#########...",
-        ".#############.",
-        "###############",
-        ".#############.",
-        "...#########...",
-        ".....#####.....",
-        "......###......",
-        "......###......",
-        "......###......",
-        ".......#......."
-    };
-
     /**
      * A virus particle, the mark for a harmful effect: a round body with eight spikes.
      * <p>
@@ -210,15 +191,14 @@ public final class Icons {
     };
 
     /**
-     * A capsule, the mark for a restorative effect. Drawn as an outline with one half
-     * filled, which is what makes it read as a pill rather than as a lozenge -
-     * {@link #PILL_FILLED} is the half that gets filled in.
+     * A capsule, the mark for a restorative effect. Filled to half, which is what makes
+     * it read as a pill rather than as a lozenge.
      * <p>
      * It lies level. A diagonal capsule was tried at two widths and read as a needle
      * both times: the outline takes a cell off each side, and on the diagonal the
-     * remaining interior is a thin strip that the half-fill then reduces to a line.
-     * The sloping ends are what do it - a capsule needs blunt ends, and a blunt end on
-     * a slope is a step. Only a level one keeps enough body to read as a capsule.
+     * remaining interior is a thin strip. The sloping ends are what do it - a capsule
+     * needs blunt ends, and a blunt end on a slope is a step. Only a level one keeps
+     * enough body to read as a capsule.
      */
     public static final String[] PILL = {
         "...............",
@@ -233,25 +213,6 @@ public final class Icons {
         "..############.",
         "...##########..",
         ".....######....",
-        "...............",
-        "...............",
-        "..............."
-    };
-
-    /** The left half of {@link #PILL}, drawn solid while the rest stays hollow. */
-    public static final String[] PILL_FILLED = {
-        "...............",
-        "...............",
-        "...............",
-        ".....###.......",
-        "...#####.......",
-        "..######.......",
-        ".#######.......",
-        ".#######.......",
-        ".#######.......",
-        "..######.......",
-        "...#####.......",
-        ".....###.......",
         "...............",
         "...............",
         "..............."
@@ -292,15 +253,10 @@ public final class Icons {
     /** Edge length of {@link #PLUS}. */
     public static final int PLUS_SIZE = PLUS.length;
 
-    /** Draws just the outline of a shape, one screen pixel per cell. */
-    public static void drawOutline(GuiGraphics graphics, String[] shape, int x, int y, int color) {
-        plot(graphics, outlineOf(mask(shape)), x, y, 1, color);
-    }
-
     /**
      * Draws a shape filled solid, one screen pixel per cell, with no outline or
-     * interior of its own. Used for the effect marks and for the plus badge on the
-     * absorption cross.
+     * interior of its own. For the small plus badge on the absorption cross, which is
+     * a mark laid over another icon rather than a figure in its own right.
      */
     public static void drawSolid(GuiGraphics graphics, String[] shape, int x, int y, int color) {
         for (int row = 0; row < shape.length; row++) {

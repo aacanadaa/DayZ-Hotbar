@@ -29,20 +29,20 @@ import net.minecraft.world.effect.MobEffects;
  */
 public enum EffectGroup {
     /** Beneficial effects that are not about health: speed, strength, night vision. */
-    GOOD(Icons.STAR, null),
+    GOOD(Icons.HEART, 1.0F),
 
     /** Effects that restore or buffer health: regeneration, absorption, saturation. */
-    RECOVERY(Icons.PILL, Icons.PILL_FILLED),
+    RECOVERY(Icons.PILL, 0.5F),
 
     /** Everything harmful. One family, whether it is poison or mining fatigue. */
-    AFFLICTION(Icons.CORONA, null);
+    AFFLICTION(Icons.CORONA, 1.0F);
 
     private final String[] shape;
-    private final String[] filledHalf;
+    private final float fill;
 
-    EffectGroup(String[] shape, String[] filledHalf) {
+    EffectGroup(String[] shape, float fill) {
         this.shape = shape;
-        this.filledHalf = filledHalf;
+        this.fill = fill;
     }
 
     /** The mark drawn for this family. */
@@ -51,12 +51,12 @@ public enum EffectGroup {
     }
 
     /**
-     * The part of the mark drawn solid while the rest stays hollow, or null when the
-     * whole mark is solid. Only the pill uses it - a capsule with one half filled is
-     * what makes it read as a pill rather than as a lozenge.
+     * How much of the mark's interior is filled. Half for the pill, because a capsule
+     * with one half filled is what makes it read as a pill rather than as a lozenge;
+     * full for the rest, since there is nothing to say with a partial one.
      */
-    public String[] filledHalf() {
-        return filledHalf;
+    public float fill() {
+        return fill;
     }
 
     /**
