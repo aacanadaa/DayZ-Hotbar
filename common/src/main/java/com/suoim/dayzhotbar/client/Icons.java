@@ -134,22 +134,26 @@ public final class Icons {
      * permanently red, so it still goes yellow and flashes as health drops - a cross
      * that was always red would say nothing about how much health is left.
      * <p>
-     * The arms are seven cells wide. A nine-cell version was tried and reverted: it
-     * made the bar in the middle too heavy, and the arms were never the problem - the
-     * corner the outline failed to turn was.
+     * All four arms are seven cells thick and four cells long, so the figure is
+     * symmetric in both directions. It was not, briefly: the vertical arm was seven
+     * wide while the horizontal band was only five tall, which made the top and
+     * bottom arms visibly wider than the sides.
+     * <p>
+     * A nine-cell version was also tried and reverted - it made the bar across the
+     * middle too heavy.
      */
     public static final String[] CROSS = {
         "....#######....",
         "....#######....",
         "....#######....",
         "....#######....",
-        "....#######....",
         "###############",
         "###############",
         "###############",
         "###############",
         "###############",
-        "....#######....",
+        "###############",
+        "###############",
         "....#######....",
         "....#######....",
         "....#######....",
