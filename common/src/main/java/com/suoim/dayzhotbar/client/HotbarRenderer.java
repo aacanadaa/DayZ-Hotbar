@@ -29,16 +29,14 @@ public final class HotbarRenderer {
     private HotbarRenderer() {}
 
     /**
-     * Cell pitch. Raised from 18 so the wash inside it grows to 18x18: the grey area
-     * is the slot, and at the old size the dark gap around it read as a frame.
+     * Cell pitch. The grey box fills all but one pixel of it, so the boxes are as
+     * large as they can be while still being separable.
      */
-    private static final int PITCH = 20;
-    /** Inset of the wash inside its cell. One pixel, so slots stay distinguishable. */
-    private static final int INSET = 1;
+    private static final int PITCH = 23;
+    /** The grey box inside a cell. One pixel of cell is left between boxes. */
+    private static final int BOX = PITCH - 1;
     /** Gap separating the offhand slot from the nine. */
     private static final int SEPARATOR = 8;
-    /** Padding between the slots and the panel edge. Barely there - it is an edge, not a frame. */
-    private static final int PAD = 1;
     /** Distance from the bottom of the screen. The status readout shares this value. */
     private static final int MARGIN = 4;
 
@@ -71,10 +69,8 @@ public final class HotbarRenderer {
         int left = (screenWidth - totalWidth) / 2;
         int top = screenHeight - MARGIN - PITCH;
 
-        // One panel behind the whole row, as every DayZ Inventory element sits on a
-        // section panel rather than floating free over the world.
-        HudTheme.panel(graphics, left - PAD, top - PAD, totalWidth + PAD * 2, PITCH + PAD * 2);
-
+        // No panel behind the row. The boxes are the hotbar; a backing plate around
+        // them only added a dark border the boxes already define for themselves.
         for (int i = 0; i < 9; i++) {
             ItemStack stack = inventory.getItem(i);
             boolean active = i == selected;
@@ -82,9 +78,6 @@ public final class HotbarRenderer {
                     active ? activeColor(player, stack, swapProgress) : 0,
                     stack.isEmpty());
         }
-
-        int separatorX = left + hotbarWidth + SEPARATOR / 2;
-        graphics.fill(separatorX, top, separatorX + 1, top + PITCH, HudTheme.HAIRLINE);
 
         int offhandX = left + hotbarWidth + SEPARATOR;
         ItemStack offhand = player.getOffhandItem();
@@ -116,11 +109,11 @@ public final class HotbarRenderer {
         int wash = activeColor != 0
                 ? HudTheme.wash(activeColor, ACTIVE_WASH_ALPHA)
                 : (empty ? HudTheme.SLOT_INNER : HudTheme.SLOT_FILLED);
-        graphics.fill(x + INSET, y + INSET, x + PITCH - INSET, y + PITCH - INSET, wash);
+        graphics.fill(x, y, x + BOX, y + BOX, wash);
 
         if (!stack.isEmpty()) {
-            int itemX = x + (PITCH - 16) / 2;
-            int itemY = y + (PITCH - 16) / 2;
+            int itemX = x + (BOX - 16) / 2;
+            int itemY = y + (BOX - 16) / 2;
             graphics.renderItem(stack, itemX, itemY);
             graphics.renderItemDecorations(minecraft.font, stack, itemX, itemY);
         }
@@ -142,9 +135,9 @@ public final class HotbarRenderer {
             return;
         }
 
-        HudTheme.panel(graphics, x, y, ATTACK_W, PITCH);
-        int filled = Math.max(1, Math.round((PITCH - 2) * strength));
-        graphics.fill(x + 1, y + PITCH - 1 - filled, x + ATTACK_W - 1, y + PITCH - 1,
+        graphics.fill(x, y, x + ATTACK_W, y + BOX, HudTheme.SLOT_INNER);
+        int filled = Math.max(1, Math.round(BOX * strength));
+        graphics.fill(x, y + BOX - filled, x + ATTACK_W, y + BOX,
                 HudTheme.wash(HudTheme.STATE_ACTIVE, 0xB0));
     }
 }
