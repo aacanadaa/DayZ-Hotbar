@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.suoim.dayzhotbar.client.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"refmap": "dayz-hotbar.refmap.json",
+	"client": [
+		"GuiMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

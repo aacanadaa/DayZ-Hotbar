@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "dayz_hotbar",
+	"version": "${version}",
+	"name": "DayZ Hotbar",
+	"description": "Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout for health, food, armor, absorption and experience.",
+	"authors": [
+		{
+			"name": "suoim",
+			"contact": {
+				"homepage": "https://modrinth.com/user/suoim"
+			}
+		}
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/dayz-hotbar",
+		"sources": "https://github.com/aacanadaa/DayZ-Hotbar",
+		"issues": "https://github.com/aacanadaa/DayZ-Hotbar/issues"
+	},
+	"license": "Apache-2.0",
+	"icon": "assets/dayz_hotbar/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.suoim.dayzhotbar.fabric.client.DayZHotbarFabricClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "dayz-hotbar.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"minecraft": "~1.20.1",
+		"java": ">=17"
+	}
+}

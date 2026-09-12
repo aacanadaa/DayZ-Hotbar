@@ -1,0 +1,52 @@
+/*
+ * DayZ Hotbar
+ * Copyright 2026 suoim
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+plugins {
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    version = rootProject.version
+    group = rootProject.group
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'Sponge / Mixin'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = 'UTF-8'
+        it.options.release = 17
+    }
+
+    java {
+        withSourcesJar()
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    jar {
+        def projectName = project.name
+        inputs.property "projectName", projectName
+        // Ship the project's Apache-2.0 LICENSE inside every artifact.
+        from(rootProject.file("LICENSE")) {
+            into 'META-INF'
+            rename { "LICENSE-${projectName}" }
+        }
+    }
+}

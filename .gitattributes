@@ -1,0 +1,21 @@
+# Normalize line endings: text files are stored with LF in the repository,
+# and checked out with LF everywhere. This keeps the Forge/Fabric build
+# reproducible across Windows, macOS and Linux contributors.
+* text=auto eol=lf
+
+# Shell scripts must always use LF, including on Windows (Git Bash / WSL).
+*.sh            text eol=lf
+gradlew         text eol=lf
+
+# Windows batch scripts must use CRLF.
+*.bat           text eol=crlf
+gradlew.bat     text eol=crlf
+
+# Binary assets - never touch these.
+*.jar           binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.ogg           binary
+*.zip           binary
