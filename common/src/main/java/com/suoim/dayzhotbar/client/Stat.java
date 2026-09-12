@@ -52,11 +52,12 @@ public enum Stat {
     AIR(Icons.BUBBLE, Group.SUSTENANCE, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.5F, 50.0F),
 
     /**
-     * Experience, drawn as a gem. Not tiered: how far through a level you are is not a
-     * health warning, and a green bar here was the one element on the HUD that did not
-     * belong to the same palette as everything else.
+     * Experience, drawn as a drop rather than a gem, which is the shape DayZ uses for
+     * blood. Not tiered: how far through a level you are is not a health warning, and a
+     * green bar here was the one element on the HUD that did not belong to the same
+     * palette as everything else.
      */
-    XP(Icons.DIAMOND, Group.VITALS, null, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
+    XP(Icons.DROP, Group.VITALS, null, HudTheme.TIER_NORMAL, 5.0F, 50.0F),
 
     /**
      * Absorption. Drawn as a second health cross rather than an icon of its own, and
