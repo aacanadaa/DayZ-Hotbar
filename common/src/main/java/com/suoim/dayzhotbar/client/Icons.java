@@ -40,11 +40,17 @@ public final class Icons {
     /** Source grid dimension. Every shape below is exactly this wide and tall. */
     public static final int GRID = 15;
 
-    /** A heart. Used for absorption. */
+    /**
+     * A heart. Two lobes with a V between them, tapering to a point.
+     * <p>
+     * The notch is what makes it a heart and it has to cut three rows deep. At one or
+     * two the lobes fill in on the next row down and the figure is a blob with a dent
+     * in the top - which is what an earlier version was.
+     */
     public static final String[] HEART = {
-        "...............",
         "...##.....##...",
-        "..###########..",
+        "..####...####..",
+        ".######.######.",
         ".#############.",
         "###############",
         "###############",
@@ -165,28 +171,32 @@ public final class Icons {
     };
 
     /**
-     * A virus particle, the mark for a harmful effect: a round body with eight spikes.
+     * A virus particle, the mark for a harmful effect: a round body with four spikes,
+     * each ending in a knob.
      * <p>
-     * The left and right spikes sit flush against the body rather than on stalks, which
-     * makes the middle row a single bar across the figure. At fifteen cells there is no
-     * room for a stalk and a knob on both, and a detached spike reads as debris rather
-     * than as part of the shape.
+     * The knobs are the point. Plain spikes radiating from a ball read as a star or a
+     * sun - which is what the first version looked like - and it is the rounded tips
+     * that say virus rather than starburst.
+     * <p>
+     * Only four spikes, not eight. Eight leaves no room for a knob on any of them at
+     * this size, and four knobbed spikes read as a particle where eight bare ones read
+     * as a sparkle.
      */
     public static final String[] CORONA = {
         "...............",
+        "......###......",
         ".......#.......",
-        "..#....#....#..",
-        "...#.#####.#...",
         "....#######....",
         "...#########...",
-        "...#########...",
+        "..###########..",
         ".#############.",
-        "...#########...",
+        "##.#########.##",
+        ".#############.",
+        "..###########..",
         "...#########...",
         "....#######....",
-        "...#.#####.#...",
-        "..#....#....#..",
         ".......#.......",
+        "......###......",
         "..............."
     };
 
