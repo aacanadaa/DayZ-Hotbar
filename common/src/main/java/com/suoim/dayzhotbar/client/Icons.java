@@ -84,10 +84,13 @@ public final class Icons {
     };
 
     /**
-     * A shield: a flat top narrowing to a point. This started as a chestplate, but
-     * shoulders drawn as {@code .##...##.} over a taper read as a heart - which is
-     * what it kept being mistaken for, and the same silhouette the health icon used
-     * to have. A flat top cannot be misread that way.
+     * A heater shield: a flat top, sides that stay vertical through the upper half,
+     * and a taper confined to the bottom third that ends on a flat edge.
+     * <p>
+     * Both extremes were wrong. Tapering evenly from the top gives a funnel; ending
+     * in a single cell gives a spike. It also began life as a chestplate, but
+     * shoulders drawn as {@code .##...##.} over a taper read as a heart - the same
+     * silhouette the health icon used to have.
      */
     public static final String[] SHIELD = {
         "###############",
@@ -95,16 +98,16 @@ public final class Icons {
         "###############",
         "###############",
         "###############",
+        "###############",
+        "###############",
+        "###############",
         ".#############.",
         ".#############.",
         "..###########..",
         "..###########..",
-        "...#########...",
         "...#########...",
         "....#######....",
-        ".....#####.....",
-        "......###......",
-        ".......#......."
+        ".....#####....."
     };
 
     /** A bubble. */
@@ -131,25 +134,27 @@ public final class Icons {
      * permanently red, so it still goes yellow and flashes as health drops - a cross
      * that was always red would say nothing about how much health is left.
      * <p>
-     * The arms are seven cells wide so that an outline and a gap still leave five
-     * cells of interior to fill.
+     * The arms are nine cells wide, and the intersections of the arms are what set
+     * that: an outline and a gap take two cells off each side, so at seven wide the
+     * interior was a three-cell sliver and the cross read as hollow. At nine the
+     * interior is five cells and the shape holds together.
      */
     public static final String[] CROSS = {
-        "....#######....",
-        "....#######....",
-        "....#######....",
-        "....#######....",
-        "....#######....",
+        "...#########...",
+        "...#########...",
+        "...#########...",
         "###############",
         "###############",
         "###############",
         "###############",
         "###############",
-        "....#######....",
-        "....#######....",
-        "....#######....",
-        "....#######....",
-        "....#######...."
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "...#########...",
+        "...#########...",
+        "...#########..."
     };
 
     /** A gem, used for experience. */
