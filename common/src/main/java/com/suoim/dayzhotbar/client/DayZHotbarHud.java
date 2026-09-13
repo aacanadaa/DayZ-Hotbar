@@ -106,8 +106,15 @@ public final class DayZHotbarHud {
         FoodData food = player.getFoodData();
         trackers.get(Stat.HEALTH).push(health(player));
         trackers.get(Stat.FOOD).push(food.getFoodLevel());
+        // Water mirrors food, so it moves when food moves - which is what gives it a
+        // trend arrow of its own rather than leaving it a static second hunger bar.
+        trackers.get(Stat.WATER).push(food.getFoodLevel());
         trackers.get(Stat.AIR).push(player.getAirSupply());
         trackers.get(Stat.ABSORPTION).push(player.getAbsorptionAmount());
+        // Pushed even though it never changes: a tracker that is never fed holds no
+        // samples at all, and the first real reading would land as a spike against
+        // nothing rather than as a change.
+        trackers.get(Stat.TEMPERATURE).push(TEMPERATURE_IDLE);
 
         // Experience is scaled so a level-up (+100) clearly outranks a single orb
         // (+10), which is what makes the level-up read as a two-chevron event.
