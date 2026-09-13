@@ -221,8 +221,17 @@ public final class StatusRow {
         graphics.pose().popPose();
     }
 
-    private static int withAlpha(int argb, float alpha) {
-        int a = Math.round(255.0F * Math.max(0.0F, Math.min(1.0F, alpha)));
+    /**
+     * Scales a colour's own alpha by {@code factor} rather than replacing it.
+     * <p>
+     * Replacing it looked equivalent and was not: the critical flash alternates between
+     * a bright red and a half-transparent one, and overwriting that half-transparent
+     * alpha with an opaque one made both phases the same colour. The icon stopped
+     * flashing while still going red - which is exactly how it was reported.
+     */
+    private static int withAlpha(int argb, float factor) {
+        float clamped = Math.max(0.0F, Math.min(1.0F, factor));
+        int a = Math.round((argb >>> 24) * clamped);
         return (a << 24) | (argb & 0x00FFFFFF);
     }
 }

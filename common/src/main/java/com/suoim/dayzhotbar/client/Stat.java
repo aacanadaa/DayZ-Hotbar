@@ -36,6 +36,17 @@ public enum Stat {
     FOOD(Icons.APPLE, Group.SUSTENANCE, new Tiers(0.019F, 0.05F, 0.15F), 0, 0.05F, 4.0F),
 
     /**
+     * Water. Nothing reads a water level yet, so it mirrors food - same fill, same
+     * bands - and reads as a second hunger bar rather than pretending to a reading it
+     * does not have.
+     * <p>
+     * Tough As Nails integration turns this into its own reader: the fill comes from
+     * the thirst stat instead, and its bands may want revisiting, since thirst in that
+     * mod moves on a different scale from hunger.
+     */
+    WATER(Icons.WATER_BOTTLE, Group.SUSTENANCE, new Tiers(0.019F, 0.05F, 0.15F), 0, 0.05F, 4.0F),
+
+    /**
      * Armour has no row entry. It was here as a shield and was removed on request -
      * the shape is still in {@link Icons} for wherever it lands next. Armour is what
      * you are wearing rather than a warning, so whenever it returns it should not be
@@ -50,6 +61,17 @@ public enum Stat {
      * the part that matters.
      */
     AIR(Icons.BUBBLE, Group.SUSTENANCE, new Tiers(0.14F, 0.30F, 0.60F), 0, 0.5F, 50.0F),
+
+    /**
+     * Temperature, drawn as a thermometer and held at half and white until Tough As
+     * Nails is in.
+     * <p>
+     * That mod is where the reading comes from, and with it the colour bands - blue
+     * too cold, white comfortable, orange warm, and one or two marks once it is too
+     * hot. None of that can be wired up against a stat that does not exist yet, so
+     * the mark is drawn at rest in the meantime.
+     */
+    TEMPERATURE(Icons.THERMOMETER, Group.SUSTENANCE, null, HudTheme.TIER_NORMAL, 0.5F, 50.0F),
 
     /**
      * Experience, drawn as a drop rather than a gem, which is the shape DayZ uses for
