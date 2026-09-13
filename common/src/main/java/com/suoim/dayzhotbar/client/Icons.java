@@ -355,12 +355,19 @@ public final class Icons {
         "...#####..."
     };
 
-    /** A plastic bottle, the water mark: cap, neck, then the body. */
+    /**
+     * A plastic bottle, the water mark: cap and neck as one straight column over a
+     * wider body.
+     * <p>
+     * The neck does not pinch in below the cap. It was drawn narrower at first, on the
+     * reasoning that a real bottle narrows there, and at this size it read as a dent in
+     * the side rather than as a neck.
+     */
     public static final String[] WATER_BOTTLE = {
         ".....#####.....",
         ".....#####.....",
-        "......###......",
-        "......###......",
+        ".....#####.....",
+        ".....#####.....",
         "....#######....",
         "....#######....",
         "....#######....",
@@ -391,9 +398,9 @@ public final class Icons {
         ".....#####.....",
         ".....#####.....",
         ".....#####.....",
-        ".....#####.....",
-        ".....#####.....",
         "....#######....",
+        "...#########...",
+        "...#########...",
         "....#######....",
         ".....#####....."
     };
