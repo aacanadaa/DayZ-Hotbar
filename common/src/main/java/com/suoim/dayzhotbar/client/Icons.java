@@ -335,19 +335,67 @@ public final class Icons {
         "..........."
     };
 
-    /** A shield, eleven cells, sized to sit level with the stance figures. */
+    /**
+     * A shield, eleven cells, sized to sit level with the stance figures.
+     * <p>
+     * The taper is confined to the lower half. Running it evenly from the top, as the
+     * first attempt did, gives a straight-sided wedge - a triangle, not a shield.
+     */
     public static final String[] SHIELD_MARK = {
         "###########",
         "###########",
         "###########",
+        "###########",
+        "###########",
         ".#########.",
         ".#########.",
         "..#######..",
         "..#######..",
         "...#####...",
-        "...#####...",
-        "....###....",
-        ".....#....."
+        "...#####..."
+    };
+
+    /** A plastic bottle, the water mark: cap, neck, then the body. */
+    public static final String[] WATER_BOTTLE = {
+        ".....#####.....",
+        ".....#####.....",
+        "......###......",
+        "......###......",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        "....#######....",
+        ".....#####....."
+    };
+
+    /**
+     * A thermometer, the temperature mark: a narrow tube over a bulb.
+     * <p>
+     * The tube is five cells so that an outline and a gap still leave a cell of
+     * interior to fill; at three there would be nothing left to show a level with.
+     */
+    public static final String[] THERMOMETER = {
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        ".....#####.....",
+        "....#######....",
+        "....#######....",
+        ".....#####....."
     };
 
     /** Draws one shape's cells in a single flat colour. */

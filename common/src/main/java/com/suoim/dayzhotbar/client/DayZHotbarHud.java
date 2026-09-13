@@ -43,6 +43,12 @@ public final class DayZHotbarHud {
     private static final int SWAP_TICKS = 6;
     /** Ticks an effect mark takes to fade out once the effect is gone. */
     private static final int EFFECT_FADE_TICKS = 20;
+    /**
+     * Where the temperature mark sits until there is a reading behind it. Half is
+     * "comfortable" on a thermometer, which is the state a player is in almost all of
+     * the time.
+     */
+    private static final float TEMPERATURE_IDLE = 0.5F;
 
     private final EnumMap<Stat, VelocityTracker> trackers = new EnumMap<>(Stat.class);
     /** Ticks of fade left per effect family. Full means the family is active. */
@@ -241,6 +247,12 @@ public final class DayZHotbarHud {
             StatusRow.Cell cell = switch (stat) {
                 case HEALTH -> statCell(stat, clamp(health(player) / maxHealth), 0.0F, StatusRow.NO_LEVEL);
                 case FOOD -> statCell(stat, foodFraction, saturationFraction, StatusRow.NO_LEVEL);
+                // Mirrors food until Tough As Nails supplies a thirst level. Saturation
+                // is a food concept and is deliberately not copied across.
+                case WATER -> statCell(stat, foodFraction, 0.0F, StatusRow.NO_LEVEL);
+                // Fixed at rest; the reading and its colour bands arrive with Tough As
+                // Nails.
+                case TEMPERATURE -> statCell(stat, TEMPERATURE_IDLE, 0.0F, StatusRow.NO_LEVEL);
                 // Only while submerged, exactly like vanilla's bubbles.
                 case AIR -> air < maxAir
                         ? statCell(stat, clamp(air / (float) maxAir), 0.0F, StatusRow.NO_LEVEL)
