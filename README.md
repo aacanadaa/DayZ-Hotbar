@@ -14,6 +14,9 @@ styled to match [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory).
 **Available for Minecraft 1.20.1 on Fabric. No Fabric API required.**
 
 ![The DayZ Hotbar HUD in game: the held-item panel at the bottom left showing an empty hand, a nine-slot hotbar with the held slot lit green, and the status readout at the bottom right showing food, water, temperature, experience and health](docs/screenshots/uwu.png)
+![DayZ Inventory UI — Vicinity grid with an open Jukebox drawer, the Survivor panel, the 2.0x Hands slot showing a Decorated Pot, and the 2x2 crafting grid](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
+
+With hotbar mod ^^
 
 ---
 
