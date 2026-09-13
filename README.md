@@ -4,13 +4,13 @@
 [![Modrinth](https://img.shields.io/modrinth/v/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge](https://img.shields.io/curseforge/v/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-62b47a.svg)
-![Loader](https://img.shields.io/badge/Loader-Fabric-dbb69b.svg)
+![Loader](https://img.shields.io/badge/Loader-Fabric_%7C_Forge-dbb69b.svg)
 [![Issues](https://img.shields.io/github/issues/aacanadaa/DayZ-Hotbar?color=red)](https://github.com/aacanadaa/DayZ-Hotbar/issues)
 
 Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout,
 styled to match [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory).
 
-**Available for Minecraft 1.20.1 on Fabric. No Fabric API required.**
+**Available for Minecraft 1.20.1 on Fabric and Forge. No Fabric API required.**
 
 ![The DayZ Hotbar HUD in game: the held-item panel at the bottom left showing an empty hand, a nine-slot hotbar with the held slot lit green, and the status readout at the bottom right showing food, water, temperature, experience and health](docs/screenshots/uwu.png)
 ![DayZ Inventory UI — Vicinity grid with an open Jukebox drawer, the Survivor panel, the 2.0x Hands slot showing a Decorated Pot, and the 2x2 crafting grid](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
@@ -146,12 +146,15 @@ texture. The mod ships no icon art of its own, so it cannot clash with a resourc
 
 ## Installation
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.20.1.
-2. Drop the jar into your `mods` folder.
-3. That's it.
+**Fabric** — install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.20.1, then
+drop the Fabric jar into your `mods` folder.
 
-Fabric API is **not** required. The HUD is installed with Mixin against vanilla's own
-`Gui`, so Fabric Loader is the only dependency.
+**Forge** — install Forge 47.x for Minecraft 1.20.1, then drop the Forge jar into `mods`
+instead. The two jars are the same mod built for different loaders: use one or the other,
+never both.
+
+Neither loader needs an API mod alongside it. The HUD is installed with Mixin against
+vanilla's own `Gui`, so the loader itself is the only dependency.
 
 ---
 
@@ -161,6 +164,7 @@ Fabric API is **not** required. The HUD is installed with Mixin against vanilla'
 | :--- | :--- |
 | Minecraft | 1.20.1 |
 | Fabric Loader | 0.15.0 or newer |
+| Forge | 47.2.0 or newer |
 | Java | 17 or newer |
 | Fabric API | Not required |
 
@@ -185,9 +189,10 @@ Requires **JDK 17**.
 ```bash
 ./gradlew build
 ./gradlew :fabric:build
+./gradlew :forge:build
 ```
 
-The mod jar lands in `fabric/build/libs/`.
+The Fabric jar lands in `fabric/build/libs/` and the Forge jar in `forge/build/libs/`.
 
 ---
 
@@ -202,10 +207,10 @@ The mod jar lands in `fabric/build/libs/`.
 
 ## License & Copyright
 
-Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+Licensed under the [Apache License 2.0](LICENSE).
 
-This is a **source-available** licence, not an open source one. You are free to use,
-modify and redistribute the mod — including in modpacks and on servers — but **not for
-commercial purposes**. The licence spells out exactly what that covers.
+Free to use, modify and redistribute — in modpacks, on servers, and commercially. The
+only condition is that the copyright notice and a copy of the licence travel with any
+copy you pass on.
 
 Copyright 2026 suoim.

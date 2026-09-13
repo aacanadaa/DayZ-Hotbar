@@ -17,7 +17,7 @@
 		"sources": "https://github.com/aacanadaa/DayZ-Hotbar",
 		"issues": "https://github.com/aacanadaa/DayZ-Hotbar/issues"
 	},
-	"license": "PolyForm-Noncommercial-1.0.0",
+	"license": "Apache-2.0",
 	"icon": "assets/dayz_hotbar/icon.png",
 	"environment": "client",
 	"entrypoints": {
