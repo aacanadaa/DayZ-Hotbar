@@ -48,6 +48,13 @@ jobs:
           path: fabric/build/libs/*.jar
           if-no-files-found: error
 
+      - name: Upload Forge JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: dayz-hotbar-forge
+          path: forge/build/libs/*.jar
+          if-no-files-found: error
+
   release:
     name: Publish GitHub Release
     needs: build
@@ -74,10 +81,20 @@ jobs:
           name: dayz-hotbar-fabric
           path: dist/fabric
 
+      - name: Download Forge JAR
+        uses: actions/download-artifact@v6
+        with:
+          name: dayz-hotbar-forge
+          path: dist/forge
+
+      # The tag carries the Minecraft version, not the loader, because one tag
+      # releases every loader at once - so the release name says both loaders
+      # rather than naming one of them.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          name: DayZ Hotbar ${{ steps.props.outputs.version }} for Minecraft ${{ steps.props.outputs.mc }} (Fabric)
+          name: DayZ Hotbar ${{ steps.props.outputs.version }} for Minecraft ${{ steps.props.outputs.mc }} (Fabric · Forge)
           files: |
             dist/fabric/*.jar
+            dist/forge/*.jar
           generate_release_notes: true

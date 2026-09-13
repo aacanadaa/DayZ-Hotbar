@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="Apache-2.0"
+issueTrackerURL="https://github.com/aacanadaa/DayZ-Hotbar/issues"
+
+[[mods]]
+modId="dayz_hotbar"
+version="${version}"
+displayName="DayZ Hotbar"
+authors="suoim"
+description="Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout."
+displayURL="https://modrinth.com/mod/dayz-hotbar"
+logoFile="assets/dayz_hotbar/icon.png"
+# Client-only mod. Without this, a server running the mod would be flagged as
+# having a mismatched version with every client that does not - which is every
+# client, since there is nothing here for a server to install.
+displayTest="IGNORE_ALL_VERSION"
+
+[[dependencies.dayz_hotbar]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.dayz_hotbar]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="CLIENT"

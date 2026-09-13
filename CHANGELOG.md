@@ -1,7 +1,7 @@
 # DayZ Hotbar 1.0.0 (Minecraft 1.20.1)
 
 First release. Replaces the vanilla HUD with a DayZ-style hotbar and a DayZ-style status
-readout. Fabric only, for now.
+readout. Shipped for **Fabric and Forge** — the same mod built twice, not two mods.
 
 ## The hotbar
 
@@ -152,5 +152,4 @@ threshold of 1.0 would never fire and you would never see that you were healing.
 
 ## Licence
 
-PolyForm Noncommercial 1.0.0 — source-available, not open source. Free to use, modify and
-redistribute, but not for commercial purposes.
+Apache License 2.0 — free to use, modify and redistribute, including commercially.
