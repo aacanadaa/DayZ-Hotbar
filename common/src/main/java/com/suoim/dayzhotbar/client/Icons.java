@@ -388,7 +388,7 @@ public final class Icons {
      * interior to fill; at three there would be nothing left to show a level with.
      */
     public static final String[] THERMOMETER = {
-        ".....#####.....",
+        "......###......",
         ".....#####.....",
         ".....#####.....",
         ".....#####.....",
