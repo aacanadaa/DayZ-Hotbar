@@ -6,7 +6,7 @@ Built as a visual sibling of **[DayZ Inventory](https://modrinth.com/mod/dayz-in
 same palette, same flat translucent panels, same near-black washes — so the two mods read
 as one interface.
 
-**Available for Minecraft 1.20.1 on Fabric and Forge. No Fabric API required.**
+**Available for Minecraft 1.20.1 on Fabric. No Fabric API required.**
 
 ![The DayZ Hotbar HUD in game: the held-item panel at the bottom left showing an empty hand, a nine-slot hotbar with the held slot lit green, and the status readout at the bottom right showing food, water, temperature, experience and health](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/uwu.png)
 
@@ -85,17 +85,17 @@ Every icon is pixel art defined in the mod's own source on a 15x15 grid rather t
 
 ---
 
-## No API Mod Required
+## No Fabric API Required
 
-The HUD is installed with Mixin against vanilla's own `Gui` class, so **the loader itself is the only dependency** — Fabric does not need Fabric API, and Forge does not need anything. Nothing else has to be installed.
+The HUD is installed with Mixin against vanilla's own `Gui` class, so **Fabric Loader is the only dependency**. Nothing else needs to be installed.
 
 ---
 
 ## Installation
 
-**Fabric** — install Fabric Loader for Minecraft 1.20.1 and drop the Fabric jar into `mods`.
-
-**Forge** — install Forge 47.x for Minecraft 1.20.1 and drop the Forge jar into `mods` instead. The two jars are the same mod built for different loaders: use one or the other, never both.
+1. Install Fabric Loader for Minecraft 1.20.1.
+2. Drop the jar into your `mods` folder.
+3. That's it.
 
 ---
 

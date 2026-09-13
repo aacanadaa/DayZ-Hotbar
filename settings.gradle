@@ -30,4 +30,14 @@ rootProject.name = 'dayz-hotbar'
 
 include 'common'
 include 'fabric'
-include 'forge'
+
+// The forge/ module is deliberately NOT included.
+//
+// It builds and packages correctly, and its mixin is confirmed to apply:
+// GuiMixin's handlers merge into net.minecraft.client.gui.Gui. But at runtime
+// the DayZ hotbar draws while the status readout does not, and vanilla's
+// health and food bars are never cancelled - so verdicts differ between the
+// two injections inside one mixin, which is not a packaging fault and was not
+// tracked down. See CLAUDE.md.
+//
+// include 'forge'
