@@ -50,6 +50,10 @@ Health and food use DayZ's own bands, which differ from each other. Health is qu
 
 Minecraft's bars are 20 points for both, so health turns yellow at 12 or less, red at 6 or less, and flashes under 3 — while food turns yellow at 3 or less, red at 1, and flashes only when empty. Food is deliberately the more forgiving of the two: in DayZ you are warned about hunger far later than about blood loss.
 
+![The status readout at critical level: the food apple, water bottle and health cross are all flashing red, while the beneficial-effect heart and the experience drop stay white](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/uwu-icons.gif)
+
+The critical band in motion — food, water and health all flashing red at empty. The beneficial-effect heart on the left and the experience drop stay white through it, because an effect is either on or off and how far through a level you are is not a warning.
+
 Air has no bands of its own and borrows health's, since drowning and bleeding out are the same kind of emergency. Absorption and experience are deliberately **not** colour-tiered — having less absorption is not a warning, and neither is how far through a level you are.
 
 ### Trend Markers
