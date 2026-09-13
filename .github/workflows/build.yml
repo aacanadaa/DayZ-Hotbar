@@ -1,0 +1,83 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Deliberately version- and loader-agnostic. This string is a required status
+    # check on branch protection, so naming it after the loader would mean that
+    # adding a loader later breaks protection here - and every PR into this branch
+    # would be blocked permanently.
+    name: Build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build --stacktrace
+
+      - name: Upload Fabric JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: dayz-hotbar-fabric
+          path: fabric/build/libs/*.jar
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # The release name is built from gradle.properties rather than written out,
+      # so it cannot drift from the version or the Minecraft version it targets.
+      - name: Read version properties
+        id: props
+        run: |
+          echo "version=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+          echo "mc=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Download Fabric JAR
+        uses: actions/download-artifact@v6
+        with:
+          name: dayz-hotbar-fabric
+          path: dist/fabric
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: DayZ Hotbar ${{ steps.props.outputs.version }} for Minecraft ${{ steps.props.outputs.mc }} (Fabric)
+          files: |
+            dist/fabric/*.jar
+          generate_release_notes: true
