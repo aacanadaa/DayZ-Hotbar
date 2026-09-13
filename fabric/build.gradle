@@ -84,19 +84,16 @@ publishMods {
         // and declaring it would tell users to install something they do not need.
     }
 
-    // CurseForge is not wired up yet. When the project exists on CurseForge, add:
-    //
-    //     curseforge {
-    //         displayName = releaseName
-    //         projectId = project.curseforge_id
-    //         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-    //         minecraftVersions.add(project.minecraft_version)
-    //         modLoaders.add("fabric")
-    //         client = true
-    //         server = false
-    //     }
-    //
-    // `client = true, server = false` because this mod is client-only: there is no
-    // server-side component to install, and marking it as server-compatible would
-    // invite people to put it on a server that can do nothing with it.
+    curseforge {
+        displayName = releaseName
+        projectId = project.curseforge_id
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add(project.minecraft_version)
+        modLoaders.add("fabric")
+        // Client-only: there is no server-side component, and marking it
+        // server-compatible would invite people to install it on a server that can
+        // do nothing with it.
+        client = true
+        server = false
+    }
 }
