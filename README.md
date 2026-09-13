@@ -85,6 +85,12 @@ less, and flashes under 3 — while food turns yellow at 3 or less, red at 1, an
 only when empty. Food is deliberately the more forgiving of the two: in DayZ you are
 warned about hunger far later than about blood loss.
 
+![The status readout at critical level: the food apple, water bottle and health cross are all flashing red, while the beneficial-effect heart and the experience drop stay white](docs/screenshots/uwu-icons.gif)
+
+The critical band in motion — food, water and health all flashing red at empty. The
+beneficial-effect heart on the left and the experience drop stay white through it, because
+an effect is either on or off and how far through a level you are is not a warning.
+
 Air has no bands of its own and borrows health's, since drowning and bleeding out are the
 same kind of emergency. Absorption and experience are deliberately **not** colour-tiered:
 having less absorption is not a warning, and neither is how far through a level you are.
