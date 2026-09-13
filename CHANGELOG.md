@@ -21,8 +21,26 @@ Switching slots animates: the newly held slot starts yellow and resolves to gree
 about a third of a second, so a swap reads as an event rather than an instant flip.
 
 Vanilla draws the attack-strength indicator inside the hotbar, so replacing the hotbar
-would have silently removed it. A compact replacement is drawn to the right of the
-offhand slot.
+removes it along with it. It is not reimplemented — set Options → Video Settings →
+Attack Indicator to *Crosshair* if you want it back.
+
+## The player panel
+
+The bottom-left corner carries a two-row panel on the same wash the hotbar's slots use,
+with its bottom edge on the hotbar's own line so the whole HUD reads as one row.
+
+| Row | Contents |
+| :--- | :--- |
+| **Held item** | A DayZ condition dot — pristine, worn, damaged, badly damaged, ruined — and the item's name |
+| **Equipment** | A stance figure, a shield mark, and an armour bar |
+
+The right half of the held-item row is left empty on purpose. That is where a weapon's
+firing mode and range belong, and where an ammo mark will go once there is a gun mod to
+read them from — a placeholder there would only have to be taken back out.
+
+Condition follows DayZ's grades rather than vanilla's bar: an item with no durability at
+all reports as pristine, which is truer than inventing a grade for something that cannot
+wear out.
 
 ## The status readout
 
@@ -33,7 +51,7 @@ The row is divided into three sections, left to right:
 | Section | Icons |
 | :--- | :--- |
 | **Effects** | One mark per family of active potion effect |
-| **Sustenance** | Apple for food, with saturation drawn over it as a brighter wash; bubble for air, only while you are underwater |
+| **Sustenance** | Apple for food, with saturation drawn over it as a brighter wash; bottle for water; thermometer for temperature; bubble for air, only while you are underwater |
 | **Vitals** | Drop for experience with the level number on it; gold cross for absorption; cross for health, or your mount's health while riding |
 
 An upright line separates the sections, and only where both sides have something in them
@@ -42,6 +60,12 @@ between sustenance and vitals is always there.
 
 Absorption is drawn as a **second cross**, badged with a small plus in its top right,
 rather than as an icon of its own — the plus is what tells the two apart.
+
+Water and temperature are drawn but not yet **read**. Water mirrors food, so it moves when
+food moves and reads as a second hunger bar rather than pretending to a reading it does not
+have. Temperature sits at half and white, because half is "comfortable" on a thermometer
+and that is the state a player is in almost all of the time. Neither is colour-tiered while
+it is standing in for a stat that does not exist yet.
 
 ### Effect marks
 
