@@ -8,6 +8,7 @@
 
 plugins {
     id 'maven-publish'
+    id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
 }
 
 version = project.mod_version
