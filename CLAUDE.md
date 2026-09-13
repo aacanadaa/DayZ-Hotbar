@@ -95,6 +95,38 @@ The name is kept in sync by `loom.mixin.defaultRefmapName` in `common/build.grad
 and both `processResources` and `jar` in `fabric/build.gradle` exclude a stale
 `common-refmap.json` so it can never shadow the correct one.
 
+### 5. The Forge port is written but NOT shipped — and not included in the build
+
+`forge/` exists and builds a correct jar. It is deliberately absent from
+`settings.gradle`, so `./gradlew build`, CI and releases all ignore it.
+
+Where it got to, so a retry does not repeat the work:
+
+- **Packaging is correct and verified.** Searge refmap (`Gui;m_280518_`), reobfuscated
+  classes, `MixinConfigs` in the manifest, and the jar in `build/libs` is the
+  reobfuscated one rather than the dev jar. The dev client (`:forge:runClient`) renders
+  the HUD correctly and its log shows `Mixing GuiMixin ... into net.minecraft.client.gui.Gui`.
+- **The mixin does apply in a real Forge client.** Confirmed by reflecting on
+  `net.minecraft.client.gui.Gui` from the mod constructor: all five handlers
+  (`dayzHotbar$replaceHotbar`, `replaceStatus`, `hideExperienceBar`, `hideVehicleHealth`,
+  `sample`) are merged into the class.
+- **The actual symptom:** with the mixin applied, the DayZ hotbar draws and vanilla's
+  hotbar is correctly cancelled — but the status readout never appears and vanilla's
+  health and food bars are never cancelled. So `renderHotbar` succeeds while
+  `renderStatus` does not, from two injections in the same mixin class that share
+  identical guards (`hideGui`, null player).
+
+That asymmetry is the thread to pull. The next step was to log from inside
+`dayzHotbar$replaceStatus` what it returns and why — not to keep comparing jars, which
+is where most of the time went. Comparing the Forge jar against the sibling DayZ
+Inventory Forge jar showed no structural difference at all, and two false leads were
+chased before that (the `client` vs `mixins` list, and the `MixinConfigs` manifest
+attribute) — both were disproved by direct test.
+
+One caution: `:forge:publishMods` reads the reobfuscated jar through a task dependency,
+not a path. Reading `jar.archiveFile` is how a broken, un-reobfuscated Forge release
+reached Modrinth and CurseForge once already while the GitHub release was fine.
+
 ## Design Notes
 
 - **Icons are hand-drawn pixel art, not a texture.** Each one is a 9x9 character grid
