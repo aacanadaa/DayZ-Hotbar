@@ -111,10 +111,6 @@ public final class DayZHotbarHud {
         trackers.get(Stat.WATER).push(food.getFoodLevel());
         trackers.get(Stat.AIR).push(player.getAirSupply());
         trackers.get(Stat.ABSORPTION).push(player.getAbsorptionAmount());
-        // Pushed even though it never changes: a tracker that is never fed holds no
-        // samples at all, and the first real reading would land as a spike against
-        // nothing rather than as a change.
-        trackers.get(Stat.TEMPERATURE).push(TEMPERATURE_IDLE);
 
         // Experience is scaled so a level-up (+100) clearly outranks a single orb
         // (+10), which is what makes the level-up read as a two-chevron event.
@@ -285,7 +281,7 @@ public final class DayZHotbarHud {
         VelocityTracker tracker = trackers.get(stat);
         return new StatusRow.Cell(stat.shape(), stat.colorFor(fraction, lastGuiTicks),
                 fraction, saturation, false, false,
-                tracker.chevrons(), tracker.up(), tracker.alpha(),
+                stat.showsTrend() ? tracker.chevrons() : 0, tracker.up(), tracker.alpha(),
                 level, stat == Stat.ABSORPTION, stat.group(), 1.0F);
     }
 
