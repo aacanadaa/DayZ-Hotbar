@@ -1,7 +1,7 @@
 # DayZ Hotbar 1.0.0 (Minecraft 1.20.1)
 
 First release. Replaces the vanilla HUD with a DayZ-style hotbar and a DayZ-style status
-readout. Fabric only, for now.
+readout. Available for Minecraft 1.20.1 on Fabric and Forge.
 
 ## The hotbar
 
@@ -143,8 +143,8 @@ threshold of 1.0 would never fire and you would never see that you were healing.
 
 ## Notes
 
-- **No Fabric API required.** The HUD is installed with Mixin against vanilla's own `Gui`,
-  so Fabric Loader is the only dependency.
+- **No API mod required on either loader.** No Fabric API, and nothing extra on Forge —
+  each build talks to its own loader's HUD plumbing and to nothing else.
 - The vanilla health, hunger, armour, air and experience elements are suppressed rather
   than drawn over, so nothing double-draws.
 - Vanilla's own visibility rules are inherited: the HUD still hides behind an open screen,

@@ -9,9 +9,15 @@
 
 plugins {
     id 'net.minecraftforge.gradle' version '6.0.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
     id 'me.modmuss50.mod-publish-plugin'
 }
+
+// NOTE: this module deliberately does not use the MixinGradle plugin and ships no
+// mixin config. Forge's HUD is drawn by ForgeGui, which bypasses Gui's internals
+// entirely, so the shared GuiMixin cannot replace the status readout here - see
+// ForgeHudHandler and CLAUDE.md. The HUD is driven through RenderGuiEvent and
+// RenderGuiOverlayEvent instead, which needs no mixin, no refmap and no namespace
+// remapping, and so cannot regress into the class of failure the mixin had.
 
 // Both the Minecraft version and the loader belong in the release name. CurseForge
 // rejects a second file whose display name matches an existing one in the same
@@ -29,8 +35,6 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 dayz_hotbar {
@@ -48,8 +52,6 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 dayz_hotbar {
@@ -63,28 +65,27 @@ minecraft {
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
     // NOTE: deliberately no `implementation project(':common')`. sourceSets.main
-    // below compiles the common module's sources directly, so a project dependency
-    // would only add a second copy of those classes - and Loom's intermediary
-    // refmap - to the classpath, which breaks Mixin.
+    // below compiles the common module's sources directly, so both loaders share one
+    // copy of the HUD implementation; a project dependency would only add a second
+    // copy of those classes to the classpath.
 }
 
 sourceSets {
     main {
         java {
             srcDirs += project(':common').sourceSets.main.java.srcDirs
+            // The shared GuiMixin is Fabric's mechanism and is not used here - Forge
+            // reaches the HUD through GuiOverlayManager instead (see ForgeHudHandler).
+            // Excluding it from the source set keeps it out of the compile as well as
+            // the jar, so this module needs no Mixin dependency at all.
+            exclude 'com/suoim/dayzhotbar/client/mixin/**'
         }
         resources {
             srcDirs += project(':common').sourceSets.main.resources.srcDirs
+            exclude 'dayz-hotbar.client.mixins.json'
         }
     }
-}
-
-mixin {
-    add sourceSets.main, "dayz-hotbar.refmap.json"
-    config "dayz-hotbar.client.mixins.json"
 }
 
 // The common module's classes and resources are compiled into this project's own
@@ -92,11 +93,13 @@ mixin {
 // Anything pulled in from common's build directory would only add duplicate
 // classes plus Loom's intermediary refmap, which Forge cannot use.
 jar {
-    // This is a DEVELOPMENT jar. ForgeGradle has not reobfuscated it yet, so it
-    // still carries official (Mojang) member names, and Forge resolves members
-    // against SRG at runtime - loading a class from it dies the moment a mod class
-    // initialises. Keep it out of build/libs, which exists only to hold the
-    // shippable artifact; see "Ship the REOBFUSCATED jar" below.
+    // Written to devlibs rather than libs. Note that ForgeGradle reobfuscates this
+    // task's output in place, so the file that lands here does end up on SRG names
+    // and is loadable - it is not the "development jar" it is often assumed to be.
+    // The split exists because build/libs is reserved for the artifact that is
+    // actually published, and reobfuscatedJar below is the only task that writes
+    // there. Keeping the two apart means they never contend for one output file and
+    // Gradle's up-to-date checks stay coherent. See "Ship the REOBFUSCATED jar".
     destinationDirectory = layout.buildDirectory.dir('devlibs')
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -107,29 +110,12 @@ jar {
             'Specification-Version'   : '1',
             'Implementation-Title'    : project.name,
             'Implementation-Version'  : project.jar.archiveVersion,
-            'Implementation-Vendor'   : 'suoim',
-            'MixinConfigs'            : 'dayz-hotbar.client.mixins.json'
+            'Implementation-Vendor'   : 'suoim'
         ])
     }
 }
 
-// MixinGradle writes the generated Searge refmap to build/tmp and only injects it
-// into the packaged jar. Dev runs load this mod from the compiled resources and
-// classes directories instead, and the common project - which is built by Loom -
-// contributes a refmap with the same name that targets intermediary. Forge cannot
-// resolve intermediary targets, so Mixin would rewrite every target to class_XXXX
-// names and fail with "specifies a target class which is not supported".
-//
-// Copy the Searge refmap into our own resources so this project's output, which
-// Forge places first on the mod classpath, shadows the intermediary one during
-// development exactly as it does in the packaged jar.
-def forgeRefmap = layout.buildDirectory.file('tmp/compileJava/dayz-hotbar.refmap.json')
-
 tasks.named('processResources', ProcessResources) {
-    dependsOn tasks.named('compileJava')
-
-    from(forgeRefmap)
-
     // Keep the declared mod version in step with gradle.properties rather than
     // letting a literal drift away from the version being built.
     inputs.property "version", project.version

@@ -4,13 +4,19 @@
 [![Modrinth](https://img.shields.io/modrinth/v/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge](https://img.shields.io/curseforge/v/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-62b47a.svg)
-![Loader](https://img.shields.io/badge/Loader-Fabric-dbb69b.svg)
+![Loader](https://img.shields.io/badge/Loader-Fabric%20%7C%20Forge-dbb69b.svg)
 [![Issues](https://img.shields.io/github/issues/aacanadaa/DayZ-Hotbar?color=red)](https://github.com/aacanadaa/DayZ-Hotbar/issues)
 
 Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout,
 styled to match [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory).
 
-**Available for Minecraft 1.20.1 on Fabric. No Fabric API required.**
+**Available for Minecraft 1.20.1 on Fabric and Forge. Neither loader needs an API mod.**
+
+> **Tip — GUI Scale.** The HUD is laid out at a fixed pixel size and is tuned for
+> Minecraft's default *Auto* GUI scale. At a **large** GUI scale the hotbar, the player
+> panel and the status readout are pushed together and can meet in the middle of the
+> screen; at a very **small** one the icons become hard to read. If either happens,
+> adjust **Options → Video Settings → GUI Scale**.
 
 ![The DayZ Hotbar HUD in game: the held-item panel at the bottom left showing an empty hand, a nine-slot hotbar with the held slot lit green, and the status readout at the bottom right showing food, water, temperature, experience and health](docs/screenshots/uwu.png)
 ![DayZ Inventory UI — Vicinity grid with an open Jukebox drawer, the Survivor panel, the 2.0x Hands slot showing a Decorated Pot, and the 2x2 crafting grid](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
@@ -37,6 +43,8 @@ state is carried by the colour of the wash alone.
 
 Switching slots animates: the newly held slot starts **yellow** and resolves to **green**
 over about a third of a second, so a swap reads as an event rather than an instant flip.
+
+![The hotbar carrying a sword, a pickaxe, a stack of steak, a torch and a stack of golden apples, with the held steak slot lit green and item counts drawn on the stacked slots](docs/screenshots/hud-full-hotbar.png)
 
 ### The status readout
 
@@ -122,6 +130,8 @@ The bottom left corner carries a two-row panel on the same wash as the hotbar's 
 - **Lower row** — a stance figure (walking, sprinting or crouching), a shield mark, and an
   armour bar.
 
+![The player panel in the bottom left showing a pristine condition dot beside the name Diamond Pickaxe, with a walking stance figure and a partly filled armour bar on the row below](docs/screenshots/hud-held-tool.png)
+
 ### Effect marks
 
 Active potion effects are collapsed to **one mark per family** rather than one per effect,
@@ -137,6 +147,8 @@ screen edge. What matters at a glance is which *kinds* of thing are on you.
 They are drawn white with no fill level and no colour banding, because an effect is either
 on or off. When one ends its mark **fades out** over a second rather than vanishing.
 
+![The status readout populated with several potion effect marks at once, sitting alongside the food, water, temperature, experience, health and absorption icons](docs/screenshots/hud-effect-marks.png)
+
 ### Hand-drawn, not textured
 
 Every icon is pixel art defined in the source on a 15x15 grid rather than loaded from a
@@ -146,12 +158,21 @@ texture. The mod ships no icon art of its own, so it cannot clash with a resourc
 
 ## Installation
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.20.1.
-2. Drop the jar into your `mods` folder.
-3. That's it.
+Pick the jar for your loader. The two builds behave identically, but they are built for
+different loaders and are **not** interchangeable.
 
-Fabric API is **not** required. The HUD is installed with Mixin against vanilla's own
-`Gui`, so Fabric Loader is the only dependency.
+**Fabric**
+
+1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.20.1.
+2. Drop `dayz-hotbar-fabric-1.20.1-<version>.jar` into your `mods` folder.
+
+**Forge**
+
+1. Install [Forge 47.x](https://files.minecraftforge.net/net/minecraftforge/forge/) for
+   Minecraft 1.20.1.
+2. Drop `dayz-hotbar-forge-1.20.1-<version>.jar` into your `mods` folder.
+
+Neither loader needs an API mod — no Fabric API, and nothing extra on the Forge side.
 
 ---
 
@@ -160,9 +181,11 @@ Fabric API is **not** required. The HUD is installed with Mixin against vanilla'
 | | |
 | :--- | :--- |
 | Minecraft | 1.20.1 |
-| Fabric Loader | 0.15.0 or newer |
+| Fabric | Fabric Loader 0.15.0 or newer |
+| Forge | Forge 47.x |
 | Java | 17 or newer |
 | Fabric API | Not required |
+| Forge API mods | Not required |
 
 ---
 
@@ -183,11 +206,17 @@ Fabric API is **not** required. The HUD is installed with Mixin against vanilla'
 Requires **JDK 17**.
 
 ```bash
-./gradlew build
-./gradlew :fabric:build
+JAVA_HOME=/path/to/jdk-17 ./gradlew build
 ```
 
-The mod jar lands in `fabric/build/libs/`.
+`./gradlew build` produces both loaders. Outputs:
+
+- `fabric/build/libs/dayz-hotbar-fabric-1.20.1-<version>.jar`
+- `forge/build/libs/dayz-hotbar-forge-1.20.1-<version>.jar`
+
+Take the Forge jar from `build/libs` — that is the reobfuscated artifact Forge can
+actually load, and it is the one the release publishes. A single module can also be built
+on its own with `:fabric:build` or `:forge:build`.
 
 ---
 

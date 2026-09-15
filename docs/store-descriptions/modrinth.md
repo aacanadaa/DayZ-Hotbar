@@ -6,7 +6,13 @@ Built as a visual sibling of **[DayZ Inventory](https://modrinth.com/mod/dayz-in
 same palette, same flat translucent panels, same near-black washes — so the two mods read
 as one interface.
 
-**Available for Minecraft 1.20.1 on Fabric. No Fabric API required.**
+**Available for Minecraft 1.20.1 on Fabric and Forge. Neither loader needs an API mod.**
+
+> **Tip — GUI Scale.** The HUD is laid out at a fixed pixel size and is tuned for
+> Minecraft's default *Auto* GUI scale. At a **large** GUI scale the hotbar, the player
+> panel and the status readout are pushed together and can meet in the middle of the
+> screen; at a very **small** one the icons become hard to read. If either happens,
+> adjust **Options → Video Settings → GUI Scale**.
 
 ![The DayZ Hotbar HUD in game: the held-item panel at the bottom left showing an empty hand, a nine-slot hotbar with the held slot lit green, and the status readout at the bottom right showing food, water, temperature, experience and health](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/uwu.png)
 
@@ -20,6 +26,8 @@ as one interface.
 - **No backing plate, no outlines** — each grey box is 22x22 with a single pixel of clearance between boxes, and slot state is carried by the colour of the wash alone.
 - **Selection-driven states** — dim wash for empty, lifted wash for holding an item, green for the slot in hand, and red for an item that is on cooldown and cannot be used.
 - **Swap animation** — the newly held slot starts yellow and resolves to green over about a third of a second, so a swap reads as an event rather than an instant flip.
+
+![The hotbar carrying a sword, a pickaxe, a stack of steak, a torch and a stack of golden apples, with the held steak slot lit green and item counts drawn on the stacked slots](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/hud-full-hotbar.png)
 
 ### The Status Readout
 
@@ -65,6 +73,8 @@ Air has no bands of its own and borrows health's, since drowning and bleeding ou
 - **Held item row** — a DayZ condition dot (pristine, worn, damaged, badly damaged, ruined) and the item's name.
 - **Equipment row** — a stance figure for walking, sprinting or crouching, a shield mark, and an armour bar.
 
+![The player panel in the bottom left showing a pristine condition dot beside the name Diamond Pickaxe, with a walking stance figure and a partly filled armour bar on the row below](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/hud-held-tool.png)
+
 ### Effect Marks
 
 Active potion effects are collapsed to **one mark per family** rather than one per effect, because Minecraft has thirty-odd effects and a row that grew per effect would eat the screen edge. What matters at a glance is which *kinds* of thing are on you.
@@ -77,6 +87,8 @@ Active potion effects are collapsed to **one mark per family** rather than one p
 
 They are drawn white with no fill level and no colour banding, because an effect is either on or off. When one ends its mark fades out over a second rather than vanishing.
 
+![The status readout populated with several potion effect marks at once, sitting alongside the food, water, temperature, experience, health and absorption icons](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/hud-effect-marks.png)
+
 ---
 
 ## Hand-Drawn, Not Textured
@@ -85,17 +97,26 @@ Every icon is pixel art defined in the mod's own source on a 15x15 grid rather t
 
 ---
 
-## No Fabric API Required
+## No API Mod Required
 
-The HUD is installed with Mixin against vanilla's own `Gui` class, so **Fabric Loader is the only dependency**. Nothing else needs to be installed.
+Nothing else needs installing on either loader — no Fabric API, and no companion mod on
+Forge. Each build talks to its own loader's HUD plumbing and to nothing else.
 
 ---
 
 ## Installation
 
+**Fabric**
+
 1. Install Fabric Loader for Minecraft 1.20.1.
-2. Drop the jar into your `mods` folder.
-3. That's it.
+2. Drop `dayz-hotbar-fabric-1.20.1-<version>.jar` into your `mods` folder.
+
+**Forge**
+
+1. Install Forge 47.x for Minecraft 1.20.1.
+2. Drop `dayz-hotbar-forge-1.20.1-<version>.jar` into your `mods` folder.
+
+The two builds are **not** interchangeable — take the one that matches your loader.
 
 ---
 

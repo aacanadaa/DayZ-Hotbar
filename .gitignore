@@ -49,6 +49,14 @@ bin/
 .vscode/
 
 # ---------------------------------------------------------------------------
+# Scratch captures. The curated screenshots that ship in the README and the store
+# descriptions live in docs/screenshots/ and ARE tracked - anchor this to the repo
+# root, or a bare "screenshots/" would swallow that directory too.
+# ---------------------------------------------------------------------------
+/screnshot/
+*.webm
+
+# ---------------------------------------------------------------------------
 # OS noise
 # ---------------------------------------------------------------------------
 *.DS_Store
