@@ -21,11 +21,17 @@ near-black panels, hairline separators, desaturated grey text, no borders or chr
 ```
 common/    All HUD logic and the Gui mixin. Loader-agnostic.
 fabric/    Fabric entrypoint + fabric.mod.json
+forge/     Forge entrypoint + mods.toml + the overlay event handler
 ```
 
 `common/` uses **fabric-loom** for its Minecraft dependency but its code never imports
-`net.fabricmc.*` outside the loader entrypoint. It is written so a Forge or NeoForge
-module can be added by copying `fabric/` and swapping the entrypoint.
+`net.fabricmc.*` outside the loader entrypoint. Both loader modules compile its sources
+directly into their own output rather than depending on it as a project, so there is one
+copy of the HUD implementation and no cross-loader artifact to publish.
+
+A loader module is **not** a copy of `fabric/` with a swapped entrypoint. Each loader
+reaches the HUD by its own mechanism — Fabric mixes into `Gui`, Forge cancels overlays —
+so a new module needs its own plumbing rather than a renamed entrypoint. See gotcha 5.
 
 ## Build
 
@@ -36,7 +42,15 @@ Set `JAVA_HOME` instead:
 JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 ./gradlew build
 ```
 
-Output: `fabric/build/libs/dayz-hotbar-fabric-1.20.1-<version>.jar`
+Outputs:
+
+- `fabric/build/libs/dayz-hotbar-fabric-1.20.1-<version>.jar`
+- `forge/build/libs/dayz-hotbar-forge-1.20.1-<version>.jar` — the reobfuscated jar, and
+  the only one to ship. `:forge:publishMods` reads the `reobfuscatedJar` task's output,
+  which is what writes here; the `jar` task writes to `build/devlibs` instead, so the
+  two never contend for one file. Note that `jar`'s own comment claims `devlibs` holds
+  an un-reobfuscated development jar — that is **not** true, `reobfJar` rewrites the
+  `jar` output in place and the two files are byte-identical.
 
 ## Critical Gotchas
 
@@ -95,33 +109,47 @@ The name is kept in sync by `loom.mixin.defaultRefmapName` in `common/build.grad
 and both `processResources` and `jar` in `fabric/build.gradle` exclude a stale
 `common-refmap.json` so it can never shadow the correct one.
 
-### 5. The Forge port is written but NOT shipped — and not included in the build
+### 5. Forge drives the HUD through its overlay system — the shared mixin does not apply there
 
-`forge/` exists and builds a correct jar. It is deliberately absent from
-`settings.gradle`, so `./gradlew build`, CI and releases all ignore it.
+`forge/` is in `settings.gradle` and is built, tested and released alongside Fabric.
 
-Where it got to, so a retry does not repeat the work:
+The Forge module deliberately does **not** use `GuiMixin`, and this is the whole reason
+this section exists. It was long believed that the mixin "did not work on Forge". What
+actually happens is subtler, and worth not re-litigating:
 
-- **Packaging is correct and verified.** Searge refmap (`Gui;m_280518_`), reobfuscated
-  classes, `MixinConfigs` in the manifest, and the jar in `build/libs` is the
-  reobfuscated one rather than the dev jar. The dev client (`:forge:runClient`) renders
-  the HUD correctly and its log shows `Mixing GuiMixin ... into net.minecraft.client.gui.Gui`.
-- **The mixin does apply in a real Forge client.** Confirmed by reflecting on
-  `net.minecraft.client.gui.Gui` from the mod constructor: all five handlers
-  (`dayzHotbar$replaceHotbar`, `replaceStatus`, `hideExperienceBar`, `hideVehicleHealth`,
-  `sample`) are merged into the class.
-- **The actual symptom:** with the mixin applied, the DayZ hotbar draws and vanilla's
-  hotbar is correctly cancelled — but the status readout never appears and vanilla's
-  health and food bars are never cancelled. So `renderHotbar` succeeds while
-  `renderStatus` does not, from two injections in the same mixin class that share
-  identical guards (`hideGui`, null player).
+- **`Minecraft` does not use `Gui` on Forge.** It instantiates
+  `net.minecraftforge.client.gui.overlay.ForgeGui extends Gui`. `ForgeGui.render` never
+  calls `Gui.render` or any of its internals — it fires `RenderGuiEvent.Pre`, walks
+  `GuiOverlayManager.getOverlays()`, and fires `RenderGuiEvent.Post`. That is all it does.
+- **Each vanilla HUD element is its own overlay**, dispatching to `ForgeGui`'s *own*
+  methods: `HOTBAR` → `renderHotbar`, `PLAYER_HEALTH` → `renderHealth`, `FOOD_LEVEL` →
+  `renderFood`, `ARMOR_LEVEL` → `renderArmor`, `AIR_LEVEL` → `renderAir`,
+  `MOUNT_HEALTH` → `renderHealthMount`, `EXPERIENCE_BAR` → `renderExperience`.
+- **So a mixin on `Gui` only fires where `ForgeGui` inherits the method unchanged.**
+  `renderHotbar` and `renderExperienceBar` are `public` in `Gui` and not overridden, so
+  those two injections ran — which is exactly why the hotbar replaced correctly and made
+  the mixin look healthy. `renderPlayerHealth` and `renderVehicleHealth` are `private`
+  in `Gui`, so `ForgeGui` cannot call them at all and redraws them itself. The refmap
+  resolved all five targets, the injections applied, and they were simply never reached.
+  **A mixin that is never invoked logs nothing** — there is no error to find.
+- **The `Gui.render` sampling injection was dead too**, so trend chevrons never moved on
+  Forge. That was a second symptom of the same cause, not a separate bug.
 
-That asymmetry is the thread to pull. The next step was to log from inside
-`dayzHotbar$replaceStatus` what it returns and why — not to keep comparing jars, which
-is where most of the time went. Comparing the Forge jar against the sibling DayZ
-Inventory Forge jar showed no structural difference at all, and two false leads were
-chased before that (the `client` vs `mixins` list, and the `MixinConfigs` manifest
-attribute) — both were disproved by direct test.
+`ForgeHudHandler` is the Forge-native replacement: `@SubscribeEvent` on
+`RenderGuiEvent.Pre` for the once-per-frame trend sample, and on
+`RenderGuiOverlayEvent.Pre` (which is `@Cancelable`) to cancel each replaced overlay and
+draw the DayZ version at that exact point in the render order — preserving the
+"suppress, don't draw over" rule in Design Notes below.
+
+Two consequences to keep in mind when editing:
+
+- `forge/build.gradle` applies **no MixinGradle plugin**, excludes the shared mixin from
+  its source set (so it is not even compiled for Forge) and from its resources, and
+  ships no refmap and no `MixinConfigs` manifest attribute. The Forge jar has no mixin.
+- Overlays are cancelled **unconditionally**, not only when the mod drew something.
+  `ForgeGui.render` does not consult `hideGui` the way `Gui.render` does — it fires the
+  event for every registered overlay in every game mode — so cancelling only on a
+  successful draw would leave vanilla's health and food rows visible with F1 pressed.
 
 One caution: `:forge:publishMods` reads the reobfuscated jar through a task dependency,
 not a path. Reading `jar.archiveFile` is how a broken, un-reobfuscated Forge release
