@@ -1,7 +1,27 @@
+# DayZ Hotbar 1.0.1 (Minecraft 1.20.1)
+
+**Forge support.** The mod now ships for Forge 47.x alongside Fabric, built from the same
+source with the same HUD. Neither loader needs an API mod.
+
+The first Forge build drew the hotbar but never the status readout, and left vanilla's
+health and food rows on screen. Forge replaces vanilla's `Gui` with its own `ForgeGui`,
+which draws each HUD element from a separate overlay and never calls into `Gui`'s
+internals — so a mixin on `Gui` only ever reached the two elements Forge happens to
+inherit unchanged. The Forge build now drives the HUD through Forge's own overlay events
+instead, and ships no mixin at all.
+
+Also in this release:
+
+- The Fabric jar now contains the mod icon. The 1.0.0 jar was built before the logo
+  landed, so it shipped without one.
+- The release notes and both store descriptions cover Forge, and carry a GUI-scale tip.
+
+---
+
 # DayZ Hotbar 1.0.0 (Minecraft 1.20.1)
 
 First release. Replaces the vanilla HUD with a DayZ-style hotbar and a DayZ-style status
-readout. Available for Minecraft 1.20.1 on Fabric and Forge.
+readout. Fabric only.
 
 ## The hotbar
 
