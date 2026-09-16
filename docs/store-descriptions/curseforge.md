@@ -2,8 +2,10 @@
 
 Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout.
 
-Built as a visual sibling of **DayZ Inventory** — same palette, same flat translucent
-panels, same near-black washes — so the two mods read as one interface.
+Built as a visual sibling of
+**[DayZ Inventory](https://www.curseforge.com/minecraft/mc-mods/dayz-inventory)** — same
+palette, same flat translucent panels, same near-black washes — so the two mods read as
+one interface.
 
 **Available for Minecraft 1.21.1 on Fabric, Forge and NeoForge. No loader needs an API
 mod.**
