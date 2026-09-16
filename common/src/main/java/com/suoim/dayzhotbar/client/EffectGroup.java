@@ -16,6 +16,7 @@
  */
 package com.suoim.dayzhotbar.client;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 
@@ -78,20 +79,33 @@ public enum EffectGroup {
     }
 
     /**
+     * The effects that give health back rather than changing how the player moves.
+     * <p>
+     * Held as {@link MobEffect} values rather than as holders. 1.21 registers effects
+     * as {@code Holder<MobEffect>}, so {@code MobEffects.REGENERATION} is a holder and
+     * {@link MobEffectInstance#getEffect()} hands one back - but comparing holders
+     * with {@code Holder#is(Holder)} is deprecated, because two holders can wrap the
+     * same effect and still not be the same holder. The effect itself is a singleton,
+     * so comparing values is both the supported comparison and the exact one.
+     */
+    private static final java.util.Set<MobEffect> RECOVERY_EFFECTS = java.util.Set.of(
+            MobEffects.REGENERATION.value(),
+            MobEffects.HEAL.value(),
+            MobEffects.HEALTH_BOOST.value(),
+            MobEffects.ABSORPTION.value(),
+            MobEffects.SATURATION.value());
+
+    /**
      * Which family an effect belongs to.
      * <p>
      * Recovery is carved out of the beneficial effects by name because there is no
      * flag for it - the game only distinguishes beneficial from harmful, and "this one
      * is keeping me alive" is worth separating from "this one is making me faster".
      */
-    public static EffectGroup of(MobEffect effect) {
-        if (effect == MobEffects.REGENERATION
-                || effect == MobEffects.HEAL
-                || effect == MobEffects.HEALTH_BOOST
-                || effect == MobEffects.ABSORPTION
-                || effect == MobEffects.SATURATION) {
+    public static EffectGroup of(Holder<MobEffect> effect) {
+        if (RECOVERY_EFFECTS.contains(effect.value())) {
             return RECOVERY;
         }
-        return effect.isBeneficial() ? GOOD : AFFLICTION;
+        return effect.value().isBeneficial() ? GOOD : AFFLICTION;
     }
 }

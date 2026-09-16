@@ -32,13 +32,15 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = 'UTF-8'
-        it.options.release = 17
+        // Minecraft 1.21.1 is a Java 21 target - the class file version moved up from
+        // 17 in 1.20.5, and a jar built against 17 will not load.
+        it.options.release = 21
     }
 
     java {
         withSourcesJar()
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     jar {

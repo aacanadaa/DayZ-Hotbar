@@ -18,7 +18,6 @@ dependencies {
     // it needs no Fabric API and does not declare one as a dependency.
     modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
 }
-
 loom {
     mixin {
         // The mixin config in common/src/main/resources declares

@@ -8,21 +8,24 @@
  */
 
 plugins {
-    id 'net.minecraftforge.gradle' version '6.0.+'
+    // Pinned rather than '6.0.+' - a wildcard re-resolves to a new build without
+    // anyone asking, and a ForgeGradle that has moved on is a build that stops
+    // reproducing.
+    id 'net.minecraftforge.gradle' version '6.0.54'
     id 'me.modmuss50.mod-publish-plugin'
 }
 
 // NOTE: this module deliberately does not use the MixinGradle plugin and ships no
-// mixin config. Forge's HUD is drawn by ForgeGui, which bypasses Gui's internals
-// entirely, so the shared GuiMixin cannot replace the status readout here - see
-// ForgeHudHandler and CLAUDE.md. The HUD is driven through RenderGuiEvent and
-// RenderGuiOverlayEvent instead, which needs no mixin, no refmap and no namespace
-// remapping, and so cannot regress into the class of failure the mixin had.
+// mixin config. Forge's HUD runs through its own layered renderer, so the shared
+// GuiMixin cannot replace the status readout here - see ForgeHudHandler and
+// CLAUDE.md. The HUD is driven through AddGuiOverlayLayersEvent instead, which
+// needs no mixin, no refmap and no SRG remapping, and so cannot regress into the
+// class of failure the mixin had.
 
 // Both the Minecraft version and the loader belong in the release name. CurseForge
 // rejects a second file whose display name matches an existing one in the same
-// project, and this mod ships the same version for Fabric and Forge - so the
-// loader is the part that keeps the two apart on the file list.
+// project, and this mod ships the same version for Fabric, Forge and NeoForge - so
+// the loader is the part that keeps them apart on the file list.
 def releaseName = "DayZ Hotbar ${project.version} for Minecraft ${project.minecraft_version} (Forge)"
 
 minecraft {
@@ -40,9 +43,8 @@ minecraft {
                 dayz_hotbar {
                     // Only this project's output is on the mod path. The common
                     // module's sources are compiled into sourceSets.main below, so
-                    // adding it again would put a second copy of the mixin config
-                    // and Loom's intermediary refmap on the classpath, and Mixin
-                    // would resolve the wrong one.
+                    // adding it again would put a second copy of the HUD on the
+                    // classpath.
                     source sourceSets.main
                 }
             }
@@ -76,9 +78,10 @@ sourceSets {
         java {
             srcDirs += project(':common').sourceSets.main.java.srcDirs
             // The shared GuiMixin is Fabric's mechanism and is not used here - Forge
-            // reaches the HUD through GuiOverlayManager instead (see ForgeHudHandler).
-            // Excluding it from the source set keeps it out of the compile as well as
-            // the jar, so this module needs no Mixin dependency at all.
+            // reaches the HUD through AddGuiOverlayLayersEvent instead (see
+            // ForgeHudHandler). Excluding it from the source set keeps it out of the
+            // compile as well as the jar, so this module needs no Mixin dependency at
+            // all.
             exclude 'com/suoim/dayzhotbar/client/mixin/**'
         }
         resources {
@@ -93,15 +96,6 @@ sourceSets {
 // Anything pulled in from common's build directory would only add duplicate
 // classes plus Loom's intermediary refmap, which Forge cannot use.
 jar {
-    // Written to devlibs rather than libs. Note that ForgeGradle reobfuscates this
-    // task's output in place, so the file that lands here does end up on SRG names
-    // and is loadable - it is not the "development jar" it is often assumed to be.
-    // The split exists because build/libs is reserved for the artifact that is
-    // actually published, and reobfuscatedJar below is the only task that writes
-    // there. Keeping the two apart means they never contend for one output file and
-    // Gradle's up-to-date checks stay coherent. See "Ship the REOBFUSCATED jar".
-    destinationDirectory = layout.buildDirectory.dir('devlibs')
-
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes([
@@ -130,48 +124,27 @@ base {
     archivesName = "dayz-hotbar-forge-${project.minecraft_version}"
 }
 
-// --- Ship the REOBFUSCATED jar -------------------------------------------
-// Forge resolves members against SRG at runtime, but the `jar` task packages
-// against official (Mojang) names. The jar has to be reobfuscated before it can
-// load at all. ForgeGradle replaces the `jar` task's output in place and also
-// writes a copy to build/reobfJar/output.jar; this copies that reobfuscated jar
-// into build/libs under the release name.
+// --- No reobfuscation on this Minecraft version ---------------------------
+// Up to and including 1.20.1 this module shipped a reobfuscated jar: Forge
+// resolved members against SRG at runtime while the `jar` task packaged official
+// (Mojang) names, so the jar could not load until ForgeGradle rewrote it, and an
+// elaborate dance existed to make sure the *reobfuscated* file was the one that
+// reached build/libs and the stores. That dance went wrong once, and a broken
+// Forge release shipped while the GitHub release was fine.
 //
-// Reading ForgeGradle's own declared output, rather than whatever path the `jar`
-// task happens to sit at, keeps the two concerns separate and makes this task the
-// only writer of build/libs - `jar` writes to build/devlibs instead, so they no
-// longer contend for one output file and Gradle's up-to-date checks stay coherent.
+// Forge 1.21.1 does not work that way. It resolves against official names at
+// runtime, exactly like NeoForge, so there is no reobf jar task to depend on and
+// nothing to rewrite - verified by scanning all 1201 classes in
+// forge-1.21.1-52.1.16-universal.jar, which contain no SRG method references.
 //
-// This split exists because publishing used to read `jar.archiveFile`, which
-// depends only on `jar` - and `publishMods` never runs `assemble`, so the fix-up
-// never ran and the upload shipped the development jar. That is how a broken
-// Forge release reached Modrinth and CurseForge while the GitHub release, built
-// by `./gradlew build`, was fine. Development runs never caught it either,
-// because `runClient` loads classes from the build output directories, which are
-// on official names.
-def releaseJarDir = layout.buildDirectory.dir('libs')
-def releaseJarName = "${base.archivesName.get()}-${project.version}.jar"
-
-def reobfuscatedJar = tasks.register('reobfuscatedJar', Copy) {
-    // reobfJar is created lazily by ForgeGradle, so it can only be named from
-    // inside a deferred block like this one.
-    dependsOn tasks.named('reobfJar')
-
-    from(layout.buildDirectory.file('reobfJar/output.jar'))
-    into(releaseJarDir)
-    rename { releaseJarName }
-}
-
-tasks.named('assemble') {
-    dependsOn reobfuscatedJar
-}
-
+// So the plain `jar` output is the shippable artifact again, and `publishMods`
+// reads `jar.archiveFile` directly. The failure mode the old dance guarded against
+// cannot recur, because there is no longer a second, un-reobfuscated copy of the
+// jar for a release to pick up by mistake. Do not reintroduce a reobf step here
+// without checking that it is needed - a `reobfJar` task does not exist on this
+// line, and ForgeGradle will fail the build if you name it.
 publishMods {
-    // Must be the reobfuscated jar, and must be read off the task that writes it:
-    // that is what makes publishMods depend on it. Resolving a plain path instead
-    // would let `:forge:publishMods` upload a stale file, or the un-reobfuscated
-    // development jar.
-    file = reobfuscatedJar.map { releaseJarDir.get().file(releaseJarName) }
+    file = tasks.named('jar').flatMap { it.archiveFile }
     changelog = rootProject.file("CHANGELOG.md").text
     type = STABLE
 
@@ -182,7 +155,7 @@ publishMods {
         minecraftVersions.add(project.minecraft_version)
         modLoaders.add("forge")
         // Deliberately no requires("fabric-api") and none for Forge either: the
-        // HUD mixes into vanilla's own Gui class and needs no loader API at all.
+        // HUD hooks Forge's own layered HUD renderer and needs no loader API.
     }
 
     curseforge {

@@ -21,101 +21,100 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Set;
-
 /**
- * Drives the DayZ HUD on Forge, and suppresses the vanilla elements it replaces.
+ * Draws the DayZ HUD on Forge, and suppresses the vanilla elements it replaces.
  * <p>
- * This is deliberately <em>not</em> the same mechanism Fabric uses. On Fabric the
- * mod mixes into {@code Gui} and cancels {@code renderHotbar}, {@code
- * renderPlayerHealth} and friends at their head. Forge cannot work that way:
- * {@code Minecraft} instantiates {@code ForgeGui extends Gui}, whose {@code render}
- * never calls {@code Gui.render} or any of its internals. It fires
- * {@code RenderGuiEvent} and then walks {@code GuiOverlayManager.getOverlays()},
- * drawing every vanilla element from a separate overlay that dispatches to
- * {@code ForgeGui}'s <em>own</em> methods. Only {@code renderHotbar} survives that
- * trip, because it is public and {@code ForgeGui} does not override it;
- * {@code renderPlayerHealth} and {@code renderVehicleHealth} are private in
- * {@code Gui}, so Forge reimplements them as {@code renderHealth} /
- * {@code renderFood} / {@code renderArmor} / {@code renderAir} and the mixin
- * simply never runs. See CLAUDE.md.
+ * This is deliberately <em>not</em> the mechanism Fabric uses. On Fabric the mod
+ * mixes into {@code Gui} and cancels {@code renderItemHotbar},
+ * {@code renderPlayerHealth} and friends at their head. Forge cannot work that way,
+ * and the reason changed in 1.21.1.
  * <p>
- * So Forge gets the loader-native equivalent: cancel the overlay, draw the
- * replacement at that exact point in the render order. Cancelling an overlay
- * rather than drawing everything afterwards keeps the original property that
- * chat, the tab list and the scoreboard still render on top of the HUD.
+ * In 1.20.1 Forge drew the HUD from {@code ForgeGui extends Gui} through
+ * {@code GuiOverlayManager}, and each vanilla element was its own overlay. In 1.21.1
+ * that whole system is gone: there is no {@code ForgeGui}, no
+ * {@code GuiOverlayManager} and no {@code RenderGuiOverlayEvent}. Vanilla now builds
+ * its HUD as a {@code LayeredDraw}, and Forge swaps in its own
+ * {@code ForgeLayeredDraw} subclass and names the layers. The supported hook is
+ * {@link AddGuiOverlayLayersEvent}, fired from {@code ForgeLayeredDraw.resolveLayers()}
+ * at the end of {@code Gui}'s constructor, with the fully built tree.
+ * <p>
+ * So Forge gets the loader-native equivalent of the mixin: switch the replaced
+ * layers off and add the DayZ version in their place. Switching a layer off rather
+ * than skipping it keeps the original property that chat, the tab list and the
+ * scoreboard still render on top of the HUD - those live in the post-sleep stack,
+ * which is drawn after the stack the hotbar is in.
  */
 @Mod.EventBusSubscriber(modid = DayZHotbarForge.MOD_ID, value = Dist.CLIENT,
-        bus = Mod.EventBusSubscriber.Bus.FORGE)
+        bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ForgeHudHandler {
 
-    /**
-     * Vanilla's armour, food, air and mount-health rows are all folded into the one
-     * DayZ status readout. They are cancelled wherever they appear; the readout
-     * itself is drawn once, from {@code PLAYER_HEALTH} below.
-     */
-    private static final Set<ResourceLocation> REPLACED_BY_STATUS_ROW = Set.of(
-            VanillaGuiOverlay.ARMOR_LEVEL.id(),
-            VanillaGuiOverlay.FOOD_LEVEL.id(),
-            VanillaGuiOverlay.AIR_LEVEL.id(),
-            VanillaGuiOverlay.MOUNT_HEALTH.id()
-    );
+    /** This mod's single layer. */
+    private static final ResourceLocation DAYZ_HUD =
+            ResourceLocation.fromNamespaceAndPath(DayZHotbarForge.MOD_ID, "hud");
 
     private ForgeHudHandler() {
     }
 
     /**
-     * Samples the trend history once per frame, before any overlay is drawn - the
-     * Forge counterpart of the Fabric mixin's injection at the head of
-     * {@code Gui.render}.
+     * Swaps the vanilla HUD for the DayZ one, once, as the layer tree is resolved.
      * <p>
-     * {@code RenderGuiEvent.Pre} is fired first thing in {@code ForgeGui.render},
-     * ahead of the overlay loop, so the sample always lands before the readout that
-     * consumes it.
+     * The tree this runs against is
+     * {@code VANILLA_ROOT → PRE_SLEEP_STACK → {camera, crosshair, hotbar,
+     * experience, effects, boss}} with the sleep, title, chat, tab-list and
+     * scoreboard layers as siblings of {@code PRE_SLEEP_STACK}. Both layers this
+     * module replaces live in {@code PRE_SLEEP_STACK}, so that is the stack to
+     * address; addressing the root would not find them, because they are nested.
+     * <p>
+     * Two vanilla layers go, not the five you might expect from the other loaders:
+     * <ul>
+     *   <li>{@code HOTBAR} is {@code renderHotbarAndDecorations}. In 1.21.1 that one
+     *       method draws the slot row, the experience bar, the health row, the
+     *       mount's health, the mount's jump meter <em>and</em> the selected item's
+     *       name. Forge never split them, so the whole block is one layer and there
+     *       is nothing finer to switch off.</li>
+     *   <li>{@code EXPERIENCE} is the level number, which 1.21.1 moved into a method
+     *       of its own.</li>
+     * </ul>
+     * <b>This is where Forge is visibly coarser than the other two.</b> Because the
+     * block is monolithic here, the brief "selected item name" popup and the mount's
+     * jump-charge bar go with it. Fabric replaces only {@code renderItemHotbar} and
+     * NeoForge cancels {@code HOTBAR}, {@code JUMP_METER} and friends individually,
+     * so both of them keep those two elements. Neither loss is worth the alternative
+     * - re-drawing vanilla's own popup here would duplicate the held-item panel on
+     * the left of the hotbar, which shows the same name permanently.
      */
     @SubscribeEvent
-    public static void onRenderPre(RenderGuiEvent.Pre event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.getGuiTicks(), minecraft);
+    public static void onAddLayers(AddGuiOverlayLayersEvent event) {
+        ForgeLayeredDraw root = event.getLayeredDraw();
+
+        root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.HOTBAR, () -> false);
+        root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.EXPERIENCE, () -> false);
+
+        // Gated on hideGui for the same reason Fabric is: there the HUD's own
+        // methods are simply never reached while the HUD is hidden, so F1 has to
+        // hide this layer too or the loaders disagree about what F1 does.
+        root.addWithCondition(ForgeLayeredDraw.PRE_SLEEP_STACK, DAYZ_HUD, ForgeHudHandler::render,
+                () -> !Minecraft.getInstance().options.hideGui);
     }
 
     /**
-     * Replaces the vanilla HUD elements with their DayZ equivalents.
+     * Draws the whole DayZ HUD.
      * <p>
-     * The overlays are cancelled unconditionally rather than only when the mod drew
-     * something. {@code ForgeGui.render} does not consult {@code hideGui} the way
-     * {@code Gui.render} does - it fires this event for every registered overlay in
-     * every game mode - so cancelling only on a successful draw would leave vanilla's
-     * health and food rows visible with F1 pressed. Cancelling always and drawing
-     * only when the mod's own {@code hideGui} / null-player guards allow it gives the
-     * same result as Fabric, where {@code Gui.render} never reaches these methods at
-     * all while the HUD is hidden.
+     * One layer rather than several, because the two halves are anchored to the
+     * same band at the bottom of the screen and nothing else draws between them.
+     * The trend history is sampled here, ahead of the readout that consumes it -
+     * sampling once per frame is what {@code onFrame} keys off, so it has to happen
+     * before the first draw of the frame and not between the two.
      */
-    @SubscribeEvent
-    public static void onOverlayPre(RenderGuiOverlayEvent.Pre event) {
+    private static void render(GuiGraphics graphics, net.minecraft.client.DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
-        GuiGraphics graphics = event.getGuiGraphics();
-        ResourceLocation id = event.getOverlay().id();
-
-        if (VanillaGuiOverlay.HOTBAR.id().equals(id)) {
-            DayZHotbarHud.INSTANCE.renderHotbar(graphics, minecraft);
-            event.setCanceled(true);
-        } else if (VanillaGuiOverlay.PLAYER_HEALTH.id().equals(id)) {
-            // The readout is drawn here rather than in the game-mode-gated survival
-            // overlays, because PLAYER_HEALTH is the one that is always registered
-            // and always fires. It replaces the whole row, so where in the row it is
-            // anchored does not matter - only that something draws it exactly once.
-            DayZHotbarHud.INSTANCE.renderStatus(graphics, minecraft);
-            event.setCanceled(true);
-        } else if (VanillaGuiOverlay.EXPERIENCE_BAR.id().equals(id)
-                || REPLACED_BY_STATUS_ROW.contains(id)) {
-            event.setCanceled(true);
-        }
+        DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.getGuiTicks(), minecraft);
+        DayZHotbarHud.INSTANCE.renderHotbar(graphics, minecraft);
+        DayZHotbarHud.INSTANCE.renderStatus(graphics, minecraft);
     }
 }
