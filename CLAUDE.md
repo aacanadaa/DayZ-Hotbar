@@ -22,6 +22,21 @@ near-black panels, hairline separators, desaturated grey text, no borders or chr
   changed twice, at two different points in history; there is no shared branch. The
   user-facing version matrix lives in `README.md` and both store descriptions.
 
+## Documentation Language
+
+The repository docs are **bilingual, and Chinese leads**. `README.md` is the Chinese page
+and the one GitHub shows by default; `README.en.md` is the English translation. Both open
+with a cross-link line (`**中文** | [English](README.en.md)` and
+`[中文](README.md) | **English**`), matching the sibling DayZ Inventory repo.
+
+- Keep the two pages in step. A feature, version, filename or link added to one belongs in
+  the other in the same change.
+- Translate prose only. Badge URLs, code spans, jar names, file paths, version numbers,
+  tables and links stay identical in both files; the sole deliberate difference is the
+  Ko-fi badge label (`Support me` in English, `赞助我` in Chinese).
+- A doc-only change does not bump `mod.version`. Record it in `CHANGELOG.md` under the
+  release it lands in, as the 1.1.0 entry does.
+
 ## Repository Layout
 
 ```

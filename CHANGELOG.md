@@ -51,6 +51,20 @@ NeoForge keep: the brief "selected item name" popup, and the jump-charge bar you
 while riding a horse. Neither is worth reimplementing — the panel on the left of the
 hotbar already shows the held item's name permanently.
 
+## Documentation now leads in Chinese
+
+The repository's own docs are bilingual, and the Chinese pages are the ones the links at
+the top of each page point to first:
+
+- `README.md` is now the Chinese README, and the English one moved to `README.en.md`.
+  Each page links to the other at the very top, so either direction is one click.
+- The Chinese page is the one GitHub shows by default, matching DayZ Inventory — the two
+  mods are a pair and now read the same way in the repository.
+- Code, jar names, file paths, version numbers, links and the badge row are unchanged
+  between the two pages; only the prose is translated.
+- Both pages have to be kept in step from here on. A feature added to one belongs in the
+  other in the same change.
+
 ---
 
 # DayZ Hotbar 1.0.1 (Minecraft 1.20.1)
