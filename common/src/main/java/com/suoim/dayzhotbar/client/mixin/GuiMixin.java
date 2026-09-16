@@ -17,6 +17,7 @@
 package com.suoim.dayzhotbar.client.mixin;
 
 import com.suoim.dayzhotbar.client.DayZHotbarHud;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -37,30 +38,47 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * free - the HUD still disappears behind a screen, in spectator mode, and when
  * the player presses F1.
  * <p>
- * Note the argument order on {@code renderHotbar}: in 1.20.1 the partial tick
- * comes <em>before</em> the graphics object, which is the reverse of most of the
- * other render methods and an easy thing to get wrong.
+ * <b>1.21.1 notes.</b> All of these targets were read off the real mapped 1.21.1
+ * jar rather than carried over from 1.20.1, and three things moved:
+ * <ul>
+ *   <li>the partial tick is gone from {@code render} and {@code renderItemHotbar};
+ *       both now take a {@link DeltaTracker} instead;</li>
+ *   <li>{@code renderHotbar} no longer exists - the hotbar proper is
+ *       {@code renderItemHotbar}, and the argument order is now the ordinary
+ *       graphics-then-time one rather than 1.20.1's reversed pair;</li>
+ *   <li>the experience level is drawn by its own {@code renderExperienceLevel}
+ *       method, so hiding the bar alone leaves the number floating.</li>
+ * </ul>
+ * {@code renderPlayerHealth} is unchanged and still draws health, food, armour
+ * and air together, even though 1.21.1 wraps it in a layered renderer - the
+ * layer is a thin wrapper over this same method.
  */
 @Mixin(Gui.class)
 public class GuiMixin {
 
     /** Samples the trend history once per tick, before anything is drawn. */
     @Inject(method = "render", at = @At("HEAD"))
-    private void dayzHotbar$sample(GuiGraphics graphics, float partialTick, CallbackInfo ci) {
+    private void dayzHotbar$sample(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.getGuiTicks(), minecraft);
     }
 
-    @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)
-    private void dayzHotbar$replaceHotbar(float partialTick, GuiGraphics graphics, CallbackInfo ci) {
+    /**
+     * The hotbar itself. Only the nine slots and the offhand are replaced - the
+     * selected item's name is a separate method and still draws, which is what
+     * vanilla does today.
+     */
+    @Inject(method = "renderItemHotbar", at = @At("HEAD"), cancellable = true)
+    private void dayzHotbar$replaceHotbar(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (DayZHotbarHud.INSTANCE.renderHotbar(graphics, Minecraft.getInstance())) {
             ci.cancel();
         }
     }
 
     /**
-     * Health, food, armour and air are all drawn by this one method in 1.20.1 -
-     * there is no separate hook for each - so the whole lot is replaced together.
+     * Health, food, armour and air are all drawn by this one method in 1.21.1 as
+     * well - there is no separate hook for each - so the whole lot is replaced
+     * together.
      */
     @Inject(method = "renderPlayerHealth", at = @At("HEAD"), cancellable = true)
     private void dayzHotbar$replaceStatus(GuiGraphics graphics, CallbackInfo ci) {
@@ -69,9 +87,19 @@ public class GuiMixin {
         }
     }
 
-    /** The experience bar and its level number, replaced by the XP icon instead. */
+    /** The experience bar, replaced by the XP icon instead. */
     @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
     private void dayzHotbar$hideExperienceBar(GuiGraphics graphics, int x, CallbackInfo ci) {
+        ci.cancel();
+    }
+
+    /**
+     * The level number on the bar. A separate method from the bar itself since
+     * 1.21.1, and the readout draws the level on the XP icon, so leaving this one
+     * alone would print it twice.
+     */
+    @Inject(method = "renderExperienceLevel", at = @At("HEAD"), cancellable = true)
+    private void dayzHotbar$hideExperienceLevel(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         ci.cancel();
     }
 

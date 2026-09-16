@@ -1,0 +1,115 @@
+/*
+ * DayZ Hotbar
+ * Copyright 2026 suoim
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+plugins {
+    id 'net.neoforged.moddev' version '2.0.147'
+    id 'me.modmuss50.mod-publish-plugin'
+}
+
+// NOTE: like the Forge module, this one deliberately ships no mixin. NeoForge's
+// HUD runs through the same vanilla LayeredDraw that Fabric's mixin cannot reach
+// from here, and NeoForge exposes it properly through RenderGuiLayerEvent - so the
+// HUD is driven from there instead. See NeoForgeHudHandler and CLAUDE.md.
+
+// Both the Minecraft version and the loader belong in the release name. CurseForge
+// rejects a second file whose display name matches an existing one in the same
+// project, and this mod ships the same version for Fabric, Forge and NeoForge - so
+// the loader is the part that keeps them apart on the file list.
+def releaseName = "DayZ Hotbar ${project.version} for Minecraft ${project.minecraft_version} (NeoForge)"
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += project(':common').sourceSets.main.java.srcDirs
+            // The shared GuiMixin is Fabric's mechanism and is not used here - see
+            // NeoForgeHudHandler. Excluding it keeps it out of the compile as well as
+            // the jar, so this module needs no Mixin dependency at all.
+            exclude 'com/suoim/dayzhotbar/client/mixin/**'
+        }
+        resources {
+            srcDirs += project(':common').sourceSets.main.resources.srcDirs
+            exclude 'dayz-hotbar.client.mixins.json'
+        }
+    }
+}
+
+neoForge {
+    version = project.neoforge_version
+
+    runs {
+        client {
+            client()
+            gameDirectory = project.file('run')
+        }
+        server {
+            server()
+            gameDirectory = project.file('run')
+        }
+    }
+
+    mods {
+        dayz_hotbar {
+            // The common module's sources are compiled into this source set above,
+            // so this is the only source set on the mod path. Adding `:common` as a
+            // project dependency would put a second copy of the HUD on the classpath.
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+// NeoForge resolves members against official (Mojang) names at runtime - it does
+// not reobfuscate to SRG the way Forge does - so the plain `jar` output is the
+// shippable artifact and there is no reobfuscation step to wait on.
+base {
+    archivesName = "dayz-hotbar-neoforge-${project.minecraft_version}"
+}
+
+tasks.named('processResources', ProcessResources) {
+    // Keep the declared mod version in step with gradle.properties rather than
+    // letting a literal drift away from the version being built.
+    inputs.property "version", project.version
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+publishMods {
+    file = tasks.named('jar').flatMap { it.archiveFile }
+    changelog = rootProject.file("CHANGELOG.md").text
+    type = STABLE
+
+    modrinth {
+        displayName = releaseName
+        projectId = project.modrinth_id
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        minecraftVersions.add(project.minecraft_version)
+        modLoaders.add("neoforge")
+        // Deliberately no dependencies of its own: the HUD hooks NeoForge's layer
+        // renderer and needs no other mod.
+    }
+
+    curseforge {
+        displayName = releaseName
+        projectId = project.curseforge_id
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add(project.minecraft_version)
+        modLoaders.add("neoforge")
+        // Client-only: there is no server-side component, and marking it
+        // server-compatible would invite people to install it on a server that can
+        // do nothing with it.
+        client = true
+        server = false
+    }
+}

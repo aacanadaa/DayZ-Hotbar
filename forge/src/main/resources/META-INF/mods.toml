@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[52,)"
 license="Apache-2.0"
 issueTrackerURL="https://github.com/aacanadaa/DayZ-Hotbar/issues"
 
@@ -19,13 +19,19 @@ displayTest="IGNORE_ALL_VERSION"
 [[dependencies.dayz_hotbar]]
 modId="forge"
 mandatory=true
-versionRange="[47,)"
+# 52.1.2, not 52.1.0. Forge 1.21.1 shipped with no HUD API at all - no ForgeGui, no
+# RenderGuiOverlayEvent, and no ForgeLayeredDraw either - and the layered HUD hook this
+# mod is built on (AddGuiOverlayLayersEvent) did not appear until 52.1.2. Declaring
+# "[52,)" let Forge load the mod on 52.1.0 and then crash it with a raw
+# NoClassDefFoundError during event-subscriber registration; this range turns that into
+# a clean "requires Forge 52.1.2 or newer" instead.
+versionRange="[52.1.2,)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.dayz_hotbar]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.20.1,1.20.2)"
+versionRange="[1.21.1,1.21.2)"
 ordering="NONE"
 side="CLIENT"

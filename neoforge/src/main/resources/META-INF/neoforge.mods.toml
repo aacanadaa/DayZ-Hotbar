@@ -1,0 +1,32 @@
+modLoader="javafml"
+# NeoForge's FML is version 4.x on the 1.21.1 line, not the 1.x Forge uses.
+loaderVersion="[4,)"
+license="Apache-2.0"
+issueTrackerURL="https://github.com/aacanadaa/DayZ-Hotbar/issues"
+
+[[mods]]
+modId="dayz_hotbar"
+version="${version}"
+displayName="DayZ Hotbar"
+authors="suoim"
+description="Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout."
+displayURL="https://modrinth.com/mod/dayz-hotbar"
+logoFile="assets/dayz_hotbar/icon.png"
+# Client-only mod. Without this, a server running the mod would be flagged as
+# having a mismatched version with every client that does not - which is every
+# client, since there is nothing here for a server to install.
+displayTest="IGNORE_ALL_VERSION"
+
+[[dependencies.dayz_hotbar]]
+modId="neoforge"
+type="required"
+versionRange="[21.1,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.dayz_hotbar]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="CLIENT"

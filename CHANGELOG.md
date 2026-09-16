@@ -1,3 +1,53 @@
+# DayZ Hotbar 1.1.0 (Minecraft 1.21.1)
+
+**Minecraft 1.21.1, and NeoForge.** The HUD itself is unchanged — same hotbar, same
+status readout, same icons. What moved is everything underneath it.
+
+**NeoForge is new**, alongside the existing Fabric and Forge builds. All three are built
+from the same source and behave identically. As before, no loader needs an API mod.
+
+## What the HUD is doing on this version
+
+1.21.1 rebuilt the vanilla HUD from the ground up, and it took both loaders with it:
+
+- Vanilla now assembles the HUD as a **`LayeredDraw`** — a list of named layers — rather
+  than calling each render method in turn.
+- **Forge deleted its whole overlay system.** There is no `ForgeGui`, no
+  `GuiOverlayManager`, no `VanillaGuiOverlay` and no `RenderGuiOverlayEvent` any more.
+  Layers are named and reordered through `AddGuiOverlayLayersEvent` instead.
+- **NeoForge never had that system** and hooks the layers at render time through
+  `RenderGuiLayerEvent`.
+- **Forge no longer reobfuscates.** It resolves against official Mojang names at runtime
+  now, exactly like NeoForge, so the released Forge jar is the plain build output.
+
+Each loader therefore reaches the HUD by its own route, and the Forge build no longer
+carries a mixin at all — neither does NeoForge. Only the Fabric jar mixes into `Gui`.
+
+## Requirements
+
+| | |
+| :--- | :--- |
+| Minecraft | 1.21.1 |
+| Java | 21 (up from 17 — 1.21.1 requires it) |
+| Fabric | Loader 0.15.0+ |
+| Forge | 52.1.2 or newer |
+| NeoForge | 21.1.x |
+
+**Take note of the Forge minimum.** Forge 1.21.1 shipped without any HUD API at all —
+the layer hook this mod uses did not appear until 52.1.2. On 52.1.0 or 52.1.1 the mod
+cannot draw anything, so it now asks for 52.1.2 and up and will say so plainly rather
+than failing at load.
+
+## One difference between the loaders
+
+Forge keeps the slot row, the experience bar, the health row and the mount's health in a
+**single** layer, so replacing it also drops two small vanilla elements that Fabric and
+NeoForge keep: the brief "selected item name" popup, and the jump-charge bar you get
+while riding a horse. Neither is worth reimplementing — the panel on the left of the
+hotbar already shows the held item's name permanently.
+
+---
+
 # DayZ Hotbar 1.0.1 (Minecraft 1.20.1)
 
 **Forge support.** The mod now ships for Forge 47.x alongside Fabric, built from the same
