@@ -101,7 +101,8 @@ Every icon is pixel art defined in the mod's own source on a 15x15 grid rather t
 ## No API Mod Required
 
 Nothing else needs installing on any loader — no Fabric API, and no companion mod on
-Forge. Each build talks to its own loader's HUD plumbing and to nothing else.
+Forge or NeoForge either. Each build talks to its own loader's HUD plumbing and to
+nothing else.
 
 ---
 
