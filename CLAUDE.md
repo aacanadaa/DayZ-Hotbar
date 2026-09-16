@@ -150,7 +150,7 @@ way. The guidance does not depend on it:
 
 **Do not use `:fabric:runClient` to judge whether the HUD looks right.** Install the
 built jar into a real Fabric installation — or a launcher instance, which is what the
-`tester 1.21.1 fabric` / `1.21.1 forge tester` / `1.21.1 neoforge tester` instances
+`1.21.1 fabric tester` / `1.21.1 forge tester` / `1.21.1 neoforge tester` instances
 under Prism are for — and check there. A dev run answers a different question from the
 one you are asking, and if the mixin silently does not apply it answers it *quietly*.
 
