@@ -15,6 +15,12 @@ near-black panels, hairline separators, desaturated grey text, no borders or chr
   repo. This was PolyForm Noncommercial 1.0.0 up to and including the 1.0.0 release and
   was relicensed to Apache 2.0 before the Forge port shipped.
 - **Environment**: client only
+- **Supported Minecraft versions**: this tree builds **1.21.1** only. 1.20.1 is a
+  still-supported release point rather than a module here — the source was ported forward
+  rather than branched, so the 1.20.1 code is the **`v1.0.1`** tag in this repo's history
+  (Fabric and Forge only, JDK 17). Anything that must hold for both versions has to be
+  changed twice, at two different points in history; there is no shared branch. The
+  user-facing version matrix lives in `README.md` and both store descriptions.
 
 ## Repository Layout
 

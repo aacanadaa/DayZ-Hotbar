@@ -7,8 +7,7 @@ Built as a visual sibling of
 palette, same flat translucent panels, same near-black washes — so the two mods read as
 one interface.
 
-**Available for Minecraft 1.21.1 on Fabric, Forge and NeoForge. No loader needs an API
-mod.**
+**Available for Minecraft 1.20.1 and 1.21.1. No loader needs an API mod.**
 
 > **Tip — GUI Scale.** The HUD is laid out at a fixed pixel size and is tuned for
 > Minecraft's default *Auto* GUI scale. At a **large** GUI scale the hotbar, the player
@@ -16,9 +15,13 @@ mod.**
 > screen; at a very **small** one the icons become hard to read. If either happens,
 > adjust **Options → Video Settings → GUI Scale**.
 
-| Minecraft | Loaders |
-| :--- | :--- |
-| **1.21.1** | Fabric, Forge 52.1.2+, NeoForge 21.1+ (Java 21) |
+| Minecraft | Loaders | Java | Release |
+| :--- | :--- | :--- | :--- |
+| **1.21.1** | Fabric, Forge 52.1.2+, NeoForge 21.1+ | 21 | 1.1.0 |
+| **1.20.1** | Fabric, Forge 47.x | 17 | 1.0.1 |
+
+Both versions draw the same HUD. Download the file for your game version and loader - they
+are not interchangeable.
 
 ![The DayZ Hotbar HUD in game: the held-item panel at the bottom left showing an empty hand, a nine-slot hotbar with the held slot lit green, and the status readout at the bottom right showing food, water, temperature, experience and health](https://raw.githubusercontent.com/aacanadaa/DayZ-Hotbar/main/docs/screenshots/uwu.png)
 
@@ -113,6 +116,11 @@ nothing else.
 
 ## Installation
 
+Pick the file for your Minecraft version and loader. They draw the same HUD, but they are
+built for different versions and loaders and are **not** interchangeable.
+
+### Minecraft 1.21.1
+
 **Fabric**
 
 1. Install Fabric Loader for Minecraft 1.21.1.
@@ -128,9 +136,23 @@ nothing else.
 1. Install NeoForge 21.1.x for Minecraft 1.21.1.
 2. Drop `dayz-hotbar-neoforge-1.21.1-<version>.jar` into your `mods` folder.
 
-The three builds are **not** interchangeable — take the one that matches your loader.
-Forge and NeoForge are separate downloads even though they look similar; they are
-different loaders with different HUD APIs.
+### Minecraft 1.20.1
+
+**Fabric**
+
+1. Install Fabric Loader for Minecraft 1.20.1.
+2. Drop `dayz-hotbar-fabric-1.20.1-<version>.jar` into your `mods` folder.
+
+**Forge**
+
+1. Install Forge 47.x for Minecraft 1.20.1.
+2. Drop `dayz-hotbar-forge-1.20.1-<version>.jar` into your `mods` folder.
+
+There is no NeoForge build for 1.20.1. That line uses the older overlay-based HUD API,
+which this mod is not written against, so 1.20.1 ships for Fabric and Forge only.
+
+The builds are **not** interchangeable. Forge and NeoForge are separate downloads even
+though they look similar; they are different loaders with different HUD APIs.
 
 ---
 

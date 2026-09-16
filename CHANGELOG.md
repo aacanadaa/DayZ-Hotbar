@@ -6,6 +6,11 @@ status readout, same icons. What moved is everything underneath it.
 **NeoForge is new**, alongside the existing Fabric and Forge builds. All three are built
 from the same source and behave identically. As before, no loader needs an API mod.
 
+**1.20.1 is not going anywhere.** This release adds 1.21.1 rather than replacing 1.20.1:
+the 1.0.1 build for 1.20.1 stays available and unchanged on both stores. Take whichever
+matches the version you play — 1.20.1 for Fabric and Forge, 1.21.1 for Fabric, Forge and
+NeoForge.
+
 ## What the HUD is doing on this version
 
 1.21.1 rebuilt the vanilla HUD from the ground up, and it took both loaders with it:
