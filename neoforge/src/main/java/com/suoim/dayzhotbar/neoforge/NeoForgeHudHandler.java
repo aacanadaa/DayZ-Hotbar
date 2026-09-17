@@ -18,8 +18,8 @@ package com.suoim.dayzhotbar.neoforge;
 
 import com.suoim.dayzhotbar.client.DayZHotbarHud;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,7 +30,8 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import java.util.Set;
 
 /**
- * Drives the DayZ HUD on NeoForge, and suppresses the vanilla elements it replaces.
+ * Drives the DayZ HUD on NeoForge, and suppresses the vanilla elements it
+ * replaces.
  * <p>
  * Neither of the other two loaders' mechanisms works here. The shared
  * {@code GuiMixin} is compiled against Loom's intermediary refmap and would not
@@ -44,9 +45,11 @@ import java.util.Set;
  * than at a position picked in advance.
  * <p>
  * NeoForge names every vanilla layer, and it split the status row up: where vanilla
- * draws health, armour, food and air from one {@code renderPlayerHealth}, NeoForge
+ * draws health, armour, food and air (and, from 1.21.2, air separately) NeoForge
  * registers a layer for each. So the readout takes the {@code PLAYER_HEALTH} layer
- * as its anchor and the other three are cancelled alongside it.
+ * as its anchor and the other three are cancelled alongside it. The experience bar
+ * moved into a shared "contextual bar" in 1.21.6, which is what the conditional
+ * layer set below follows.
  */
 // No `bus` attribute: on NeoForge it defaults to the game bus, and naming it
 // explicitly is deprecated for removal.
@@ -54,28 +57,29 @@ import java.util.Set;
 public final class NeoForgeHudHandler {
 
     /**
-     * The experience bar.
+     * The experience bar, in whatever form this Minecraft version draws it.
      * <p>
-     * {@code VanillaGuiLayers.EXPERIENCE_BAR} is the name this mod is built and
-     * tested against, and it is a registered layer in NeoForge 21.1 - the bar is not
-     * part of {@code HOTBAR}. The two hardcoded ids are for the later 1.21.x lines,
-     * where NeoForge folded the bar into a shared "contextual bar" widget that also
-     * draws a mount's jump charge, and renamed the layers with it. A name no layer
-     * carries simply never comes up, so listing all three costs nothing and means
-     * this file does not have to be revisited the moment someone raises the NeoForge
-     * version.
+     * Up to 1.21.5 it is a layer of its own, {@code EXPERIENCE_BAR}. 1.21.6 folded
+     * the bar and the mount's jump charge into a shared "contextual bar" and
+     * renamed the layers with it. A name no layer carries simply never comes up, so
+     * the right set for the version is selected at compile time.
      */
-    private static final Set<ResourceLocation> EXPERIENCE_LAYERS = Set.of(
-            VanillaGuiLayers.EXPERIENCE_BAR,
-            ResourceLocation.withDefaultNamespace("contextual_info_bar"),
-            ResourceLocation.withDefaultNamespace("contextual_info_bar_background")
+    //? if <1.21.6 {
+    private static final Set<Identifier> EXPERIENCE_LAYERS = Set.of(
+            VanillaGuiLayers.EXPERIENCE_BAR
     );
+    //?} else {
+    private static final Set<Identifier> EXPERIENCE_LAYERS = Set.of(
+            VanillaGuiLayers.CONTEXTUAL_INFO_BAR,
+            VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND
+    );
+    //?}
 
     /**
      * The rest of the status row. NeoForge registers each of these separately, and
      * all of them are folded into the single DayZ readout.
      */
-    private static final Set<ResourceLocation> REPLACED_BY_STATUS_ROW = Set.of(
+    private static final Set<Identifier> REPLACED_BY_STATUS_ROW = Set.of(
             VanillaGuiLayers.ARMOR_LEVEL,
             VanillaGuiLayers.FOOD_LEVEL,
             VanillaGuiLayers.AIR_LEVEL,
@@ -97,7 +101,7 @@ public final class NeoForgeHudHandler {
     @SubscribeEvent
     public static void onRenderPre(RenderGuiEvent.Pre event) {
         Minecraft minecraft = Minecraft.getInstance();
-        DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.getGuiTicks(), minecraft);
+        DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.hud.getGuiTicks(), minecraft);
     }
 
     /**
@@ -108,24 +112,28 @@ public final class NeoForgeHudHandler {
      * survival-mode conditions, so a cancelled layer that nothing redraws is exactly
      * what F1 and creative mode should look like - whereas cancelling only on a
      * successful draw would leave vanilla's health and food rows visible with the
-     * HUD hidden.
+     * HUD hidden. The mod's own {@code renderHotbar} / {@code renderStatus} handle
+     * {@code hideGui} and spectator mode internally and return false there, leaving
+     * vanilla's rendered layers untouched.
      */
     @SubscribeEvent
     public static void onLayerPre(RenderGuiLayerEvent.Pre event) {
         Minecraft minecraft = Minecraft.getInstance();
-        GuiGraphics graphics = event.getGuiGraphics();
-        ResourceLocation id = event.getName();
+        GuiGraphicsExtractor graphics = event.getGuiGraphics();
+        Identifier id = event.getName();
 
         if (VanillaGuiLayers.HOTBAR.equals(id)) {
-            DayZHotbarHud.INSTANCE.renderHotbar(graphics, minecraft);
-            event.setCanceled(true);
+            if (DayZHotbarHud.INSTANCE.renderHotbar(graphics, minecraft)) {
+                event.setCanceled(true);
+            }
         } else if (VanillaGuiLayers.PLAYER_HEALTH.equals(id)) {
             // The readout is drawn here rather than on one of the other status
             // layers because PLAYER_HEALTH is the one that leads the row. It
             // replaces the whole row, so where in the row it is anchored does not
             // matter - only that something draws it exactly once.
-            DayZHotbarHud.INSTANCE.renderStatus(graphics, minecraft);
-            event.setCanceled(true);
+            if (DayZHotbarHud.INSTANCE.renderStatus(graphics, minecraft)) {
+                event.setCanceled(true);
+            }
         } else if (VanillaGuiLayers.EXPERIENCE_LEVEL.equals(id)
                 || EXPERIENCE_LAYERS.contains(id)
                 || REPLACED_BY_STATUS_ROW.contains(id)) {

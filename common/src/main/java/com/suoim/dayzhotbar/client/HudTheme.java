@@ -16,7 +16,7 @@
  */
 package com.suoim.dayzhotbar.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * The visual language shared with the DayZ Inventory mod: flat translucent
@@ -92,7 +92,7 @@ public final class HudTheme {
     public static final int CONDITION_RUINED = 0xFF6E1414;
 
     /** A filled circle, for the condition dot. */
-    public static void dot(GuiGraphics graphics, int centerX, int centerY, int radius, int color) {
+    public static void dot(GuiGraphicsExtractor graphics, int centerX, int centerY, int radius, int color) {
         for (int dy = -radius; dy <= radius; dy++) {
             int half = (int) Math.sqrt(radius * radius - dy * dy);
             graphics.fill(centerX - half, centerY + dy, centerX + half + 1, centerY + dy + 1, color);
@@ -119,7 +119,7 @@ public final class HudTheme {
     }
 
     /** The DayZ Inventory panel: a single flat fill, no border. */
-    public static void panel(GuiGraphics graphics, int x, int y, int width, int height) {
+    public static void panel(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
         graphics.fill(x, y, x + width, y + height, PANEL_BG);
     }
 
@@ -128,7 +128,7 @@ public final class HudTheme {
      * rather than the darker section panel: the hotbar has no backing plate of its own,
      * so a dark card beside it reads as a different material.
      */
-    public static void card(GuiGraphics graphics, int x, int y, int width, int height) {
+    public static void card(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
         graphics.fill(x, y, x + width, y + height, SLOT_FILLED);
     }
 
@@ -170,7 +170,7 @@ public final class HudTheme {
      * {@code up}. The alpha is baked into the colour so the marker fades out
      * rather than snapping off.
      */
-    public static void chevrons(GuiGraphics graphics, int centerX, int topY, int count,
+    public static void chevrons(GuiGraphicsExtractor graphics, int centerX, int topY, int count,
                                 boolean up, float alpha) {
         int a = Math.round(255.0F * Math.max(0.0F, Math.min(1.0F, alpha)));
         int color = (a << 24) | 0x00FFFFFF;

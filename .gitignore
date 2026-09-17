@@ -16,6 +16,17 @@ logs/
 crash-reports/
 
 # ---------------------------------------------------------------------------
+# Stonecutter
+# ---------------------------------------------------------------------------
+# Each <branch>/versions/<mc>/ directory is a generated build node. Only the
+# version property files under versions/ are source-controlled.
+common/versions/*/
+fabric/versions/*/
+forge/versions/*/
+neoforge/versions/*/
+.sc_active_version
+
+# ---------------------------------------------------------------------------
 # Temporary build / compiler output
 # ---------------------------------------------------------------------------
 *.log
@@ -47,14 +58,6 @@ bin/
 
 # Visual Studio Code
 .vscode/
-
-# ---------------------------------------------------------------------------
-# Scratch captures. The curated screenshots that ship in the README and the store
-# descriptions live in docs/screenshots/ and ARE tracked - anchor this to the repo
-# root, or a bare "screenshots/" would swallow that directory too.
-# ---------------------------------------------------------------------------
-/screnshot/
-*.webm
 
 # ---------------------------------------------------------------------------
 # OS noise

@@ -1,3 +1,47 @@
+# DayZ Hotbar 1.2.0 (Minecraft 1.20.1 – 26.3)
+
+**One source tree, 23 Minecraft versions, three loaders.** The HUD is unchanged — same
+hotbar, same status readout, same icons — but the project is no longer split across
+branches and per-version trees.
+
+## What changed
+
+- **The version-per-branch layout is gone.** The tree is now a [Stonecutter](https://stonecutter.kikugie.dev/)
+  project: one `common/` source tree with the loader modules beside it, and one build node
+  per (loader × Minecraft version) pair. Version differences are marked inline with
+  `//? if` comments and a small set of bulk renames, instead of being maintained twice.
+- **1.20.1 is back in the main tree.** It used to be the `v1.0.1` tag, so fixing anything on
+  it meant replaying history; it is now `:fabric:1.20.1` like any other node.
+- **Coverage runs from 1.20.1 to 26.3**, including everything in between: 1.20.2–1.20.4,
+  1.20.5, 1.20.6, 1.21–1.21.11 and the unobfuscated 26.1–26.3 line. The 26.x line needs
+  Java 25 and uses the rewritten GUI (`GuiGraphicsExtractor`); the HUD moved into a new
+  `Hud` class there, and both are handled.
+- **50 shippable jars** are produced: 23 Fabric, 9 Forge and 18 NeoForge.
+- **Build with one command.** `./gradlew chiseledBuild` builds the whole matrix;
+  `./gradlew matrix` lists the nodes.
+- **Publishing tags every artifact correctly.** Each node uploads to Modrinth and CurseForge
+  with its own game version and loader tags read from `versions/<mc>/gradle.properties`, so no
+  jar can go up under the wrong Minecraft version.
+
+## Coverage
+
+| Minecraft | Fabric | Forge | NeoForge | Java |
+| :--- | :---: | :---: | :---: | :---: |
+| 1.20.1 – 1.20.4 | ✅ | — | — | 17 |
+| 1.20.5 | ✅ | — | — | 21 |
+| 1.20.6 – 1.21.1 | ✅ | ✅ | ✅ | 21 |
+| 1.21.2 | ✅ | — | ✅ | 21 |
+| 1.21.3 – 1.21.5 | ✅ | ✅ | ✅ | 21 |
+| 1.21.6 – 1.21.7 | ✅ | — | ✅ | 21 |
+| 1.21.8 – 1.21.11 | ✅ | ✅ | ✅ | 21 |
+| 26.1 – 26.3 | ✅ | — | ✅ | 25 |
+
+The deliberate gaps — Forge 1.20.1 (SRG toolchain), and Forge 1.21 / 1.21.6 / 1.21.7 (those
+Forge lines ship no HUD layer API) — are recorded with their reasons in
+[docs/BUILDING.en.md](docs/BUILDING.en.md) section 7.
+
+---
+
 # DayZ Hotbar 1.1.0 (Minecraft 1.21.1)
 
 **Minecraft 1.21.1, and NeoForge.** The HUD itself is unchanged — same hotbar, same

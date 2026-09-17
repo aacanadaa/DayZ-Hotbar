@@ -17,7 +17,7 @@
 package com.suoim.dayzhotbar.client;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.List;
 
@@ -123,7 +123,7 @@ public final class StatusRow {
                        boolean mark, boolean solid, int chevrons, boolean up, float markerAlpha,
                        int level, boolean plusBadge, Group group, float alpha) {}
 
-    public static void render(GuiGraphics graphics, Font font, int screenWidth, int screenHeight,
+    public static void render(GuiGraphicsExtractor graphics, Font font, int screenWidth, int screenHeight,
                               List<Cell> cells, int guiTicks) {
         if (cells.isEmpty()) {
             return;
@@ -162,7 +162,7 @@ public final class StatusRow {
         }
     }
 
-    private static void drawCell(GuiGraphics graphics, Font font, int x, int y,
+    private static void drawCell(GuiGraphicsExtractor graphics, Font font, int x, int y,
                                  Cell cell, int guiTicks) {
         int color = withAlpha(cell.color(), cell.alpha());
 
@@ -214,15 +214,16 @@ public final class StatusRow {
      * the drop shadow adds weight below the glyph on top of that. Both biases point
      * downward.
      */
-    private static void drawLevel(GuiGraphics graphics, Font font, int x, int y, int level) {
+    private static void drawLevel(GuiGraphicsExtractor graphics, Font font, int x, int y, int level) {
         String label = Integer.toString(level);
         float glyphHeight = GLYPH_HEIGHT * LEVEL_TEXT_SCALE;
-        graphics.pose().pushPose();
-        graphics.pose().translate(x + ICON / 2.0F,
-                y + (ICON - glyphHeight) / 2.0F + LEVEL_TEXT_DROP, 0.0F);
-        graphics.pose().scale(LEVEL_TEXT_SCALE, LEVEL_TEXT_SCALE, 1.0F);
-        graphics.drawString(font, label, -font.width(label) / 2, 0, HudTheme.TEXT_BRIGHT, true);
-        graphics.pose().popPose();
+        float labelX = x + ICON / 2.0F;
+        float labelY = y + (ICON - glyphHeight) / 2.0F + LEVEL_TEXT_DROP;
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(labelX, labelY);
+        graphics.pose().scale(LEVEL_TEXT_SCALE, LEVEL_TEXT_SCALE);
+        graphics.text(font, label, -font.width(label) / 2, 0, HudTheme.TEXT_BRIGHT, true);
+        graphics.pose().popMatrix();
     }
 
     /**

@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
-![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%201.21.1-62b47a.svg)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%20...%20%7C%2026.3-62b47a.svg)
 ![Loader](https://img.shields.io/badge/Loader-Fabric%20%7C%20Forge%20%7C%20NeoForge-dbb69b.svg)
 [![Issues](https://img.shields.io/github/issues/aacanadaa/DayZ-Hotbar?color=red)](https://github.com/aacanadaa/DayZ-Hotbar/issues)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-%E8%B5%9E%E5%8A%A9%E6%88%91-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/suoim)
@@ -13,14 +13,27 @@
 把 Minecraft 的 HUD 换成 **DayZ** 风格的快捷栏（hotbar）和 DayZ 风格的状态读数，视觉上与
 [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory) 保持一致。
 
-**支持 Minecraft 1.20.1 与 1.21.1。任何加载器都不需要前置 API 模组。**
+**支持 Minecraft 1.20.1 到 26.3，一份源码、三个加载器。任何加载器都不需要前置 API 模组。**
 
-| Minecraft | 加载器 | Java | 版本 |
-| :--- | :--- | :--- | :--- |
-| **1.21.1** | Fabric, Forge 52.1.2+, NeoForge 21.1.x | 21 | 1.1.0 |
-| **1.20.1** | Fabric, Forge 47.x | 17 | 1.0.1 |
+整个版本矩阵来自同一份源码树，用 [Stonecutter](https://stonecutter.kikugie.dev/) 按版本条件编译，
+为每个（加载器 × 游戏版本）组合产出一个 jar。
 
-两个版本画出来的 HUD 是同一套。按你的游戏版本和加载器选对应那一行 —— 这些 jar **不能混用**。
+| Minecraft | Fabric | Forge | NeoForge | Java |
+| :--- | :---: | :---: | :---: | :---: |
+| **1.20.1 – 1.20.4** | ✅ | — | — | 17 |
+| **1.20.5** | ✅ | — | — | 21 |
+| **1.20.6 – 1.21.1** | ✅ | ✅ | ✅ | 21 |
+| **1.21.2** | ✅ | — | ✅ | 21 |
+| **1.21.3 – 1.21.5** | ✅ | ✅ | ✅ | 21 |
+| **1.21.6 – 1.21.7** | ✅ | — | ✅ | 21 |
+| **1.21.8 – 1.21.11** | ✅ | ✅ | ✅ | 21 |
+| **26.1 – 26.3** | ✅ | — | ✅ | 25 |
+
+Forge 没有 1.21、1.21.6、1.21.7 三个版本：这几条 Forge 线没有可用的 HUD 层 API，没有能挂钩的东西。
+Forge 也没有 1.21.2（官方就没发布）和 26.x。完整的取舍记录在
+[docs/BUILDING.md](docs/BUILDING.md)。
+
+每个组合产出的 HUD 画出来的东西是同一套，但 jar **不能混用** —— 请按你的游戏版本和加载器选。
 
 > **提示 —— GUI 缩放。** HUD 按固定像素尺寸排版，并以 Minecraft 默认的 *自动* GUI 缩放为基准调过。
 > GUI 缩放调**大**时，快捷栏、玩家面板和状态读数会被挤到一起，甚至可能在屏幕中间撞上；调得**很小**
@@ -148,40 +161,13 @@ Minecraft 两条槽都是 20 点，所以生命在 12 点及以下变黄、6 点
 
 ## 安装
 
-按你的 Minecraft 版本和加载器挑对应的 jar。所有构建画出来的 HUD 都一样，但它们是为不同的游戏版本
-和加载器构建的，**不能互换**。
+按你的 Minecraft 版本和加载器挑对应的 jar。文件名里已经带了游戏版本和加载器，例如
+`dayz-hotbar-fabric-1.21.1-1.2.0.jar`。所有构建画出来的 HUD 都一样，但它们是为不同的游戏版本和加载器
+构建的，**不能互换**。
 
-### Minecraft 1.21.1 —— 模组 1.1.0
-
-**Fabric**
-
-1. 为 Minecraft 1.21.1 安装 [Fabric Loader](https://fabricmc.net/use/)。
-2. 把 `dayz-hotbar-fabric-1.21.1-<版本>.jar` 放进 `mods` 文件夹。
-
-**Forge**
-
-1. 为 Minecraft 1.21.1 安装 [Forge 52.1.2 或更新](https://files.minecraftforge.net/net/minecraftforge/forge/)。
-2. 把 `dayz-hotbar-forge-1.21.1-<版本>.jar` 放进 `mods` 文件夹。
-
-**NeoForge**
-
-1. 为 Minecraft 1.21.1 安装 [NeoForge 21.1.x](https://neoforged.net/)。
-2. 把 `dayz-hotbar-neoforge-1.21.1-<版本>.jar` 放进 `mods` 文件夹。
-
-### Minecraft 1.20.1 —— 模组 1.0.1
-
-**Fabric**
-
-1. 为 Minecraft 1.20.1 安装 [Fabric Loader](https://fabricmc.net/use/)。
-2. 把 `dayz-hotbar-fabric-1.20.1-<版本>.jar` 放进 `mods` 文件夹。
-
-**Forge**
-
-1. 为 Minecraft 1.20.1 安装 [Forge 47.x](https://files.minecraftforge.net/net/minecraftforge/forge/)。
-2. 把 `dayz-hotbar-forge-1.20.1-<版本>.jar` 放进 `mods` 文件夹。
-
-1.20.1 没有 NeoForge 构建。NeoForge 的 1.20.1 线早于这个模组在那里需要的 HUD API，所以 1.20.1 的
-发布只有 Fabric 和 Forge。
+1. 装好对应游戏版本的加载器 —— [Fabric Loader](https://fabricmc.net/use/)、
+   [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/) 或 [NeoForge](https://neoforged.net/)。
+2. 把对应 jar 放进 `mods` 文件夹。
 
 下载在 [releases 页面](https://github.com/aacanadaa/DayZ-Hotbar/releases)，两个平台上也在对应你游戏
 版本的条目下。
@@ -194,15 +180,15 @@ Forge 和 NeoForge 虽然长得像，但是两份独立的下载：它们是不�
 
 ## 依赖
 
-| | Minecraft 1.21.1 | Minecraft 1.20.1 |
-| :--- | :--- | :--- |
-| 模组版本 | 1.1.0 | 1.0.1 |
-| Fabric | Loader 0.15.0 或更新 | Loader 0.15.0 或更新 |
-| Forge | Forge 52.1.2 或更新 | Forge 47.x |
-| NeoForge | NeoForge 21.1.x | — |
-| Java | 21 或更新 | 17 或更新 |
-| Fabric API | 不需要 | 不需要 |
-| Forge / NeoForge API 模组 | 不需要 | 不需要 |
+| | 要求 |
+| :--- | :--- |
+| 模组版本 | 1.2.0（同一份源码覆盖 1.20.1 – 26.3） |
+| Fabric | 与游戏版本匹配的 Fabric Loader |
+| Forge | 与游戏版本匹配且带 HUD 层 API 的 Forge |
+| NeoForge | 1.20.6 或更新 |
+| Java | 1.20.5+ 需 21 或更新；1.20.1–1.20.4 需 17；26.x 需 25 |
+| Fabric API | 不需要 |
+| Forge / NeoForge API 模组 | 不需要 |
 
 ---
 
@@ -212,33 +198,40 @@ Forge 和 NeoForge 虽然长得像，但是两份独立的下载：它们是不�
 - 原版的可见性规则照旧继承：HUD 依然会在打开界面时、旁观模式下和按下 F1 时隐藏。
 - 原版的攻击力度指示器原本画在快捷栏里，替换掉快捷栏就把它一并去掉了。这里没有重新实现它 ——
   想要的话，把 **选项 → 视频设置 → 攻击指示器** 设成*准星*。
-- **仅在 Forge、且仅在 1.21.1 上**，还有两个小的原版元素会跟着一起消失：短暂的"选中物品名称"
-  弹窗，以及骑马时的跳跃蓄力条。Forge 把槽位行、经验条、生命行和坐骑生命放在同一层里，所以没有
-  更细的东西可以单独留着。Fabric 和 NeoForge 这两样都保留。1.20.1 的 Forge 构建不受影响。
+- **在 Forge 1.20.6 与 1.21.1–1.21.5 上**，还有两个小的原版元素会跟着一起消失：短暂的"选中物品名称"
+  弹窗，以及骑马时的跳跃蓄力条。这几条 Forge 把槽位行、经验条、生命行和坐骑生命放在同一层里，所以
+  没有更细的东西可以单独留着。此后 Forge 把这一块拆得更细（1.21.8 起），Fabric 和 NeoForge 则一直
+  保留这两样。
 
 ---
 
 ## 从源码构建
 
-这份源码树为三个加载器构建 **Minecraft 1.21.1**。需要 **JDK 21** —— 1.21.1 是 Java 21 目标。
+这份源码树用 [Stonecutter](https://stonecutter.kikugie.dev/) 管理整个版本矩阵：**一份源码**，一份
+`settings.gradle.kts` 里的版本清单，每个（加载器 × 游戏版本）组合是一个构建节点。需要 **JDK 25**
+作为启动 JDK —— 各游戏版本所需的 17 / 21 / 25 工具链会由 foojay 解析器按需下载。
 
 ```bash
-JAVA_HOME=/path/to/jdk-21 ./gradlew build
+# 构建矩阵里的每一个版本和加载器
+JAVA_HOME=/path/to/jdk-25 ./gradlew chiseledBuild
+
+# 只构建一个节点
+JAVA_HOME=/path/to/jdk-25 ./gradlew :fabric:1.21.1:build
+JAVA_HOME=/path/to/jdk-25 ./gradlew :neoforge:26.2:build
+JAVA_HOME=/path/to/jdk-25 ./gradlew :forge:1.21.11:build
+
+# 列出全部节点
+./gradlew matrix
 ```
 
-产物：
+产物在对应节点的构建目录里，文件名已经带上游戏版本：
 
-- `fabric/build/libs/dayz-hotbar-fabric-1.21.1-<版本>.jar`
-- `forge/build/libs/dayz-hotbar-forge-1.21.1-<版本>.jar`
-- `neoforge/build/libs/dayz-hotbar-neoforge-1.21.1-<版本>.jar`
+- `fabric/versions/<mc>/build/libs/dayz-hotbar-fabric-<mc>-<版本>.jar`
+- `neoforge/versions/<mc>/build/libs/dayz-hotbar-neoforge-<mc>-<版本>.jar`
+- `forge/versions/<mc>/build/libs/dayz-hotbar-forge-<mc>-<版本>.jar`
 
-这三个就是可直接发布的产物 —— 三者都不需要任何后处理步骤。同一个目录下还会写出 `-sources.jar`，
-手动拷贝文件时注意别拿错。单独构建某个模块可以用 `:fabric:build`、`:forge:build` 或
-`:neoforge:build`。
-
-**1.20.1 的构建不来自这份源码树。** 源码已经迁移到 1.21.1 的 API，与 1.20.1 的不兼容，所以两者作为
-两个独立的历史节点维护：要构建 1.20.1 请检出 **`v1.0.1`** 标签，它需要 JDK 17 而不是 21，并且只产出
-Fabric 和 Forge 两个 jar。
+这些就是可直接发布的产物，不需要任何后处理步骤。同一目录下还会写出 `-sources.jar`，手动拷贝时注意
+别拿错。构建细节和版本矩阵的取舍见 [docs/BUILDING.md](docs/BUILDING.md)。
 
 ---
 
