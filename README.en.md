@@ -16,6 +16,8 @@ styled to match [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory).
 **Available for Minecraft 1.20.1 through 26.3, from one source tree and three loaders. No
 loader needs an API mod.**
 
+## Supported Versions
+
 The whole version matrix is built from a single source tree with
 [Stonecutter](https://stonecutter.kikugie.dev/) conditional compilation, producing one jar
 per (loader × game version) pair.
@@ -228,8 +230,12 @@ different loaders with different HUD APIs, and the jars are not interchangeable.
 - **On Forge 1.20.6 and 1.21.1–1.21.5**, two small vanilla elements go with it: the brief
   "selected item name" popup, and the jump-charge bar while riding a horse. Those Forge
   lines keep the slot row, the experience bar, the health row and the mount's health in a
-  single layer, so there is nothing finer to leave switched on. Forge split that block more
-  finely from 1.21.8 on, and Fabric and NeoForge keep both throughout.
+  single layer, so there is nothing finer to leave switched on.
+- **From 1.21.6 on**, vanilla moved the experience bar into a shared "contextual bar" that
+  also holds the mount's jump meter and the locator bar. Replacing the experience bar
+  removes that whole widget on Fabric, NeoForge and (from 1.21.8) Forge: the DayZ readout
+  still draws its own experience icon, but the vanilla locator and jump bars are not
+  redrawn. On 1.20.1–1.21.5 all three loaders keep them.
 
 ---
 

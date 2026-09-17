@@ -1,3 +1,6 @@
+<!-- Store description for Modrinth. Everything below is the copy-paste source for the
+     project description field. The Modrinth description IS pushed by the build, but this
+     file is the reviewed copy; keep the two in step. See docs/BUILDING.en.md section 9. -->
 # DayZ Hotbar
 
 Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout.
@@ -5,6 +8,8 @@ Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status read
 Built as a visual sibling of **[DayZ Inventory](https://modrinth.com/mod/dayz-inventory)** —
 same palette, same flat translucent panels, same near-black washes — so the two mods read
 as one interface.
+
+## Supported Versions
 
 **Available for Minecraft 1.20.1 through 26.3, for Fabric, Forge and NeoForge. No loader
 needs an API mod.**
@@ -140,6 +145,8 @@ though they look similar; they are different loaders with different HUD APIs.
 - The vanilla health, hunger, armour, air and experience elements are **suppressed rather than drawn over**, so nothing double-draws.
 - Vanilla's own visibility rules are inherited: the HUD still hides behind an open screen, in spectator mode, and when you press F1.
 - The vanilla attack-strength indicator lived inside the hotbar, so replacing the hotbar removes it. It is not reimplemented — set **Options → Video Settings → Attack Indicator** to *Crosshair* if you want it back.
+- **From 1.21.6 on**, vanilla moved the experience bar into a shared "contextual bar" that also holds the mount's jump meter and the locator bar. Replacing the experience bar removes that whole widget on Fabric, NeoForge and (from 1.21.8) Forge: the DayZ readout still draws its own experience icon, but the vanilla locator and jump bars are not redrawn. On 1.20.1–1.21.5 all three loaders keep them.
+- **On Forge 1.20.6 and 1.21.1–1.21.5**, the brief "selected item name" popup and the mount jump bar also go, because those Forge lines draw the whole bottom block as one layer.
 - **Water and temperature are drawn but not yet read.** Water mirrors food, and temperature sits at half and white. Both are placeholders for a thirst and temperature system, and will become real readings when such a mod is present.
 
 ---
