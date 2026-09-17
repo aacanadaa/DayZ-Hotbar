@@ -16,6 +16,10 @@ on:
         type: choice
         options: [all, modrinth, curseforge]
         default: all
+      skip_nodes:
+        description: "Comma-separated branch:version nodes already published, to skip (e.g. fabric:1.20.1,forge:1.21.1). Modrinth rejects a duplicate version, so a partial upload has to be finished without re-sending the ones that went up."
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -161,12 +165,20 @@ jobs:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN || vars.CURSEFORGE_TOKEN }}
         run: |
           # `publishAll` re-uploads both platforms, and Modrinth rejects a second
-          # file whose name it already has, so a re-run after a one-platform
-          # failure has to be able to target a single platform.
+          # file whose name it already has, so a re-run after a partial upload must
+          # be able to target a single platform and/or skip the nodes that already
+          # went up. `skip_nodes` names them as `branch:version`.
           case "${{ inputs.platform || 'all' }}" in
             modrinth)   task=publishModrinthAll ;;
             curseforge) task=publishCurseforgeAll ;;
             *)          task=publishAll ;;
           esac
-          echo "publishing via :$task"
-          ./gradlew "$task" -Ppublish.dry_run=false --stacktrace
+          excludes=""
+          IFS=',' read -ra nodes <<< "${{ inputs.skip_nodes }}"
+          for n in "${nodes[@]}"; do
+            n="$(printf '%s' "$n" | tr -d '[:space:]')"
+            [ -z "$n" ] && continue
+            excludes="$excludes -x :$n:publishMods -x :$n:publishModrinth -x :$n:publishCurseforge"
+          done
+          echo "publishing via :$task (skipping: ${nodes[*]:-none})"
+          ./gradlew "$task" -Ppublish.dry_run=false --stacktrace $excludes
