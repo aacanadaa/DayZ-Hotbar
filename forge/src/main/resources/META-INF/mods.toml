@@ -1,37 +1,37 @@
 modLoader="javafml"
-loaderVersion="[52,)"
-license="Apache-2.0"
-issueTrackerURL="https://github.com/aacanadaa/DayZ-Hotbar/issues"
+loaderVersion="${forge_loader_range}"
+license="${mod_license}"
+issueTrackerURL="${mod_issues}"
 
 [[mods]]
-modId="dayz_hotbar"
+modId="${mod_id}"
+# Expanded from gradle.properties by processResources. Keep it a placeholder:
+# a hardcoded value drifted once and shipped a jar that reported the wrong
+# version in crash reports.
 version="${version}"
-displayName="DayZ Hotbar"
-authors="suoim"
-description="Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout."
-displayURL="https://modrinth.com/mod/dayz-hotbar"
+displayName="${mod_name}"
+authors="${mod_author}"
+description="${mod_description}"
+displayURL="https://modrinth.com/mod/${mod_id_slug}"
 logoFile="assets/dayz_hotbar/icon.png"
 # Client-only mod. Without this, a server running the mod would be flagged as
 # having a mismatched version with every client that does not - which is every
 # client, since there is nothing here for a server to install.
 displayTest="IGNORE_ALL_VERSION"
 
-[[dependencies.dayz_hotbar]]
+[[dependencies.${mod_id}]]
 modId="forge"
 mandatory=true
-# 52.1.2, not 52.1.0. Forge 1.21.1 shipped with no HUD API at all - no ForgeGui, no
-# RenderGuiOverlayEvent, and no ForgeLayeredDraw either - and the layered HUD hook this
-# mod is built on (AddGuiOverlayLayersEvent) did not appear until 52.1.2. Declaring
-# "[52,)" let Forge load the mod on 52.1.0 and then crash it with a raw
-# NoClassDefFoundError during event-subscriber registration; this range turns that into
-# a clean "requires Forge 52.1.2 or newer" instead.
-versionRange="[52.1.2,)"
+# The floor is the exact version this node was compiled against, which lives in
+# versions/<mc>/gradle.properties. Building against the oldest supported version
+# is what makes javac enforce the declared range instead of trusting it.
+versionRange="${forge_range}"
 ordering="NONE"
 side="CLIENT"
 
-[[dependencies.dayz_hotbar]]
+[[dependencies.${mod_id}]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.21.1,1.21.2)"
+versionRange="${minecraft_range}"
 ordering="NONE"
 side="CLIENT"

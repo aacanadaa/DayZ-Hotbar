@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
-![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%201.21.1-62b47a.svg)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%20...%20%7C%2026.3-62b47a.svg)
 ![Loader](https://img.shields.io/badge/Loader-Fabric%20%7C%20Forge%20%7C%20NeoForge-dbb69b.svg)
 [![Issues](https://img.shields.io/github/issues/aacanadaa/DayZ-Hotbar?color=red)](https://github.com/aacanadaa/DayZ-Hotbar/issues)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/suoim)
@@ -13,15 +13,30 @@
 Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout,
 styled to match [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory).
 
-**Available for Minecraft 1.20.1 and 1.21.1. No loader needs an API mod.**
+**Available for Minecraft 1.20.1 through 26.3, from one source tree and three loaders. No
+loader needs an API mod.**
 
-| Minecraft | Loaders | Java | Release |
-| :--- | :--- | :--- | :--- |
-| **1.21.1** | Fabric, Forge 52.1.2+, NeoForge 21.1.x | 21 | 1.1.0 |
-| **1.20.1** | Fabric, Forge 47.x | 17 | 1.0.1 |
+The whole version matrix is built from a single source tree with
+[Stonecutter](https://stonecutter.kikugie.dev/) conditional compilation, producing one jar
+per (loader × game version) pair.
 
-Both versions draw the same HUD. Take the row that matches your game version and the
-loader you run — the jars are not interchangeable.
+| Minecraft | Fabric | Forge | NeoForge | Java |
+| :--- | :---: | :---: | :---: | :---: |
+| **1.20.1 – 1.20.4** | ✅ | — | — | 17 |
+| **1.20.5** | ✅ | — | — | 21 |
+| **1.20.6 – 1.21.1** | ✅ | ✅ | ✅ | 21 |
+| **1.21.2** | ✅ | — | ✅ | 21 |
+| **1.21.3 – 1.21.5** | ✅ | ✅ | ✅ | 21 |
+| **1.21.6 – 1.21.7** | ✅ | — | ✅ | 21 |
+| **1.21.8 – 1.21.11** | ✅ | ✅ | ✅ | 21 |
+| **26.1 – 26.3** | ✅ | — | ✅ | 25 |
+
+Forge has no 1.21, 1.21.6 or 1.21.7: those Forge lines ship no HUD layer API to hook. Forge
+also has no 1.21.2 (never published) and no 26.x. The full reasoning is recorded in
+[docs/BUILDING.en.md](docs/BUILDING.en.md).
+
+Every build draws the same HUD, but the jars are **not** interchangeable — take the one
+matching your game version and loader.
 
 > **Tip — GUI Scale.** The HUD is laid out at a fixed pixel size and is tuned for
 > Minecraft's default *Auto* GUI scale. At a **large** GUI scale the hotbar, the player
@@ -169,42 +184,14 @@ texture. The mod ships no icon art of its own, so it cannot clash with a resourc
 
 ## Installation
 
-Pick the jar for your Minecraft version and loader. Every build draws the same HUD, but
-they are built for different versions and loaders and are **not** interchangeable.
+Pick the jar for your Minecraft version and loader. The filename carries both, e.g.
+`dayz-hotbar-fabric-1.21.1-1.2.0.jar`. Every build draws the same HUD, but they are built
+for different versions and loaders and are **not** interchangeable.
 
-### Minecraft 1.21.1 — mod 1.1.0
-
-**Fabric**
-
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.21.1.
-2. Drop `dayz-hotbar-fabric-1.21.1-<version>.jar` into your `mods` folder.
-
-**Forge**
-
-1. Install [Forge 52.1.2 or newer](https://files.minecraftforge.net/net/minecraftforge/forge/) for
-   Minecraft 1.21.1.
-2. Drop `dayz-hotbar-forge-1.21.1-<version>.jar` into your `mods` folder.
-
-**NeoForge**
-
-1. Install [NeoForge 21.1.x](https://neoforged.net/) for Minecraft 1.21.1.
-2. Drop `dayz-hotbar-neoforge-1.21.1-<version>.jar` into your `mods` folder.
-
-### Minecraft 1.20.1 — mod 1.0.1
-
-**Fabric**
-
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.20.1.
-2. Drop `dayz-hotbar-fabric-1.20.1-<version>.jar` into your `mods` folder.
-
-**Forge**
-
-1. Install [Forge 47.x](https://files.minecraftforge.net/net/minecraftforge/forge/) for
-   Minecraft 1.20.1.
-2. Drop `dayz-hotbar-forge-1.20.1-<version>.jar` into your `mods` folder.
-
-There is no NeoForge build for 1.20.1. NeoForge's 1.20.1 line predates the HUD API this
-mod needs there, so the 1.20.1 releases are Fabric and Forge only.
+1. Install the loader for your game version — [Fabric Loader](https://fabricmc.net/use/),
+   [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/) or
+   [NeoForge](https://neoforged.net/).
+2. Drop the matching jar into your `mods` folder.
 
 Downloads are on the [releases page](https://github.com/aacanadaa/DayZ-Hotbar/releases),
 and on both stores under the version you run.
@@ -217,15 +204,15 @@ different loaders with different HUD APIs, and the jars are not interchangeable.
 
 ## Dependencies
 
-| | Minecraft 1.21.1 | Minecraft 1.20.1 |
-| :--- | :--- | :--- |
-| Mod version | 1.1.0 | 1.0.1 |
-| Fabric | Loader 0.15.0 or newer | Loader 0.15.0 or newer |
-| Forge | Forge 52.1.2 or newer | Forge 47.x |
-| NeoForge | NeoForge 21.1.x | — |
-| Java | 21 or newer | 17 or newer |
-| Fabric API | Not required | Not required |
-| Forge / NeoForge API mods | Not required | Not required |
+| | Requirement |
+| :--- | :--- |
+| Mod version | 1.2.0 (one source tree covers 1.20.1 – 26.3) |
+| Fabric | A Fabric Loader matching your game version |
+| Forge | A Forge line that ships the HUD layer API, matching your game version |
+| NeoForge | 1.20.6 or newer |
+| Java | 21+ on 1.20.5+; 17 on 1.20.1–1.20.4; 25 on 26.x |
+| Fabric API | Not required |
+| Forge / NeoForge API mods | Not required |
 
 ---
 
@@ -238,38 +225,45 @@ different loaders with different HUD APIs, and the jars are not interchangeable.
 - The vanilla attack-strength indicator lived inside the hotbar, so replacing the hotbar
   removes it. It is not reimplemented — set **Options → Video Settings → Attack Indicator**
   to *Crosshair* if you want it back.
-- **On Forge, only on 1.21.1**, two small vanilla elements go with it: the brief "selected
-  item name" popup, and the jump-charge bar while riding a horse. Forge keeps the slot
-  row, the experience bar, the health row and the mount's health in a single layer, so
-  there is nothing finer to leave switched on. Fabric and NeoForge keep both. The 1.20.1
-  Forge build is unaffected.
+- **On Forge 1.20.6 and 1.21.1–1.21.5**, two small vanilla elements go with it: the brief
+  "selected item name" popup, and the jump-charge bar while riding a horse. Those Forge
+  lines keep the slot row, the experience bar, the health row and the mount's health in a
+  single layer, so there is nothing finer to leave switched on. Forge split that block more
+  finely from 1.21.8 on, and Fabric and NeoForge keep both throughout.
 
 ---
 
 ## Building from Source
 
-This tree builds **Minecraft 1.21.1** for all three loaders. Requires **JDK 21** —
-1.21.1 is a Java 21 target.
+This tree manages the whole matrix with
+[Stonecutter](https://stonecutter.kikugie.dev/): **one source tree**, one version list in
+`settings.gradle.kts`, and one build node per (loader × game version) pair. It requires
+**JDK 25** as the launcher JDK — the Java 17 / 21 / 25 toolchains each game version needs
+are downloaded on demand by the foojay resolver.
 
 ```bash
-JAVA_HOME=/path/to/jdk-21 ./gradlew build
+# Build every version and loader in the matrix
+JAVA_HOME=/path/to/jdk-25 ./gradlew chiseledBuild
+
+# Build a single node
+JAVA_HOME=/path/to/jdk-25 ./gradlew :fabric:1.21.1:build
+JAVA_HOME=/path/to/jdk-25 ./gradlew :neoforge:26.2:build
+JAVA_HOME=/path/to/jdk-25 ./gradlew :forge:1.21.11:build
+
+# List every node
+./gradlew matrix
 ```
 
-Outputs:
+Outputs live under the node's own build directory, with the game version in the filename:
 
-- `fabric/build/libs/dayz-hotbar-fabric-1.21.1-<version>.jar`
-- `forge/build/libs/dayz-hotbar-forge-1.21.1-<version>.jar`
-- `neoforge/build/libs/dayz-hotbar-neoforge-1.21.1-<version>.jar`
+- `fabric/versions/<mc>/build/libs/dayz-hotbar-fabric-<mc>-<version>.jar`
+- `neoforge/versions/<mc>/build/libs/dayz-hotbar-neoforge-<mc>-<version>.jar`
+- `forge/versions/<mc>/build/libs/dayz-hotbar-forge-<mc>-<version>.jar`
 
-Each of those is the shippable artifact — none of the three needs a post-processing step.
-A `-sources.jar` is written to the same folder, so take care to pick the right file if you
-are copying by hand. A single module can also be built on its own with `:fabric:build`,
-`:forge:build` or `:neoforge:build`.
-
-**The 1.20.1 build does not come from this tree.** The source moved to the 1.21.1 APIs,
-which are incompatible with 1.20.1's, so the two are maintained as separate points in
-history: check out the **`v1.0.1`** tag to build 1.20.1, which needs JDK 17 instead of 21
-and produces the Fabric and Forge jars only.
+Each of those is the shippable artifact — none needs a post-processing step. A
+`-sources.jar` is written to the same folder, so take care to pick the right file if you
+are copying by hand. See [docs/BUILDING.en.md](docs/BUILDING.en.md) for how the build is
+put together and why the matrix has the gaps it does.
 
 ---
 
