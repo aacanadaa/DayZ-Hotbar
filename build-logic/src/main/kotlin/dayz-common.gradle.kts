@@ -75,8 +75,20 @@ val versionRenames = sc.current.parsed < "26.1"
 //
 // The shared sources are therefore written against the *newest* names, so the
 // newest target is never rewritten at all.
+//
+// The type rename has to be a REGEX anchored on word boundaries, not a plain
+// string replacement: `GuiGraphics` is a substring of `GuiGraphicsExtractor`, so
+// the reverse pass on 26.x matched inside `event.getGuiGraphics()` and produced
+// `event.getGuiGraphicsExtractor()` - a method that does not exist. `\b` leaves
+// method names and any other identifier containing `GuiGraphics` alone.
+sc.replacements.regex(sc.current.parsed < "26.1") {
+    replace(
+        "\\bGuiGraphicsExtractor\\b", "GuiGraphics",
+        "\\bGuiGraphics\\b", "GuiGraphicsExtractor"
+    )
+}
+
 sc.replacements.string(versionRenames) {
-    replace("GuiGraphicsExtractor", "GuiGraphics")
     replace("graphics.text(", "graphics.drawString(")
     replace("graphics.item(", "graphics.renderItem(")
     replace("graphics.itemDecorations(", "graphics.renderItemDecorations(")
