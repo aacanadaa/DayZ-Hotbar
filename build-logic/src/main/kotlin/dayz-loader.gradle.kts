@@ -1,0 +1,328 @@
+/*
+ * DayZ Hotbar - `dayz-loader` convention plugin
+ * Copyright 2026 suoim
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Applied to the loader branches (fabric / forge / neoforge).
+ *
+ * Two jobs:
+ *   1. compile the matching `:common:<mc>` node's processed sources straight
+ *      into this jar, so there is exactly one copy of every shared class and
+ *      one copy of every mixin config on the mod classpath;
+ *   2. publish the resulting jar to Modrinth and CurseForge with the correct
+ *      game version + loader tags - no manual tagging per release.
+ */
+
+import groovy.json.JsonSlurper
+import me.modmuss50.mpp.ModPublishExtension
+import me.modmuss50.mpp.ReleaseType
+import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
+import java.util.zip.ZipFile
+
+plugins {
+    id("dayz-common")
+    id("me.modmuss50.mod-publish-plugin")
+}
+
+// ---------------------------------------------------------------------------
+// Share the `common` node's sources
+// ---------------------------------------------------------------------------
+// The loader jar compiles the common node's sources directly rather than
+// depending on its jar. That matters for more than tidiness: on the obfuscated
+// Minecraft releases (< 26.1) Fabric and Forge need a *mixin refmap*, and a
+// refmap can only be produced by running the Mixin annotation processor over the
+// annotated sources. Handing this project a pre-compiled `common.jar` would give
+// it classes Mixin can never remap, and every mixin would fail at runtime.
+//
+// The source directories are read from the common node once it has finished
+// evaluating, because Stonecutter only finalises them (pointing at the
+// version-processed copies for non-active nodes) at that point.
+val commonPath = ":common:$mcNode"
+val commonProject = project(commonPath)
+
+// The common node writes its version-processed tree to
+// `:common:<mc>` -> build/generated/stonecutter/main/{java,resources}.
+// Compiling those directories directly is what keeps a single copy of every
+// shared class (and of every shared mixin config) in the loader jar.
+val commonGeneratedJava = commonProject.layout.buildDirectory.dir("generated/stonecutter/main/java")
+val commonGeneratedResources = commonProject.layout.buildDirectory.dir("generated/stonecutter/main/resources")
+
+tasks.named<JavaCompile>("compileJava") {
+    // Added to, rather than replacing, the source list that `dayz-common` set to
+    // this node's own generated tree.
+    source(commonGeneratedJava)
+    dependsOn("$commonPath:stonecutterGenerate")
+}
+
+// The shared `GuiMixin` is Fabric's mechanism. NeoForge and Forge each reach the
+// HUD through their own layer renderer instead, so the mixin is excluded from
+// their compile *and* from their jar: a mixin config they do not load is dead
+// weight, and loading it would double-draw the HUD next to the layer handler.
+if (branch != "fabric") {
+    tasks.named<JavaCompile>("compileJava") {
+        exclude("com/suoim/dayzhotbar/client/mixin/**")
+    }
+    tasks.named<ProcessResources>("processResources") {
+        exclude("*.mixins.json", "*.client.mixins.json")
+    }
+}
+
+tasks.named<ProcessResources>("processResources") {
+    from(commonGeneratedResources)
+    dependsOn("$commonPath:stonecutterGenerate")
+
+    // Fabric below 26.1 runs on intermediary names, so its mixin configs must
+    // name the generated refmap or Mixin leaves every selector in official
+    // names it cannot resolve ("No refMap loaded", a launch crash). NeoForge,
+    // Forge and 26.x run on official names and ship no refmap, so the entry
+    // must NOT be there for them: a declared-but-missing refmap is semantically
+    // wrong and warns in every log.
+    //
+    // The configs live in `common`, whose node cannot tell which loader is
+    // building it, so the entry is added here, per loader, on the processed
+    // copy. `verifyJar` then checks both the file and this reference.
+    if (branch == "fabric" && sc.current.parsed < "26") {
+        filesMatching(listOf("*.mixins.json", "*.client.mixins.json")) {
+            filter { line ->
+                if (line.trimStart().startsWith("\"package\"")) {
+                    line + System.lineSeparator() + "\t\"refmap\": \"dayz-hotbar.refmap.json\","
+                } else {
+                    line
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Publishing
+// ---------------------------------------------------------------------------
+val loaderName = when (branch) {
+    "neoforge" -> "neoforge"
+    "forge" -> "forge"
+    else -> "fabric"
+}
+
+// Which task writes the *shippable* jar.
+//
+// Below 26.1 Loom splits the build in two: `jar` writes the development jar -
+// named `<...>-dev.jar`, compiled against official names and therefore not
+// loadable in production - into build/devlibs, and `remapJar` writes the
+// remapped one into build/libs. From 26.1 on Minecraft is unobfuscated, there is
+// no remap step, and `jar` is correct.
+//
+// This must NOT be detected with `tasks.names.contains("remapJar")`: Loom
+// registers that task after this plugin runs, so the check is always false and
+// the development jar gets published. That is exactly what happened on 1.7.1 -
+// the two Fabric nodes below 26.1 went up as `...-dev.jar`. The version
+// condition is the same one `loom-back-compat` uses to pick the Loom flavour.
+val modJarTaskName = if (branch == "fabric" && sc.current.parsed < "26") "remapJar" else "jar"
+
+val modrinthToken = firstEnv("MODRINTH_TOKEN", "MODRINTH_PAT")
+val curseforgeToken = firstEnv("CURSEFORGE_API_KEY", "CURSEFORGE_TOKEN")
+
+// A real publish with no token fails deep inside the plugin with an auth error
+// that does not say which variable is missing. Say it here instead, once per
+// node, before anything is uploaded.
+val publishingForReal = (propOrNull("publish.dry_run")?.toBoolean() ?: true).not()
+if (publishingForReal) {
+    if (!modrinthToken.isPresent) {
+        logger.warn("[dayz] publish.dry_run=false but neither MODRINTH_TOKEN nor MODRINTH_PAT is set - Modrinth uploads will fail")
+    }
+    if (!curseforgeToken.isPresent) {
+        logger.warn("[dayz] publish.dry_run=false but neither CURSEFORGE_API_KEY nor CURSEFORGE_TOKEN is set - CurseForge uploads will fail")
+    }
+}
+
+extensions.configure<ModPublishExtension>("publishMods") {
+    // The Minecraft version is part of the version number on purpose: Modrinth
+    // keys a version on its number, and the same mod version ships for several
+    // game versions into the same project.
+    version.set("${prop("mod.version")}+$mc")
+    displayName.set("${prop("mod.name")} ${prop("mod.version")} for MC $mc")
+    changelog.set(rootProject.file("CHANGELOG.md").let { if (it.exists()) it.readText() else "" })
+
+    type.set(ReleaseType.STABLE)
+    // CurseForge puts every upload through human review, so a publish there is
+    // fire-and-forget: the API accepts the file and never replies with a URL.
+    // Keeping the default as a dry run means a stray `publishMods` during
+    // development cannot accidentally submit a review.
+    dryRun.set(propOrNull("publish.dry_run")?.toBoolean() ?: true)
+
+    modrinth {
+        projectId.set(prop("modrinth.id"))
+        // `MODRINTH_PAT` is accepted as an alias because the CI secret has been
+        // named both ways.
+        accessToken.set(modrinthToken)
+        minecraftVersions.add(mc)
+        modLoaders.add(loaderName)
+        // Deliberately no `requires("fabric-api")`: this mod draws through
+        // vanilla's own HUD and needs no Fabric API, so declaring the dependency
+        // would tell users to install something they do not need. It has no
+        // dependencies of its own on any loader.
+    }
+
+    curseforge {
+        projectId.set(prop("curseforge.id"))
+        projectSlug.set(prop("curseforge.slug"))
+        // `CURSEFORGE_TOKEN` is kept as a fallback for the pre-existing CI
+        // secret; `CURSEFORGE_API_KEY` is the documented name.
+        accessToken.set(curseforgeToken)
+        minecraftVersions.add(mc)
+        modLoaders.add(loaderName)
+        // Client-only: there is no server-side component, and marking it
+        // server-compatible would invite people to install it on a server that
+        // can do nothing with it.
+        client.set(true)
+        server.set(false)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Packaging regression check
+// ---------------------------------------------------------------------------
+// 1.8.0 shipped Fabric jars whose client entrypoint class was declared in
+// `fabric.mod.json` but never compiled into the jar: it lived in a source root
+// that Stonecutter had already stopped looking at. The mod then refused to load
+// with an error naming a class a developer could see in the source tree, which
+// is the least helpful possible shape for that bug.
+//
+// This task resolves every class the jar's *own metadata* names - Fabric
+// entrypoints and every mixin config - against the classes actually in the jar,
+// so a missing class fails the build instead of shipping. The NeoForge and Forge
+// entrypoints cannot be read from their metadata (both are found by the `@Mod`
+// annotation, which is not listed in the toml), so their class names are named
+// here explicitly.
+val expectedEntrypoints = when (branch) {
+    "neoforge" -> listOf("com.suoim.dayzhotbar.neoforge.DayZHotbarNeoForge")
+    "forge" -> listOf("com.suoim.dayzhotbar.forge.DayZHotbarForge")
+    else -> emptyList()
+}
+
+// Resolved lazily: for Fabric below 26.1 the shippable jar is written by
+// `remapJar`, which Loom only registers from its own `afterEvaluate`. A provider
+// defers the lookup until the graph is built, so the name resolves on every
+// loader.
+val modJarProvider: Provider<Jar> = provider { tasks.named<Jar>(modJarTaskName).get() }
+
+val verifyJar by tasks.registering {
+    group = "verification"
+    description = "Resolves every entrypoint and mixin class named by this node's jar metadata"
+    dependsOn(modJarProvider)
+    val jarFileProvider = modJarProvider.flatMap { it.archiveFile }
+    inputs.file(jarFileProvider)
+    doLast {
+        val jarFile = jarFileProvider.get().asFile
+        ZipFile(jarFile).use { zip ->
+            val names = zip.entries().asSequence().map { it.name }.toSet()
+            fun hasClass(fqcn: String) = names.contains(fqcn.replace('.', '/') + ".class")
+            val missing = mutableListOf<String>()
+
+            // Fabric declares its entrypoints by name in fabric.mod.json.
+            if (branch == "fabric") {
+                val metaEntry = zip.getEntry("fabric.mod.json")
+                    ?: error("$jarFile has no fabric.mod.json")
+                val meta = zip.getInputStream(metaEntry).bufferedReader().use { it.readText() }
+                val json = JsonSlurper().parseText(meta) as Map<*, *>
+                val entrypoints = json["entrypoints"] as? Map<*, *> ?: emptyMap<Any, Any>()
+                for ((kind, value) in entrypoints) {
+                    (value as? List<*>)?.forEach { item ->
+                        val cls = when (item) {
+                            is String -> item
+                            is Map<*, *> -> item["value"] as? String
+                            else -> null
+                        }
+                        if (cls != null && !hasClass(cls)) missing += "entrypoint '$kind' -> $cls"
+                    }
+                }
+            }
+            expectedEntrypoints.filterNot(::hasClass).forEach { missing += "entrypoint -> $it" }
+
+            // Every mixin config shipped in the jar must resolve to classes in
+            // that same jar, on every loader.
+            names.filter { it.endsWith(".mixins.json") }.sorted().forEach { configName ->
+                val config = zip.getInputStream(zip.getEntry(configName)).bufferedReader().use { it.readText() }
+                val json = JsonSlurper().parseText(config) as Map<*, *>
+                val pkg = json["package"] as? String ?: ""
+                for (section in listOf("mixins", "client", "server")) {
+                    (json[section] as? List<*>)?.forEach { entry ->
+                        val simple = when (entry) {
+                            is String -> entry
+                            is Map<*, *> -> entry["name"] as? String
+                            else -> null
+                        } ?: return@forEach
+                        val fqcn = if (pkg.isEmpty()) simple else "$pkg.$simple"
+                        if (!hasClass(fqcn)) missing += "mixin '$configName' -> $fqcn"
+                    }
+                }
+            }
+
+            // Fabric below 26.1 runs on intermediary names, so each mixin config
+            // must name the generated refmap. A config that omits it leaves every
+            // selector in official names Fabric cannot resolve, and the mod dies at
+            // launch with "No refMap loaded" - which is exactly what 1.8.1 shipped.
+            // The other loaders run on official names and ship no refmap; the name
+            // resolves to no file there and Mixin uses its no-op mapper.
+            if (branch == "fabric" && sc.current.parsed < "26") {
+                val refmapName = "dayz-hotbar.refmap.json"
+                if (!names.contains(refmapName)) {
+                    missing += "refmap '$refmapName' is not in the jar"
+                }
+                names.filter { it.endsWith(".mixins.json") }.sorted().forEach { configName ->
+                    val config = zip.getInputStream(zip.getEntry(configName)).bufferedReader().use { it.readText() }
+                    val json = JsonSlurper().parseText(config) as Map<*, *>
+                    if (json["refmap"] != refmapName) {
+                        missing += "mixin '$configName' does not name refmap '$refmapName'"
+                    }
+                }
+            }
+
+            if (missing.isNotEmpty()) {
+                throw GradleException(
+                    "Packaging check failed for ${jarFile.name}:\n" +
+                        missing.joinToString("\n") { "  - $it" }
+                )
+            }
+            logger.lifecycle("[dayz] $path: packaging check passed (${names.size} entries)")
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(verifyJar)
+}
+
+// The jar task is resolved here rather than inline above, because `remapJar` does
+// not exist yet when this plugin is applied: Loom registers it from its own
+// `afterEvaluate`, and this callback runs after that one because `dayz-loader` is
+// applied after `loom-back-compat`. Naming the task eagerly is what put the
+// development jar on Modrinth in 1.7.1.
+afterEvaluate {
+    extensions.configure<ModPublishExtension>("publishMods") {
+        val modJar = tasks.named<Jar>(modJarTaskName)
+
+        // Belt and braces. Loom's development jar is named `<...>-dev.jar` and
+        // cannot load in production, and publishing one is invisible until a
+        // user reports a crash. Fail the build instead of uploading it.
+        val modJarName = modJar.get().archiveFile.get().asFile.name
+        check(!modJarName.contains("-dev")) {
+            "Refusing to publish '$modJarName' for $path: that is a development jar, not the " +
+                "remapped artifact. Check the task named by modJarTaskName."
+        }
+
+        file.set(modJar.flatMap { it.archiveFile })
+    }
+}
+
+tasks.register("publishMod") {
+    group = "publishing"
+    description = "Publishes this node to Modrinth and CurseForge"
+    dependsOn("publishMods")
+}

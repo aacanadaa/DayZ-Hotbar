@@ -17,7 +17,7 @@
 package com.suoim.dayzhotbar.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -149,7 +149,7 @@ public final class DayZHotbarHud {
      * never happened.
      */
     private void updateSwap(LocalPlayer player) {
-        int selected = player.getInventory().selected;
+        int selected = player.getInventory().getSelectedSlot();
 
         if (lastSelected == Integer.MIN_VALUE) {
             lastSelected = selected;
@@ -180,8 +180,11 @@ public final class DayZHotbarHud {
     }
 
     /** Draws the hotbar. Returns false to let vanilla render instead. */
-    public boolean renderHotbar(GuiGraphics graphics, Minecraft minecraft) {
-        if (minecraft.options.hideGui) {
+    public boolean renderHotbar(GuiGraphicsExtractor graphics, Minecraft minecraft) {
+        // In spectator mode vanilla draws its own spectator hotbar, which this mod
+        // does not replace - returning false leaves it alone.
+        if (minecraft.gui.hud.isHidden()
+                || (minecraft.player != null && minecraft.player.isSpectator())) {
             return false;
         }
         boolean drawn = HotbarRenderer.render(graphics, minecraft,
@@ -195,8 +198,9 @@ public final class DayZHotbarHud {
     }
 
     /** Draws the status readout. Returns false to let vanilla render instead. */
-    public boolean renderStatus(GuiGraphics graphics, Minecraft minecraft) {
-        if (minecraft.options.hideGui) {
+    public boolean renderStatus(GuiGraphicsExtractor graphics, Minecraft minecraft) {
+        if (minecraft.gui.hud.isHidden()
+                || (minecraft.player != null && minecraft.player.isSpectator())) {
             return false;
         }
 

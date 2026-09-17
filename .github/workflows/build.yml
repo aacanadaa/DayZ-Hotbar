@@ -2,20 +2,29 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches: [main, "refactor/**"]
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish the built jars to Modrinth and CurseForge"
+        type: boolean
+        default: false
+      platform:
+        description: "Which platform to publish to"
+        type: choice
+        options: [all, modrinth, curseforge]
+        default: all
 
 permissions:
   contents: read
 
 jobs:
   build:
-    # Deliberately version- and loader-agnostic. This string is a required status
-    # check on branch protection, so naming it after the loader would mean that
-    # adding a loader later breaks protection here - and every PR into this branch
-    # would be blocked permanently.
+    # Deliberately version- and loader-agnostic: this string is a required status
+    # check on main's branch protection, so renaming it per Minecraft version (or
+    # per loader) would silently block PRs.
     name: Build
     runs-on: ubuntu-24.04
 
@@ -26,11 +35,14 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
 
-      # Minecraft 1.21.1 targets Java 21; a 17 toolchain cannot compile it.
-      - name: Set up JDK 21
+      # Minecraft 26.2 requires Java 25 (Mojang ship it as java-runtime-epsilon).
+      # The build matrix also targets Java 21 (1.21.x) and Java 17 (1.20.1-1.20.4);
+      # the foojay toolchain resolver in settings.gradle.kts downloads those on
+      # demand, so this job only has to provide the launcher JDK.
+      - name: Set up JDK 25
         uses: actions/setup-java@v6
         with:
-          java-version: "21"
+          java-version: "25"
           distribution: "temurin"
 
       - name: Set up Gradle
@@ -39,42 +51,23 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build --stacktrace
+      # Builds every loader for every Minecraft version in the matrix.
+      - name: Build every version and loader
+        run: ./gradlew chiseledBuild --stacktrace
 
-      # Every glob below excludes *-sources.jar. `withSourcesJar` writes one into the
-      # same directory as the real artifact, so a bare *.jar picks both up and the
-      # release ends up shipping a sources jar to users alongside the mod.
-      - name: Upload Fabric JAR
+      - name: Upload mod jars
         uses: actions/upload-artifact@v7
         with:
-          name: dayz-hotbar-fabric
+          name: dayz-hotbar
+          # Only the loader branches ship. The `common` branch is a compile-time
+          # intermediate - `chiseledBuild` builds it to catch errors early, but its
+          # jar carries no loader metadata and must never reach a release page.
+          # `-sources.jar` files are build output too.
           path: |
-            fabric/build/libs/*.jar
-            !fabric/build/libs/*-sources.jar
-          if-no-files-found: error
-
-      # forge/build/libs holds the reobfuscated jar, which is the one that can actually
-      # load on Forge. The development jar is written to build/devlibs instead, so it
-      # cannot be picked up here by accident.
-      - name: Upload Forge JAR
-        uses: actions/upload-artifact@v7
-        with:
-          name: dayz-hotbar-forge
-          path: |
-            forge/build/libs/*.jar
-            !forge/build/libs/*-sources.jar
-          if-no-files-found: error
-
-      # Unlike Forge, NeoForge resolves members against official (Mojang) names at
-      # runtime, so the plain jar task output is already the shippable artifact.
-      - name: Upload NeoForge JAR
-        uses: actions/upload-artifact@v7
-        with:
-          name: dayz-hotbar-neoforge
-          path: |
-            neoforge/build/libs/*.jar
-            !neoforge/build/libs/*-sources.jar
+            fabric/versions/*/build/libs/*.jar
+            neoforge/versions/*/build/libs/*.jar
+            forge/versions/*/build/libs/*.jar
+            !**/*-sources.jar
           if-no-files-found: error
 
   release:
@@ -89,41 +82,91 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      # The release name is built from gradle.properties rather than written out,
-      # so it cannot drift from the version or the Minecraft version it targets.
-      - name: Read version properties
-        id: props
-        run: |
-          echo "version=$(grep '^mod_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
-          echo "mc=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
-
-      - name: Download Fabric JAR
+      - name: Download mod jars
         uses: actions/download-artifact@v6
         with:
-          name: dayz-hotbar-fabric
-          path: dist/fabric
-
-      - name: Download Forge JAR
-        uses: actions/download-artifact@v6
-        with:
-          name: dayz-hotbar-forge
-          path: dist/forge
-
-      - name: Download NeoForge JAR
-        uses: actions/download-artifact@v6
-        with:
-          name: dayz-hotbar-neoforge
-          path: dist/neoforge
+          name: dayz-hotbar
+          path: dist
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          # No loader in the release name: all three jars ship together and the
-          # mod_version is shared between them, so naming it after one loader would be
-          # a lie.
-          name: DayZ Hotbar ${{ steps.props.outputs.version }} for Minecraft ${{ steps.props.outputs.mc }}
-          files: |
-            dist/fabric/*.jar
-            dist/forge/*.jar
-            dist/neoforge/*.jar
+          # Every matrix artifact is attached to the release; each filename
+          # already carries its Minecraft version and loader.
+          files: dist/**/*.jar
           generate_release_notes: true
+
+  publish:
+    name: Publish to Modrinth and CurseForge
+    needs: build
+    # Tags publish; a manual run can too, which is how a partial upload gets
+    # finished without re-uploading the platform that already succeeded.
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          java-version: "25"
+          distribution: "temurin"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      # Fails before Gradle starts, with a message that names the variable, and
+      # reports which of the accepted names is populated. Without this the only
+      # symptom is an auth error from inside the publish plugin that does not say
+      # what is missing.
+      #
+      # Every name is read from `secrets` first and then from `vars`. The
+      # Secrets and Variables tabs sit side by side and look alike, and a token
+      # parked in Variables would otherwise be invisible here with no clue why.
+      # Secrets is still the right place for them.
+      - name: Check publishing tokens
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN || vars.MODRINTH_TOKEN }}
+          MODRINTH_PAT: ${{ secrets.MODRINTH_PAT || vars.MODRINTH_PAT }}
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY || vars.CURSEFORGE_API_KEY }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN || vars.CURSEFORGE_TOKEN }}
+        run: |
+          for name in MODRINTH_TOKEN MODRINTH_PAT CURSEFORGE_API_KEY CURSEFORGE_TOKEN; do
+            if [ -n "${!name}" ]; then echo "$name: set"; else echo "$name: (empty)"; fi
+          done
+
+          missing=0
+          if [ -z "$MODRINTH_TOKEN" ] && [ -z "$MODRINTH_PAT" ]; then
+            echo "::error::No Modrinth token. Add a repository SECRET named MODRINTH_TOKEN (Settings -> Secrets and variables -> Actions -> Secrets tab, not Variables)."
+            missing=1
+          fi
+          if [ -z "$CURSEFORGE_API_KEY" ] && [ -z "$CURSEFORGE_TOKEN" ]; then
+            echo "::error::No CurseForge token. Add a repository SECRET named CURSEFORGE_API_KEY (Settings -> Secrets and variables -> Actions -> Secrets tab, not Variables)."
+            missing=1
+          fi
+          exit $missing
+
+      - name: Publish every node
+        env:
+          # All the accepted names are forwarded; the build falls back from the
+          # documented one to the legacy one, so whichever already exists is used.
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN || vars.MODRINTH_TOKEN }}
+          MODRINTH_PAT: ${{ secrets.MODRINTH_PAT || vars.MODRINTH_PAT }}
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY || vars.CURSEFORGE_API_KEY }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN || vars.CURSEFORGE_TOKEN }}
+        run: |
+          # `publishAll` re-uploads both platforms, and Modrinth rejects a second
+          # file whose name it already has, so a re-run after a one-platform
+          # failure has to be able to target a single platform.
+          case "${{ inputs.platform || 'all' }}" in
+            modrinth)   task=publishModrinthAll ;;
+            curseforge) task=publishCurseforgeAll ;;
+            *)          task=publishAll ;;
+          esac
+          echo "publishing via :$task"
+          ./gradlew "$task" -Ppublish.dry_run=false --stacktrace

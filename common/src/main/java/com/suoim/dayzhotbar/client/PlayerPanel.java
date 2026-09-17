@@ -19,7 +19,7 @@ package com.suoim.dayzhotbar.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * The readout to the left of the hotbar: what is in hand, and what is on your back.
@@ -70,7 +70,7 @@ public final class PlayerPanel {
     private static final float BADLY_DAMAGED_AT = 0.25F;
 
     /** Draws the whole stack in the bottom-left corner. */
-    public static void render(GuiGraphics graphics, Minecraft minecraft, int screenWidth, int screenHeight) {
+    public static void render(GuiGraphicsExtractor graphics, Minecraft minecraft, int screenWidth, int screenHeight) {
         LocalPlayer player = minecraft.player;
         if (player == null) {
             return;
@@ -95,7 +95,7 @@ public final class PlayerPanel {
      * and range belong, and where the ammo mark will go once there is a gun mod to
      * read them from - a placeholder there would only have to be taken back out.
      */
-    private static void drawHeldItem(GuiGraphics graphics, Minecraft minecraft, int x, int y,
+    private static void drawHeldItem(GuiGraphicsExtractor graphics, Minecraft minecraft, int x, int y,
                                      LocalPlayer player) {
         HudTheme.card(graphics, x, y, WIDTH, ITEM_H);
 
@@ -107,12 +107,12 @@ public final class PlayerPanel {
         String name = stack.isEmpty() ? "Empty" : stack.getHoverName().getString();
         int textX = dotX + DOT_RADIUS + PAD;
         String trimmed = minecraft.font.plainSubstrByWidth(name, x + WIDTH - PAD - textX);
-        graphics.drawString(minecraft.font, trimmed, textX, y + (ITEM_H - 8) / 2,
+        graphics.text(minecraft.font, trimmed, textX, y + (ITEM_H - 8) / 2,
                 HudTheme.TEXT_BRIGHT, true);
     }
 
     /** Stance mark, shield, then the armour bar filling whatever is left. */
-    private static void drawEquipmentBar(GuiGraphics graphics, Minecraft minecraft, int x, int y,
+    private static void drawEquipmentBar(GuiGraphicsExtractor graphics, Minecraft minecraft, int x, int y,
                                          LocalPlayer player) {
         HudTheme.card(graphics, x, y, WIDTH, BAR_H);
 

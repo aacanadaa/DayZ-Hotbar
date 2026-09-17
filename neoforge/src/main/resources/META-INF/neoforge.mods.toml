@@ -1,32 +1,36 @@
 modLoader="javafml"
-# NeoForge's FML is version 4.x on the 1.21.1 line, not the 1.x Forge uses.
+# NeoForge's FML is version 4.x on the 1.20.6+ lines, not the 1.x Forge uses.
 loaderVersion="[4,)"
-license="Apache-2.0"
-issueTrackerURL="https://github.com/aacanadaa/DayZ-Hotbar/issues"
+license="${mod_license}"
+issueTrackerURL="${mod_issues}"
 
 [[mods]]
-modId="dayz_hotbar"
+modId="${mod_id}"
 version="${version}"
-displayName="DayZ Hotbar"
-authors="suoim"
-description="Replaces the Minecraft HUD with a DayZ-style hotbar and a DayZ-style status readout."
-displayURL="https://modrinth.com/mod/dayz-hotbar"
+displayName="${mod_name}"
+authors="${mod_author}"
+description="${mod_description}"
+displayURL="https://modrinth.com/mod/${mod_id_slug}"
 logoFile="assets/dayz_hotbar/icon.png"
 # Client-only mod. Without this, a server running the mod would be flagged as
 # having a mismatched version with every client that does not - which is every
 # client, since there is nothing here for a server to install.
 displayTest="IGNORE_ALL_VERSION"
 
-[[dependencies.dayz_hotbar]]
+[[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
-versionRange="[21.1,)"
+versionRange="${neoforge_range}"
 ordering="NONE"
 side="CLIENT"
 
-[[dependencies.dayz_hotbar]]
+[[dependencies.${mod_id}]]
 modId="minecraft"
 type="required"
-versionRange="[1.21.1,1.21.2)"
+versionRange="${minecraft_range}"
 ordering="NONE"
 side="CLIENT"
+
+# No `[[mixins]]` block: this module reaches the HUD through NeoForge's own layer
+# renderer, and the shared Fabric mixin is excluded from this project's sources
+# and jar. Declaring a config here would load a mixin that draws the HUD twice.

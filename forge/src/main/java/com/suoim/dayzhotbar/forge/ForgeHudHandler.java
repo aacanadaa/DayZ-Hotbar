@@ -18,12 +18,19 @@ package com.suoim.dayzhotbar.forge;
 
 import com.suoim.dayzhotbar.client.DayZHotbarHud;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
+//? if >=1.21 {
+import net.minecraft.client.DeltaTracker;
+//?}
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
 import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
+//? if >=1.21.8 {
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+//?} else {
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+//?}
 import net.minecraftforge.fml.common.Mod;
 
 /**
@@ -31,75 +38,77 @@ import net.minecraftforge.fml.common.Mod;
  * <p>
  * This is deliberately <em>not</em> the mechanism Fabric uses. On Fabric the mod
  * mixes into {@code Gui} and cancels {@code renderItemHotbar},
- * {@code renderPlayerHealth} and friends at their head. Forge cannot work that way,
- * and the reason changed in 1.21.1.
+ * {@code renderPlayerHealth} and friends at their head. Forge cannot work that
+ * way - there is no {@code ForgeGui} any more and the overlays are gone - so the
+ * loader-native equivalent is used: switch the replaced layers off in Forge's own
+ * layer tree and add the DayZ version in their place.
  * <p>
- * In 1.20.1 Forge drew the HUD from {@code ForgeGui extends Gui} through
- * {@code GuiOverlayManager}, and each vanilla element was its own overlay. In 1.21.1
- * that whole system is gone: there is no {@code ForgeGui}, no
- * {@code GuiOverlayManager} and no {@code RenderGuiOverlayEvent}. Vanilla now builds
- * its HUD as a {@code LayeredDraw}, and Forge swaps in its own
- * {@code ForgeLayeredDraw} subclass and names the layers. The supported hook is
- * {@link AddGuiOverlayLayersEvent}, fired from {@code ForgeLayeredDraw.resolveLayers()}
- * at the end of {@code Gui}'s constructor, with the fully built tree.
- * <p>
- * So Forge gets the loader-native equivalent of the mixin: switch the replaced
- * layers off and add the DayZ version in their place. Switching a layer off rather
- * than skipping it keeps the original property that chat, the tab list and the
- * scoreboard still render on top of the HUD - those live in the post-sleep stack,
- * which is drawn after the stack the hotbar is in.
+ * The layer tree changed shape three times in this matrix, which is why the body
+ * is conditional:
+ * <ul>
+ *   <li><b>1.20.6 - 1.21.5</b> - {@code ForgeLayeredDraw} extends vanilla's
+ *       {@code LayeredDraw}. The slot row and the experience bar are separate
+ *       layers ({@code HOTBAR}, {@code EXPERIENCE}) nested in
+ *       {@code PRE_SLEEP_STACK}.</li>
+ *   <li><b>1.21.8 - 1.21.10</b> - the whole bottom block is one layer,
+ *       {@code HOTBAR_AND_DECOS}.</li>
+ *   <li><b>1.21.11</b> - the block is split again, but into its modern pieces:
+ *       {@code ITEM_HOTBAR}, {@code HEALTH_BAR}, {@code VEHICLE_HEALTH},
+ *       {@code EXPERIENCE_LEVEL} and {@code CONTEXTUAL_INFO}.</li>
+ * </ul>
+ * Forge did not ship the layered API at all on 1.21, 1.21.6 or 1.21.7, which is
+ * why those versions have no Forge node - see docs/BUILDING.en.md section 7.
  */
 @Mod.EventBusSubscriber(modid = DayZHotbarForge.MOD_ID, value = Dist.CLIENT,
         bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ForgeHudHandler {
 
     /** This mod's single layer. */
-    private static final ResourceLocation DAYZ_HUD =
-            ResourceLocation.fromNamespaceAndPath(DayZHotbarForge.MOD_ID, "hud");
+    //? if <1.21 {
+    private static final Identifier DAYZ_HUD = new net.minecraft.resources.ResourceLocation(
+            DayZHotbarForge.MOD_ID, "hud");
+    //?} else {
+    private static final Identifier DAYZ_HUD =
+            Identifier.fromNamespaceAndPath(DayZHotbarForge.MOD_ID, "hud");
+    //?}
 
     private ForgeHudHandler() {
     }
 
     /**
      * Swaps the vanilla HUD for the DayZ one, once, as the layer tree is resolved.
-     * <p>
-     * The tree this runs against is
-     * {@code VANILLA_ROOT → PRE_SLEEP_STACK → {camera, crosshair, hotbar,
-     * experience, effects, boss}} with the sleep, title, chat, tab-list and
-     * scoreboard layers as siblings of {@code PRE_SLEEP_STACK}. Both layers this
-     * module replaces live in {@code PRE_SLEEP_STACK}, so that is the stack to
-     * address; addressing the root would not find them, because they are nested.
-     * <p>
-     * Two vanilla layers go, not the five you might expect from the other loaders:
-     * <ul>
-     *   <li>{@code HOTBAR} is {@code renderHotbarAndDecorations}. In 1.21.1 that one
-     *       method draws the slot row, the experience bar, the health row, the
-     *       mount's health, the mount's jump meter <em>and</em> the selected item's
-     *       name. Forge never split them, so the whole block is one layer and there
-     *       is nothing finer to switch off.</li>
-     *   <li>{@code EXPERIENCE} is the level number, which 1.21.1 moved into a method
-     *       of its own.</li>
-     * </ul>
-     * <b>This is where Forge is visibly coarser than the other two.</b> Because the
-     * block is monolithic here, the brief "selected item name" popup and the mount's
-     * jump-charge bar go with it. Fabric replaces only {@code renderItemHotbar} and
-     * NeoForge cancels {@code HOTBAR}, {@code JUMP_METER} and friends individually,
-     * so both of them keep those two elements. Neither loss is worth the alternative
-     * - re-drawing vanilla's own popup here would duplicate the held-item panel on
-     * the left of the hotbar, which shows the same name permanently.
+     * The replaced layers are switched off and the DayZ version added at the same
+     * point in the render order, which keeps chat, the tab list and the scoreboard
+     * drawing on top.
      */
     @SubscribeEvent
     public static void onAddLayers(AddGuiOverlayLayersEvent event) {
         ForgeLayeredDraw root = event.getLayeredDraw();
 
+        //? if <1.21.8 {
         root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.HOTBAR, () -> false);
         root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.EXPERIENCE, () -> false);
+        //?} else if <1.21.11 {
+        root.addConditionTo(ForgeLayeredDraw.HOTBAR_AND_DECOS, () -> false);
+        //?} else {
+        root.addConditionTo(ForgeLayeredDraw.ITEM_HOTBAR, () -> false);
+        root.addConditionTo(ForgeLayeredDraw.HEALTH_BAR, () -> false);
+        root.addConditionTo(ForgeLayeredDraw.VEHICLE_HEALTH, () -> false);
+        root.addConditionTo(ForgeLayeredDraw.EXPERIENCE_LEVEL, () -> false);
+        root.addConditionTo(ForgeLayeredDraw.CONTEXTUAL_INFO, () -> false);
+        //?}
 
+        //? if <1.21.8 {
         // Gated on hideGui for the same reason Fabric is: there the HUD's own
         // methods are simply never reached while the HUD is hidden, so F1 has to
         // hide this layer too or the loaders disagree about what F1 does.
         root.addWithCondition(ForgeLayeredDraw.PRE_SLEEP_STACK, DAYZ_HUD, ForgeHudHandler::render,
                 () -> !Minecraft.getInstance().options.hideGui);
+        //?} else {
+        // The newer ForgeLayeredDraw dropped the condition form from `add`; the
+        // render body handles hideGui and spectator mode itself and no-ops there.
+        root.add(ForgeLayeredDraw.PRE_SLEEP_STACK, DAYZ_HUD, ForgeHudHandler::render);
+        //?}
     }
 
     /**
@@ -111,9 +120,13 @@ public final class ForgeHudHandler {
      * sampling once per frame is what {@code onFrame} keys off, so it has to happen
      * before the first draw of the frame and not between the two.
      */
-    private static void render(GuiGraphics graphics, net.minecraft.client.DeltaTracker deltaTracker) {
+    //? if >=1.21 {
+    private static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+    //?} else {
+    private static void render(GuiGraphicsExtractor graphics, float partialTick) {
+    //?}
         Minecraft minecraft = Minecraft.getInstance();
-        DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.getGuiTicks(), minecraft);
+        DayZHotbarHud.INSTANCE.onFrame(minecraft.gui.hud.getGuiTicks(), minecraft);
         DayZHotbarHud.INSTANCE.renderHotbar(graphics, minecraft);
         DayZHotbarHud.INSTANCE.renderStatus(graphics, minecraft);
     }

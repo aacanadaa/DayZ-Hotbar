@@ -17,7 +17,7 @@
 package com.suoim.dayzhotbar.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -77,7 +77,7 @@ public final class HotbarRenderer {
      * @return false if there is nothing to draw, in which case the caller should
      *         let vanilla render instead rather than cancelling it
      */
-    public static boolean render(GuiGraphics graphics, Minecraft minecraft, int screenWidth, int screenHeight,
+    public static boolean render(GuiGraphicsExtractor graphics, Minecraft minecraft, int screenWidth, int screenHeight,
                                  float swapProgress) {
         LocalPlayer player = minecraft.player;
         if (player == null) {
@@ -85,7 +85,7 @@ public final class HotbarRenderer {
         }
 
         Inventory inventory = player.getInventory();
-        int selected = inventory.selected;
+        int selected = inventory.getSelectedSlot();
 
         int hotbarWidth = 9 * PITCH;
         int totalWidth = hotbarWidth + SEPARATOR + PITCH;
@@ -116,7 +116,7 @@ public final class HotbarRenderer {
      * swap settles, so a swap reads as an event rather than an instant flip.
      */
     private static int activeColor(LocalPlayer player, ItemStack stack, float swapProgress) {
-        if (!stack.isEmpty() && player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (!stack.isEmpty() && player.getCooldowns().isOnCooldown(stack)) {
             return HudTheme.STATE_BLOCKED;
         }
         return HudTheme.lerp(HudTheme.STATE_SWAPPING, HudTheme.STATE_ACTIVE, swapProgress);
@@ -126,7 +126,7 @@ public final class HotbarRenderer {
      * @param activeColor the held slot's state colour, or 0 when this slot is not held
      * @param empty       whether the slot is empty, which softens its wash
      */
-    private static void drawSlot(GuiGraphics graphics, Minecraft minecraft, int x, int y,
+    private static void drawSlot(GuiGraphicsExtractor graphics, Minecraft minecraft, int x, int y,
                                  ItemStack stack, int activeColor, boolean empty) {
         int wash = activeColor != 0
                 ? HudTheme.wash(activeColor, ACTIVE_WASH_ALPHA)
@@ -136,8 +136,8 @@ public final class HotbarRenderer {
         if (!stack.isEmpty()) {
             int itemX = x + (BOX - 16) / 2;
             int itemY = y + (BOX - 16) / 2;
-            graphics.renderItem(stack, itemX, itemY);
-            graphics.renderItemDecorations(minecraft.font, stack, itemX, itemY);
+            graphics.item(stack, itemX, itemY);
+            graphics.itemDecorations(minecraft.font, stack, itemX, itemY);
         }
     }
 

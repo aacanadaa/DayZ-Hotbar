@@ -16,7 +16,7 @@
  */
 package com.suoim.dayzhotbar.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * The status icons, drawn as pixel art rather than borrowed from a sheet.
@@ -276,7 +276,7 @@ public final class Icons {
      * interior of its own. For the small plus badge on the absorption cross, which is
      * a mark laid over another icon rather than a figure in its own right.
      */
-    public static void drawSolid(GuiGraphics graphics, String[] shape, int x, int y, int color) {
+    public static void drawSolid(GuiGraphicsExtractor graphics, String[] shape, int x, int y, int color) {
         for (int row = 0; row < shape.length; row++) {
             for (int col = 0; col < shape[row].length(); col++) {
                 if (shape[row].charAt(col) == '#') {
@@ -410,7 +410,7 @@ public final class Icons {
     };
 
     /** Draws one shape's cells in a single flat colour. */
-    private static void plot(GuiGraphics graphics, boolean[][] cells, int x, int y, int pixel, int color) {
+    private static void plot(GuiGraphicsExtractor graphics, boolean[][] cells, int x, int y, int pixel, int color) {
         for (int row = 0; row < cells.length; row++) {
             for (int col = 0; col < cells[row].length; col++) {
                 if (cells[row][col]) {
@@ -538,7 +538,7 @@ public final class Icons {
      *
      * @param fraction 0.0 (empty) to 1.0 (full); values outside are clamped
      */
-    public static void drawVessel(GuiGraphics graphics, String[] shape, int x, int y, int pixel,
+    public static void drawVessel(GuiGraphicsExtractor graphics, String[] shape, int x, int y, int pixel,
                                   float fraction, int outlineColor, int fillColor) {
         boolean[][] m = mask(shape);
         // The fill is measured against the outline as actually drawn, marked corners
@@ -596,7 +596,7 @@ public final class Icons {
      * A translucent wash over the bottom {@code fraction} of the interior, used to
      * show food saturation on top of the food level.
      */
-    public static void overlayBottom(GuiGraphics graphics, int x, int y, int size, int pixel,
+    public static void overlayBottom(GuiGraphicsExtractor graphics, int x, int y, int size, int pixel,
                                      float fraction, int color) {
         if (fraction <= 0.0F) {
             return;
