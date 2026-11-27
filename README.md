@@ -1,6 +1,6 @@
-﻿# DayZ Hotbar
+# DayZ Hotbar
 
-**English** Â· [ä¸­æ–‡](README.zh.md) Â· [FranÃ§ais](README.fr.md) Â· [æ—¥æœ¬èªž](README.ja.md) Â· [í•œêµ­ì–´](README.ko.md)
+**English** · [中文](README.zh.md) · [Français](README.fr.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
 [![Modrinth](https://img.shields.io/modrinth/v/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge](https://img.shields.io/curseforge/v/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
@@ -24,14 +24,14 @@ Client-side only. No API mod required on Fabric, Forge, or NeoForge.
 
 | Minecraft | Fabric | Forge | NeoForge | Java |
 | :--- | :---: | :---: | :---: | :---: |
-| **1.20.1 â€“ 1.20.4** | âœ… | â€” | â€” | 17 |
-| **1.20.5** | âœ… | â€” | â€” | 21 |
-| **1.20.6 â€“ 1.21.1** | âœ… | âœ… | âœ… | 21 |
-| **1.21.2** | âœ… | â€” | âœ… | 21 |
-| **1.21.3 â€“ 1.21.5** | âœ… | âœ… | âœ… | 21 |
-| **1.21.6 â€“ 1.21.7** | âœ… | â€” | âœ… | 21 |
-| **1.21.8 â€“ 1.21.11** | âœ… | âœ… | âœ… | 21 |
-| **26.1 â€“ 26.3** | âœ… | â€” | âœ… | 25 |
+| **1.20.1 – 1.20.4** | ✅ | — | — | 17 |
+| **1.20.5** | ✅ | — | — | 21 |
+| **1.20.6 – 1.21.1** | ✅ | ✅ | ✅ | 21 |
+| **1.21.2** | ✅ | — | ✅ | 21 |
+| **1.21.3 – 1.21.5** | ✅ | ✅ | ✅ | 21 |
+| **1.21.6 – 1.21.7** | ✅ | — | ✅ | 21 |
+| **1.21.8 – 1.21.11** | ✅ | ✅ | ✅ | 21 |
+| **26.1 – 26.3** | ✅ | — | ✅ | 25 |
 
 Grab the jar that matches both your Minecraft version and mod loader (for example `dayz-hotbar-fabric-1.21.1-2.0.0+mc1.21.1.jar`).
 
@@ -90,7 +90,7 @@ Grab the jar that matches both your Minecraft version and mod loader (for exampl
 
 ## Notes
 - Vanilla visibility rules still apply (F1, spectator mode, open screens).
-- Attack Indicator in the hotbar is removed with the vanilla hotbar; set **Video Settings â†’ Attack Indicator** to *Crosshair* if you want it.
+- Attack Indicator in the hotbar is removed with the vanilla hotbar; set **Video Settings → Attack Indicator** to *Crosshair* if you want it.
 
 ---
 
