@@ -69,6 +69,16 @@ public final class HudTheme {
     /** Absorption is always its own colour - it is a bonus, not a warning. */
     public static final int TIER_ABSORPTION = 0xFFF2C94C;
 
+    // --- Temperature tiers ------------------------------------------------------
+    /** Freezing / frostbite - flashes like critical health. */
+    public static final int TEMP_ICY = 0xFF4FC3F7;
+    /** Dark half of the freezing flash. */
+    public static final int TEMP_ICY_DIM = 0x664FC3F7;
+    /** Chilly. */
+    public static final int TEMP_COLD = 0xFF64B5F6;
+    /** Warm / overheating warning. */
+    public static final int TEMP_WARM = 0xFFE8A838;
+
     // --- Hotbar slot states -----------------------------------------------------
     /** The slot in hand, settled. */
     public static final int STATE_ACTIVE = 0xFF5FBF4F;
@@ -153,6 +163,18 @@ public final class HudTheme {
         "....###...."
     };
 
+    /** Precomputed horizontal spans per row (row, colStart, colEnd) for down and up chevrons. */
+    private static final int[][] CHEVRON_SPANS_DOWN = {
+        {0, 0, 2}, {0, 9, 11},
+        {1, 2, 4}, {1, 7, 9},
+        {2, 4, 7}
+    };
+    private static final int[][] CHEVRON_SPANS_UP = {
+        {0, 4, 7},
+        {1, 2, 4}, {1, 7, 9},
+        {2, 0, 2}, {2, 9, 11}
+    };
+
     /** Size of one chevron source cell. Matches the status icons' scale. */
     private static final int CHEVRON_PIXEL = 1;
 
@@ -175,19 +197,15 @@ public final class HudTheme {
         int a = Math.round(255.0F * Math.max(0.0F, Math.min(1.0F, alpha)));
         int color = (a << 24) | 0x00FFFFFF;
         int left = centerX - CHEVRON_W / 2;
+        int[][] spans = up ? CHEVRON_SPANS_UP : CHEVRON_SPANS_DOWN;
 
         for (int i = 0; i < count; i++) {
             int top = topY + i * CHEVRON_PITCH;
-            for (int row = 0; row < CHEVRON.length; row++) {
-                // The stored shape points down, so a rising marker is the reversed one.
-                String line = CHEVRON[up ? CHEVRON.length - 1 - row : row];
-                for (int col = 0; col < line.length(); col++) {
-                    if (line.charAt(col) == '#') {
-                        int px = left + col * CHEVRON_PIXEL;
-                        int py = top + row * CHEVRON_PIXEL;
-                        graphics.fill(px, py, px + CHEVRON_PIXEL, py + CHEVRON_PIXEL, color);
-                    }
-                }
+            for (int[] span : spans) {
+                int x1 = left + span[1] * CHEVRON_PIXEL;
+                int x2 = left + span[2] * CHEVRON_PIXEL;
+                int y1 = top + span[0] * CHEVRON_PIXEL;
+                graphics.fill(x1, y1, x2, y1 + CHEVRON_PIXEL, color);
             }
         }
     }

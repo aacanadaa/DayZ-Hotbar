@@ -57,7 +57,7 @@ jobs:
 
       # Builds every loader for every Minecraft version in the matrix.
       - name: Build every version and loader
-        run: ./gradlew chiseledBuild --stacktrace
+        run: ./gradlew chiseledBuild --max-workers=4 --stacktrace
 
       - name: Upload mod jars
         uses: actions/upload-artifact@v7
@@ -181,4 +181,4 @@ jobs:
             excludes="$excludes -x :$n:publishMods -x :$n:publishModrinth -x :$n:publishCurseforge"
           done
           echo "publishing via :$task (skipping: ${nodes[*]:-none})"
-          ./gradlew "$task" -Ppublish.dry_run=false --stacktrace $excludes
+          ./gradlew "$task" -Ppublish.dry_run=false --no-parallel --max-workers=2 --stacktrace $excludes
