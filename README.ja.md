@@ -1,105 +1,105 @@
-# DayZ Hotbar
+﻿# DayZ Hotbar
 
-[English](README.md) · [中文](README.zh.md) · [Français](README.fr.md) · **日本語** · [한국어](README.ko.md)
+[English](README.md) Â· [ä¸­æ–‡](README.zh.md) Â· [FranÃ§ais](README.fr.md) Â· **æ—¥æœ¬èªž** Â· [í•œêµ­ì–´](README.ko.md)
 
 [![Modrinth](https://img.shields.io/modrinth/v/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge](https://img.shields.io/curseforge/v/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
-[![Minecraft](https://img.shields.io/modrinth/game-versions/dayz-hotbar?label=Minecraft)](https://modrinth.com/mod/dayz-hotbar/versions)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%E2%80%93%2026.3-62b47a.svg)](https://modrinth.com/mod/dayz-hotbar/versions)
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/dayz-hotbar?label=Downloads&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/1693963?label=Downloads&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/aacanadaa/DayZ-Hotbar?color=red)](https://github.com/aacanadaa/DayZ-Hotbar/issues)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/suoim)
 
-Minecraft の HUD を [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory) に合わせた DayZ 風のホットバー、プレイヤーパネル、ステータス表示に置き換えます。
+Minecraft ã® HUD ã‚’ [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory) ã«åˆã‚ã›ãŸ DayZ é¢¨ã®ãƒ›ãƒƒãƒˆãƒãƒ¼ã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒ‘ãƒãƒ«ã€ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹è¡¨ç¤ºã«ç½®ãæ›ãˆã¾ã™ã€‚
 
-クライアント専用 Mod です。Fabric / Forge / NeoForge のいずれでも前提 API Mod は不要です。
+ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå°‚ç”¨ Mod ã§ã™ã€‚Fabric / Forge / NeoForge ã®ã„ãšã‚Œã§ã‚‚å‰æ API Mod ã¯ä¸è¦ã§ã™ã€‚
 
-![ゲーム内の DayZ Hotbar HUD](docs/screenshots/uwu.png)
-![DayZ Inventory との併用](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
+![ã‚²ãƒ¼ãƒ å†…ã® DayZ Hotbar HUD](docs/screenshots/uwu.png)
+![DayZ Inventory ã¨ã®ä½µç”¨](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
 
 ---
 
-## 対応バージョン
+## å¯¾å¿œãƒãƒ¼ã‚¸ãƒ§ãƒ³
 
 | Minecraft | Fabric | Forge | NeoForge | Java |
 | :--- | :---: | :---: | :---: | :---: |
-| **1.20.1 – 1.20.4** | ✅ | — | — | 17 |
-| **1.20.5** | ✅ | — | — | 21 |
-| **1.20.6 – 1.21.1** | ✅ | ✅ | ✅ | 21 |
-| **1.21.2** | ✅ | — | ✅ | 21 |
-| **1.21.3 – 1.21.5** | ✅ | ✅ | ✅ | 21 |
-| **1.21.6 – 1.21.7** | ✅ | — | ✅ | 21 |
-| **1.21.8 – 1.21.11** | ✅ | ✅ | ✅ | 21 |
-| **26.1 – 26.3** | ✅ | — | ✅ | 25 |
+| **1.20.1 â€“ 1.20.4** | âœ… | â€” | â€” | 17 |
+| **1.20.5** | âœ… | â€” | â€” | 21 |
+| **1.20.6 â€“ 1.21.1** | âœ… | âœ… | âœ… | 21 |
+| **1.21.2** | âœ… | â€” | âœ… | 21 |
+| **1.21.3 â€“ 1.21.5** | âœ… | âœ… | âœ… | 21 |
+| **1.21.6 â€“ 1.21.7** | âœ… | â€” | âœ… | 21 |
+| **1.21.8 â€“ 1.21.11** | âœ… | âœ… | âœ… | 21 |
+| **26.1 â€“ 26.3** | âœ… | â€” | âœ… | 25 |
 
-お使いの Minecraft バージョンとローダーの両方に一致する jar を選んでください（例：`dayz-hotbar-fabric-1.21.1-2.0.0+mc1.21.1.jar`）。
-
----
-
-## 主な機能
-
-### ホットバー＆ジャンプバー
-- 9 スロット＋オフハンドを半透明のフラットな横一列で表示。
-- 空スロットは暗め、アイテムありは少し明るく、持ち替え時は黄→緑に変化し、クールダウン中は赤になります。
-- 馬などに乗っているときは、ホットバーの上部にコンパクトなジャンプバーを表示します（重なりません）。
-
-![アイテム入りホットバー](docs/screenshots/hud-full-hotbar.png)
-
-### ステータス表示
-- 右下にピクセルアートのアイコンを表示（テクスチャを使わないためリソースパックと競合しません）：
-  - **効果：** ハート（有益）、カプセル（回復）、割れたハート（有害）。効果切れでフェードアウトします。
-  - **サバイバル：** 満腹度（隠し満腹度オーバーレイ付き）、水分、体温、酸素（水中のみ）。
-  - **バイタル：** XP（レベル表示付き）、衝撃吸収（`+` 付き）、体力（騎乗時は騎乗動物の体力）。
-- **Tough As Nails / Legendary Survival Overhaul 対応：** 導入時は水分と体温を自動で読み取ります（温度計は寒暖で色が変わって極端な状態で点滅）。未導入時は水分が満腹度に連動し、体温は中立表示になります。
-- **色分けと増減シェブロン：** 体力・満腹度・水分・酸素は減ると黄・赤・赤点滅になります。上下のシェブロンで増減を示します（1 個で通常変化、2 個で急変）。
-
-![危険状態の赤点滅](docs/screenshots/uwu-icons.gif)
-![ポーション効果マーク付きステータス](docs/screenshots/hud-effect-marks.png)
-
-### プレイヤーパネル
-- 左下に手持ちアイテム名と DayZ 風の耐久ドット（無傷・摩耗・損傷・大破・破損）、姿勢（歩き・ダッシュ・しゃがみ）、防具バーを表示。
-- 狭い画面や **GUI スケール 4** では自動でホットバーの上に移動し、重ならないように調整されます。
-
-![プレイヤーパネルの耐久ドットと防具バー](docs/screenshots/hud-held-tool.png)
+ãŠä½¿ã„ã® Minecraft ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã¨ãƒ­ãƒ¼ãƒ€ãƒ¼ã®ä¸¡æ–¹ã«ä¸€è‡´ã™ã‚‹ jar ã‚’é¸ã‚“ã§ãã ã•ã„ï¼ˆä¾‹ï¼š`dayz-hotbar-fabric-1.21.1-2.0.0+mc1.21.1.jar`ï¼‰ã€‚
 
 ---
 
-## 設定
+## ä¸»ãªæ©Ÿèƒ½
 
-初回起動時に `config/dayz_hotbar.properties` が作成されます：
+### ãƒ›ãƒƒãƒˆãƒãƒ¼ï¼†ã‚¸ãƒ£ãƒ³ãƒ—ãƒãƒ¼
+- 9 ã‚¹ãƒ­ãƒƒãƒˆï¼‹ã‚ªãƒ•ãƒãƒ³ãƒ‰ã‚’åŠé€æ˜Žã®ãƒ•ãƒ©ãƒƒãƒˆãªæ¨ªä¸€åˆ—ã§è¡¨ç¤ºã€‚
+- ç©ºã‚¹ãƒ­ãƒƒãƒˆã¯æš—ã‚ã€ã‚¢ã‚¤ãƒ†ãƒ ã‚ã‚Šã¯å°‘ã—æ˜Žã‚‹ãã€æŒã¡æ›¿ãˆæ™‚ã¯é»„â†’ç·‘ã«å¤‰åŒ–ã—ã€ã‚¯ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ä¸­ã¯èµ¤ã«ãªã‚Šã¾ã™ã€‚
+- é¦¬ãªã©ã«ä¹—ã£ã¦ã„ã‚‹ã¨ãã¯ã€ãƒ›ãƒƒãƒˆãƒãƒ¼ã®ä¸Šéƒ¨ã«ã‚³ãƒ³ãƒ‘ã‚¯ãƒˆãªã‚¸ãƒ£ãƒ³ãƒ—ãƒãƒ¼ã‚’è¡¨ç¤ºã—ã¾ã™ï¼ˆé‡ãªã‚Šã¾ã›ã‚“ï¼‰ã€‚
 
-| 項目 | 初期値 | 内容 |
+![ã‚¢ã‚¤ãƒ†ãƒ å…¥ã‚Šãƒ›ãƒƒãƒˆãƒãƒ¼](docs/screenshots/hud-full-hotbar.png)
+
+### ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹è¡¨ç¤º
+- å³ä¸‹ã«ãƒ”ã‚¯ã‚»ãƒ«ã‚¢ãƒ¼ãƒˆã®ã‚¢ã‚¤ã‚³ãƒ³ã‚’è¡¨ç¤ºï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½¿ã‚ãªã„ãŸã‚ãƒªã‚½ãƒ¼ã‚¹ãƒ‘ãƒƒã‚¯ã¨ç«¶åˆã—ã¾ã›ã‚“ï¼‰ï¼š
+  - **åŠ¹æžœï¼š** ãƒãƒ¼ãƒˆï¼ˆæœ‰ç›Šï¼‰ã€ã‚«ãƒ—ã‚»ãƒ«ï¼ˆå›žå¾©ï¼‰ã€å‰²ã‚ŒãŸãƒãƒ¼ãƒˆï¼ˆæœ‰å®³ï¼‰ã€‚åŠ¹æžœåˆ‡ã‚Œã§ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆã—ã¾ã™ã€‚
+  - **ã‚µãƒã‚¤ãƒãƒ«ï¼š** æº€è…¹åº¦ï¼ˆéš ã—æº€è…¹åº¦ã‚ªãƒ¼ãƒãƒ¼ãƒ¬ã‚¤ä»˜ãï¼‰ã€æ°´åˆ†ã€ä½“æ¸©ã€é…¸ç´ ï¼ˆæ°´ä¸­ã®ã¿ï¼‰ã€‚
+  - **ãƒã‚¤ã‚¿ãƒ«ï¼š** XPï¼ˆãƒ¬ãƒ™ãƒ«è¡¨ç¤ºä»˜ãï¼‰ã€è¡æ’ƒå¸åŽï¼ˆ`+` ä»˜ãï¼‰ã€ä½“åŠ›ï¼ˆé¨Žä¹—æ™‚ã¯é¨Žä¹—å‹•ç‰©ã®ä½“åŠ›ï¼‰ã€‚
+- **Tough As Nails / Legendary Survival Overhaul å¯¾å¿œï¼š** å°Žå…¥æ™‚ã¯æ°´åˆ†ã¨ä½“æ¸©ã‚’è‡ªå‹•ã§èª­ã¿å–ã‚Šã¾ã™ï¼ˆæ¸©åº¦è¨ˆã¯å¯’æš–ã§è‰²ãŒå¤‰ã‚ã£ã¦æ¥µç«¯ãªçŠ¶æ…‹ã§ç‚¹æ»…ï¼‰ã€‚æœªå°Žå…¥æ™‚ã¯æ°´åˆ†ãŒæº€è…¹åº¦ã«é€£å‹•ã—ã€ä½“æ¸©ã¯ä¸­ç«‹è¡¨ç¤ºã«ãªã‚Šã¾ã™ã€‚
+- **è‰²åˆ†ã‘ã¨å¢—æ¸›ã‚·ã‚§ãƒ–ãƒ­ãƒ³ï¼š** ä½“åŠ›ãƒ»æº€è…¹åº¦ãƒ»æ°´åˆ†ãƒ»é…¸ç´ ã¯æ¸›ã‚‹ã¨é»„ãƒ»èµ¤ãƒ»èµ¤ç‚¹æ»…ã«ãªã‚Šã¾ã™ã€‚ä¸Šä¸‹ã®ã‚·ã‚§ãƒ–ãƒ­ãƒ³ã§å¢—æ¸›ã‚’ç¤ºã—ã¾ã™ï¼ˆ1 å€‹ã§é€šå¸¸å¤‰åŒ–ã€2 å€‹ã§æ€¥å¤‰ï¼‰ã€‚
+
+![å±é™ºçŠ¶æ…‹ã®èµ¤ç‚¹æ»…](docs/screenshots/uwu-icons.gif)
+![ãƒãƒ¼ã‚·ãƒ§ãƒ³åŠ¹æžœãƒžãƒ¼ã‚¯ä»˜ãã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹](docs/screenshots/hud-effect-marks.png)
+
+### ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒ‘ãƒãƒ«
+- å·¦ä¸‹ã«æ‰‹æŒã¡ã‚¢ã‚¤ãƒ†ãƒ åã¨ DayZ é¢¨ã®è€ä¹…ãƒ‰ãƒƒãƒˆï¼ˆç„¡å‚·ãƒ»æ‘©è€—ãƒ»æå‚·ãƒ»å¤§ç ´ãƒ»ç ´æï¼‰ã€å§¿å‹¢ï¼ˆæ­©ããƒ»ãƒ€ãƒƒã‚·ãƒ¥ãƒ»ã—ã‚ƒãŒã¿ï¼‰ã€é˜²å…·ãƒãƒ¼ã‚’è¡¨ç¤ºã€‚
+- ç‹­ã„ç”»é¢ã‚„ **GUI ã‚¹ã‚±ãƒ¼ãƒ« 4** ã§ã¯è‡ªå‹•ã§ãƒ›ãƒƒãƒˆãƒãƒ¼ã®ä¸Šã«ç§»å‹•ã—ã€é‡ãªã‚‰ãªã„ã‚ˆã†ã«èª¿æ•´ã•ã‚Œã¾ã™ã€‚
+
+![ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒ‘ãƒãƒ«ã®è€ä¹…ãƒ‰ãƒƒãƒˆã¨é˜²å…·ãƒãƒ¼](docs/screenshots/hud-held-tool.png)
+
+---
+
+## è¨­å®š
+
+åˆå›žèµ·å‹•æ™‚ã« `config/dayz_hotbar.properties` ãŒä½œæˆã•ã‚Œã¾ã™ï¼š
+
+| é …ç›® | åˆæœŸå€¤ | å†…å®¹ |
 | :--- | :--- | :--- |
-| `enableHotbar` | `true` | バニラホットバーを置き換える |
-| `enablePlayerPanel` | `true` | 左下のアイテム・防具パネルを表示 |
-| `enableStatusRow` | `true` | 右下のステータスアイコンを表示 |
-| `showJumpBar` | `true` | 騎乗時のジャンプバーを表示 |
-| `showEffects` | `true` | ポーション効果マークを表示 |
-| `showHealth` | `true` | 体力を表示 |
-| `showFood` | `true` | 満腹度を表示 |
-| `showWater` | `true` | 水分を表示 |
-| `showTemperature` | `true` | 体温を表示 |
-| `showAir` | `true` | 水中で酸素を表示 |
-| `showAbsorption` | `true` | 衝撃吸収を表示 |
-| `showXp` | `true` | 経験値を表示 |
-| `toughAsNailsIntegration` | `true` | Tough As Nails から水分・体温を取得 |
-| `legendarySurvivalIntegration` | `true` | Legendary Survival Overhaul から水分・体温を取得 |
+| `enableHotbar` | `true` | ãƒãƒ‹ãƒ©ãƒ›ãƒƒãƒˆãƒãƒ¼ã‚’ç½®ãæ›ãˆã‚‹ |
+| `enablePlayerPanel` | `true` | å·¦ä¸‹ã®ã‚¢ã‚¤ãƒ†ãƒ ãƒ»é˜²å…·ãƒ‘ãƒãƒ«ã‚’è¡¨ç¤º |
+| `enableStatusRow` | `true` | å³ä¸‹ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚¢ã‚¤ã‚³ãƒ³ã‚’è¡¨ç¤º |
+| `showJumpBar` | `true` | é¨Žä¹—æ™‚ã®ã‚¸ãƒ£ãƒ³ãƒ—ãƒãƒ¼ã‚’è¡¨ç¤º |
+| `showEffects` | `true` | ãƒãƒ¼ã‚·ãƒ§ãƒ³åŠ¹æžœãƒžãƒ¼ã‚¯ã‚’è¡¨ç¤º |
+| `showHealth` | `true` | ä½“åŠ›ã‚’è¡¨ç¤º |
+| `showFood` | `true` | æº€è…¹åº¦ã‚’è¡¨ç¤º |
+| `showWater` | `true` | æ°´åˆ†ã‚’è¡¨ç¤º |
+| `showTemperature` | `true` | ä½“æ¸©ã‚’è¡¨ç¤º |
+| `showAir` | `true` | æ°´ä¸­ã§é…¸ç´ ã‚’è¡¨ç¤º |
+| `showAbsorption` | `true` | è¡æ’ƒå¸åŽã‚’è¡¨ç¤º |
+| `showXp` | `true` | çµŒé¨“å€¤ã‚’è¡¨ç¤º |
+| `toughAsNailsIntegration` | `true` | Tough As Nails ã‹ã‚‰æ°´åˆ†ãƒ»ä½“æ¸©ã‚’å–å¾— |
+| `legendarySurvivalIntegration` | `true` | Legendary Survival Overhaul ã‹ã‚‰æ°´åˆ†ãƒ»ä½“æ¸©ã‚’å–å¾— |
 
 ---
 
-## メモ
-- F1 非表示・スペクテイターモード・画面表示中はバニラ同様の動作をします。
-- ホットバー横の攻撃インジケーターは非表示になります。必要な場合は **ビデオ設定 → 攻撃インジケーター** を *クロスヘア* に変更してください。
+## ãƒ¡ãƒ¢
+- F1 éžè¡¨ç¤ºãƒ»ã‚¹ãƒšã‚¯ãƒ†ã‚¤ã‚¿ãƒ¼ãƒ¢ãƒ¼ãƒ‰ãƒ»ç”»é¢è¡¨ç¤ºä¸­ã¯ãƒãƒ‹ãƒ©åŒæ§˜ã®å‹•ä½œã‚’ã—ã¾ã™ã€‚
+- ãƒ›ãƒƒãƒˆãƒãƒ¼æ¨ªã®æ”»æ’ƒã‚¤ãƒ³ã‚¸ã‚±ãƒ¼ã‚¿ãƒ¼ã¯éžè¡¨ç¤ºã«ãªã‚Šã¾ã™ã€‚å¿…è¦ãªå ´åˆã¯ **ãƒ“ãƒ‡ã‚ªè¨­å®š â†’ æ”»æ’ƒã‚¤ãƒ³ã‚¸ã‚±ãƒ¼ã‚¿ãƒ¼** ã‚’ *ã‚¯ãƒ­ã‚¹ãƒ˜ã‚¢* ã«å¤‰æ›´ã—ã¦ãã ã•ã„ã€‚
 
 ---
 
-## ビルド方法
+## ãƒ“ãƒ«ãƒ‰æ–¹æ³•
 
-[Stonecutter](https://stonecutter.kikugie.dev/) を使用しており、Gradle 実行には **JDK 25** が必要です：
+[Stonecutter](https://stonecutter.kikugie.dev/) ã‚’ä½¿ç”¨ã—ã¦ãŠã‚Šã€Gradle å®Ÿè¡Œã«ã¯ **JDK 25** ãŒå¿…è¦ã§ã™ï¼š
 
 ```bash
-./gradlew chiseledBuild          # 全 50 jar をビルド
-./gradlew :fabric:1.21.1:build   # 単一ターゲットをビルド
-./gradlew matrix                 # ノード一覧を表示
+./gradlew chiseledBuild          # å…¨ 50 jar ã‚’ãƒ“ãƒ«ãƒ‰
+./gradlew :fabric:1.21.1:build   # å˜ä¸€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ãƒ“ãƒ«ãƒ‰
+./gradlew matrix                 # ãƒŽãƒ¼ãƒ‰ä¸€è¦§ã‚’è¡¨ç¤º
 ```
