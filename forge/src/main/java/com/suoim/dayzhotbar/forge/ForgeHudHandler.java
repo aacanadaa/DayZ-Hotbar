@@ -88,6 +88,7 @@ public final class ForgeHudHandler {
         //? if <1.21.8 {
         root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.HOTBAR, () -> false);
         root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.EXPERIENCE, () -> false);
+        root.addConditionTo(ForgeLayeredDraw.PRE_SLEEP_STACK, ForgeLayeredDraw.JUMP_METER, () -> false);
         //?} else if <1.21.11 {
         root.addConditionTo(ForgeLayeredDraw.HOTBAR_AND_DECOS, () -> false);
         //?} else {

@@ -163,6 +163,12 @@ public class GuiMixin {
     private void dayzHotbar$hideExperienceBar(GuiGraphicsExtractor graphics, int x, CallbackInfo ci) {
         ci.cancel();
     }
+
+    @Inject(method = "renderJumpMeter", at = @At("HEAD"), cancellable = true)
+    private void dayzHotbar$hideJumpMeter(net.minecraft.world.entity.PlayerRideableJumping mount,
+                                          GuiGraphicsExtractor graphics, int x, CallbackInfo ci) {
+        ci.cancel();
+    }
     //?}
 
     /**

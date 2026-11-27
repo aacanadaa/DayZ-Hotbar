@@ -78,32 +78,32 @@ fun platformTasks(suffix: String) = stonecutter.tree.branches
     .filter { it.id != "common" }
     .flatMap { branch -> branch.keys.map { version -> ":${branch.id}:$version:$suffix" } }
 
+val modrinthTargets = platformTasks("publishModrinth")
+val curseforgeTargets = platformTasks("publishCurseforge")
+
 tasks.register("publishModrinthAll") {
     group = "publishing"
     description = "Publishes every node in the matrix to Modrinth"
-    dependsOn(platformTasks("publishModrinth"))
+    dependsOn(modrinthTargets)
 }
 
 tasks.register("publishCurseforgeAll") {
     group = "publishing"
     description = "Publishes every node in the matrix to CurseForge"
-    dependsOn(platformTasks("publishCurseforge"))
+    dependsOn(curseforgeTargets)
 }
 
-// CurseForge accepts one upload at a time gracefully; a burst comes back as a
-// rate-limit error rather than being queued, so the nodes are ordered.
-//
-// This is deliberately *not* inside the `publishAll` registration block:
-// querying the task container (`tasks.matching { ... }.configureEach { ... }`)
-// while another task is being created throws
-// "DefaultTaskCollection#configureEach(Action) on task set cannot be executed in
-// the current context". At the top level of the controller script the same call
-// is fine, and `configureEach` still applies lazily to tasks created later.
-publishTargets.zipWithNext { first, second ->
-    tasks.configureEach {
-        if (path == second) mustRunAfter(first)
+fun orderSequentially(targets: List<String>) {
+    targets.zipWithNext { first, second ->
+        tasks.configureEach {
+            if (path == second) mustRunAfter(first)
+        }
     }
 }
+
+orderSequentially(publishTargets)
+orderSequentially(modrinthTargets)
+orderSequentially(curseforgeTargets)
 
 /** Prints the version/loader matrix, one `path = version` pair per line. */
 tasks.register("matrix") {

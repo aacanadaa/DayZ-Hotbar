@@ -108,11 +108,14 @@ public final class DayZHotbarHud {
         }
 
         FoodData food = player.getFoodData();
+        HudConfig config = HudConfig.get();
+        SurvivalModBridge.ThirstReading thirst = SurvivalModBridge.readThirst(player, config);
+
         trackers.get(Stat.HEALTH).push(health(player));
         trackers.get(Stat.FOOD).push(food.getFoodLevel());
-        // Water mirrors food, so it moves when food moves - which is what gives it a
-        // trend arrow of its own rather than leaving it a static second hunger bar.
-        trackers.get(Stat.WATER).push(food.getFoodLevel());
+        // Use real thirst when Tough As Nails or Legendary Survival Overhaul is active;
+        // otherwise mirror food so the water icon still shows a live trend.
+        trackers.get(Stat.WATER).push(thirst != null ? thirst.level() : food.getFoodLevel());
         trackers.get(Stat.AIR).push(player.getAirSupply());
         trackers.get(Stat.ABSORPTION).push(player.getAbsorptionAmount());
 
@@ -181,15 +184,17 @@ public final class DayZHotbarHud {
 
     /** Draws the hotbar. Returns false to let vanilla render instead. */
     public boolean renderHotbar(GuiGraphicsExtractor graphics, Minecraft minecraft) {
+        HudConfig config = HudConfig.get();
         // In spectator mode vanilla draws its own spectator hotbar, which this mod
         // does not replace - returning false leaves it alone.
-        if (minecraft.gui.hud.isHidden()
+        if (!config.enableHotbar
+                || minecraft.gui.hud.isHidden()
                 || (minecraft.player != null && minecraft.player.isSpectator())) {
             return false;
         }
         boolean drawn = HotbarRenderer.render(graphics, minecraft,
                 graphics.guiWidth(), graphics.guiHeight(), swapProgress());
-        if (drawn) {
+        if (drawn && config.enablePlayerPanel) {
             // Anchored to the hotbar, so it goes wherever the bar goes and only draws
             // when the bar did.
             PlayerPanel.render(graphics, minecraft, graphics.guiWidth(), graphics.guiHeight());
@@ -199,7 +204,9 @@ public final class DayZHotbarHud {
 
     /** Draws the status readout. Returns false to let vanilla render instead. */
     public boolean renderStatus(GuiGraphicsExtractor graphics, Minecraft minecraft) {
-        if (minecraft.gui.hud.isHidden()
+        HudConfig config = HudConfig.get();
+        if (!config.enableStatusRow
+                || minecraft.gui.hud.isHidden()
                 || (minecraft.player != null && minecraft.player.isSpectator())) {
             return false;
         }
@@ -209,8 +216,9 @@ public final class DayZHotbarHud {
             return false;
         }
 
+        boolean hasJumpBar = config.showJumpBar && HotbarRenderer.hasJumpBar(player);
         StatusRow.render(graphics, minecraft.font, graphics.guiWidth(), graphics.guiHeight(),
-                buildCells(player), lastGuiTicks);
+                buildCells(player, config), lastGuiTicks, hasJumpBar);
         return true;
     }
 
@@ -220,18 +228,20 @@ public final class DayZHotbarHud {
      * leftmost, and a section with nothing in it simply contributes no cells - which is
      * what makes its divider appear and disappear with it.
      */
-    private List<StatusRow.Cell> buildCells(LocalPlayer player) {
+    private List<StatusRow.Cell> buildCells(LocalPlayer player, HudConfig config) {
         List<StatusRow.Cell> cells = new ArrayList<>();
 
-        for (EffectGroup group : EffectGroup.values()) {
-            int remaining = effectFade.getOrDefault(group, 0);
-            if (remaining <= 0) {
-                continue;
+        if (config.showEffects) {
+            for (EffectGroup group : EffectGroup.values()) {
+                int remaining = effectFade.getOrDefault(group, 0);
+                if (remaining <= 0) {
+                    continue;
+                }
+                cells.add(new StatusRow.Cell(group.shape(), HudTheme.TEXT_BRIGHT,
+                        group.fill(), 0.0F, true, group.solid(), 0, false, 0.0F,
+                        StatusRow.NO_LEVEL, false, Group.EFFECTS,
+                        remaining / (float) EFFECT_FADE_TICKS));
             }
-            cells.add(new StatusRow.Cell(group.shape(), HudTheme.TEXT_BRIGHT,
-                    group.fill(), 0.0F, true, group.solid(), 0, false, 0.0F,
-                    StatusRow.NO_LEVEL, false, Group.EFFECTS,
-                    remaining / (float) EFFECT_FADE_TICKS));
         }
 
         // While riding something with health, vanilla shows the mount's health instead
@@ -246,6 +256,8 @@ public final class DayZHotbarHud {
         // Saturation can never exceed the food level, so cap it to keep the overlay
         // from ever sitting higher than the fill it rides on.
         float saturationFraction = Math.min(foodFraction, clamp(food.getSaturationLevel() / MAX_FOOD));
+        SurvivalModBridge.ThirstReading thirst = SurvivalModBridge.readThirst(player, config);
+        SurvivalModBridge.TempReading temp = SurvivalModBridge.readTemperature(player, config, lastGuiTicks);
         int air = player.getAirSupply();
         int maxAir = Math.max(1, player.getMaxAirSupply());
 
@@ -255,15 +267,20 @@ public final class DayZHotbarHud {
         stats.sort(Comparator.comparingInt(stat -> stat.group().ordinal()));
 
         for (Stat stat : stats) {
+            if (!config.isStatEnabled(stat)) {
+                continue;
+            }
             StatusRow.Cell cell = switch (stat) {
                 case HEALTH -> statCell(stat, clamp(health(player) / maxHealth), 0.0F, StatusRow.NO_LEVEL);
                 case FOOD -> statCell(stat, foodFraction, saturationFraction, StatusRow.NO_LEVEL);
-                // Mirrors food until Tough As Nails supplies a thirst level. Saturation
-                // is a food concept and is deliberately not copied across.
-                case WATER -> statCell(stat, foodFraction, 0.0F, StatusRow.NO_LEVEL);
-                // Fixed at rest; the reading and its colour bands arrive with Tough As
-                // Nails.
-                case TEMPERATURE -> statCell(stat, TEMPERATURE_IDLE, 0.0F, StatusRow.NO_LEVEL);
+                case WATER -> statCell(stat,
+                        thirst != null ? thirst.fraction() : foodFraction,
+                        0.0F, StatusRow.NO_LEVEL);
+                case TEMPERATURE -> {
+                    float fraction = temp != null ? temp.fraction() : TEMPERATURE_IDLE;
+                    int color = temp != null ? temp.color() : stat.colorFor(fraction, lastGuiTicks);
+                    yield statCell(stat, fraction, 0.0F, StatusRow.NO_LEVEL, color);
+                }
                 // Only while submerged, exactly like vanilla's bubbles.
                 case AIR -> air < maxAir
                         ? statCell(stat, clamp(air / (float) maxAir), 0.0F, StatusRow.NO_LEVEL)
@@ -286,8 +303,12 @@ public final class DayZHotbarHud {
     }
 
     private StatusRow.Cell statCell(Stat stat, float fraction, float saturation, int level) {
+        return statCell(stat, fraction, saturation, level, stat.colorFor(fraction, lastGuiTicks));
+    }
+
+    private StatusRow.Cell statCell(Stat stat, float fraction, float saturation, int level, int color) {
         VelocityTracker tracker = trackers.get(stat);
-        return new StatusRow.Cell(stat.shape(), stat.colorFor(fraction, lastGuiTicks),
+        return new StatusRow.Cell(stat.shape(), color,
                 fraction, saturation, false, false,
                 stat.showsTrend() ? tracker.chevrons() : 0, tracker.up(), tracker.alpha(),
                 level, stat == Stat.ABSORPTION, stat.group(), 1.0F);

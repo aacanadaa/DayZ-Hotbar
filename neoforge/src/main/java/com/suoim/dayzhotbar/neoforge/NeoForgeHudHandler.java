@@ -66,7 +66,8 @@ public final class NeoForgeHudHandler {
      */
     //? if <1.21.6 {
     private static final Set<Identifier> EXPERIENCE_LAYERS = Set.of(
-            VanillaGuiLayers.EXPERIENCE_BAR
+            VanillaGuiLayers.EXPERIENCE_BAR,
+            VanillaGuiLayers.JUMP_METER
     );
     //?} else {
     private static final Set<Identifier> EXPERIENCE_LAYERS = Set.of(

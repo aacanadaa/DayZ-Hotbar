@@ -18,6 +18,11 @@ package com.suoim.dayzhotbar.client;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * The status icons, drawn as pixel art rather than borrowed from a sheet.
  * <p>
@@ -277,13 +282,7 @@ public final class Icons {
      * a mark laid over another icon rather than a figure in its own right.
      */
     public static void drawSolid(GuiGraphicsExtractor graphics, String[] shape, int x, int y, int color) {
-        for (int row = 0; row < shape.length; row++) {
-            for (int col = 0; col < shape[row].length(); col++) {
-                if (shape[row].charAt(col) == '#') {
-                    graphics.fill(x + col, y + row, x + col + 1, y + row + 1, color);
-                }
-            }
-        }
+        plotSpans(graphics, compile(shape).solidSpans(), x, y, 1, color);
     }
 
     // --- Marks for the player panel ---------------------------------------------
@@ -409,16 +408,77 @@ public final class Icons {
         "......###......"
     };
 
-    /** Draws one shape's cells in a single flat colour. */
-    private static void plot(GuiGraphicsExtractor graphics, boolean[][] cells, int x, int y, int pixel, int color) {
-        for (int row = 0; row < cells.length; row++) {
-            for (int col = 0; col < cells[row].length; col++) {
-                if (cells[row][col]) {
-                    int px = x + col * pixel;
-                    int py = y + row * pixel;
-                    graphics.fill(px, py, px + pixel, py + pixel, color);
+    private record Span(int row, int colStart, int colEnd) {}
+
+    private record CompiledShape(int size, Span[] solidSpans, Span[] outlineSpans, Span[] fillSpans,
+                                 int fillTop, int fillBottom) {}
+
+    private static final Map<String[], CompiledShape> SHAPE_CACHE = new IdentityHashMap<>();
+
+    private static CompiledShape compile(String[] shape) {
+        CompiledShape cached = SHAPE_CACHE.get(shape);
+        if (cached != null) {
+            return cached;
+        }
+
+        int n = shape.length;
+        boolean[][] m = mask(shape);
+        boolean[][] outline = union(outlineOf(m), forcedOf(shape));
+        boolean[][] fill = fillOf(m, outline);
+
+        int top = -1;
+        int bottom = -1;
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (fill[row][col]) {
+                    if (top < 0) {
+                        top = row;
+                    }
+                    bottom = row;
+                    break;
                 }
             }
+        }
+
+        CompiledShape compiled = new CompiledShape(
+                n,
+                toSpans(m),
+                toSpans(outline),
+                toSpans(fill),
+                top,
+                bottom
+        );
+        SHAPE_CACHE.put(shape, compiled);
+        return compiled;
+    }
+
+    private static Span[] toSpans(boolean[][] cells) {
+        List<Span> spans = new ArrayList<>();
+        for (int row = 0; row < cells.length; row++) {
+            int col = 0;
+            int width = cells[row].length;
+            while (col < width) {
+                if (!cells[row][col]) {
+                    col++;
+                    continue;
+                }
+                int start = col;
+                while (col < width && cells[row][col]) {
+                    col++;
+                }
+                spans.add(new Span(row, start, col));
+            }
+        }
+        return spans.toArray(new Span[0]);
+    }
+
+    /** Draws one shape's horizontal spans in a single flat colour. */
+    private static void plotSpans(GuiGraphicsExtractor graphics, Span[] spans, int x, int y, int pixel, int color) {
+        for (Span span : spans) {
+            int x1 = x + span.colStart() * pixel;
+            int x2 = x + span.colEnd() * pixel;
+            int y1 = y + span.row() * pixel;
+            graphics.fill(x1, y1, x2, y1 + pixel, color);
         }
     }
 
@@ -540,40 +600,16 @@ public final class Icons {
      */
     public static void drawVessel(GuiGraphicsExtractor graphics, String[] shape, int x, int y, int pixel,
                                   float fraction, int outlineColor, int fillColor) {
-        boolean[][] m = mask(shape);
-        // The fill is measured against the outline as actually drawn, marked corners
-        // included. Measuring it against the pure edge instead was tried, to stop the
-        // corners eating a pixel of fill - it worked, but the fill then ran right up
-        // against the outline with no gap left between them, which reads worse than
-        // the narrower fill did. The gap matters more than the last pixel of width.
-        boolean[][] outline = union(outlineOf(m), forcedOf(shape));
-        boolean[][] fill = fillOf(m, outline);
+        CompiledShape compiled = compile(shape);
 
-        plot(graphics, outline, x, y, pixel, outlineColor);
+        plotSpans(graphics, compiled.outlineSpans(), x, y, pixel, outlineColor);
 
-        if (fraction <= 0.0F) {
+        if (fraction <= 0.0F || compiled.fillTop() < 0) {
             return;
         }
 
-        int top = -1;
-        int bottom = -1;
-        for (int row = 0; row < fill.length; row++) {
-            for (int col = 0; col < fill[row].length; col++) {
-                if (fill[row][col]) {
-                    if (top < 0) {
-                        top = row;
-                    }
-                    bottom = row;
-                    break;
-                }
-            }
-        }
-        if (top < 0) {
-            return;
-        }
-
-        int regionTop = y + top * pixel;
-        int regionBottom = y + (bottom + 1) * pixel;
+        int regionTop = y + compiled.fillTop() * pixel;
+        int regionBottom = y + (compiled.fillBottom() + 1) * pixel;
         int regionHeight = regionBottom - regionTop;
         int filled = Math.round(regionHeight * Math.min(1.0F, fraction));
 
@@ -581,14 +617,14 @@ public final class Icons {
             return;
         }
         if (filled >= regionHeight) {
-            plot(graphics, fill, x, y, pixel, fillColor);
+            plotSpans(graphics, compiled.fillSpans(), x, y, pixel, fillColor);
             return;
         }
 
         // The shape's own width, not the grid constant: marks are authored at smaller
         // sizes than the status icons and would otherwise be clipped to the wrong box.
-        graphics.enableScissor(x, regionBottom - filled, x + m.length * pixel, regionBottom);
-        plot(graphics, fill, x, y, pixel, fillColor);
+        graphics.enableScissor(x, regionBottom - filled, x + compiled.size() * pixel, regionBottom);
+        plotSpans(graphics, compiled.fillSpans(), x, y, pixel, fillColor);
         graphics.disableScissor();
     }
 
