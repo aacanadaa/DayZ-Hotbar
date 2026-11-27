@@ -2,25 +2,25 @@
 
 [English](README.md) · [中文](README.zh.md) · [Français](README.fr.md) · **日本語** · [한국어](README.ko.md)
 
+[![Modrinth](https://img.shields.io/modrinth/v/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
+[![CurseForge](https://img.shields.io/curseforge/v/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
+[![Minecraft](https://img.shields.io/modrinth/game-versions/dayz-hotbar?label=Minecraft)](https://modrinth.com/mod/dayz-hotbar/versions)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/dayz-hotbar?label=Downloads&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
+[![CurseForge Downloads](https://img.shields.io/curseforge/dt/1693963?label=Downloads&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/dayz-hotbar?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/dayz-hotbar)
-[![CurseForge Downloads](https://img.shields.io/curseforge/dt/1693963?label=CurseForge&logo=curseforge&color=F16436)](https://www.curseforge.com/minecraft/mc-mods/dayz-hotbar)
-![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%20...%20%7C%2026.3-62b47a.svg)
-![Loader](https://img.shields.io/badge/Loader-Fabric%20%7C%20Forge%20%7C%20NeoForge-dbb69b.svg)
 [![Issues](https://img.shields.io/github/issues/aacanadaa/DayZ-Hotbar?color=red)](https://github.com/aacanadaa/DayZ-Hotbar/issues)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/suoim)
 
-Minecraft の HUD を DayZ スタイルのホットバーと DayZ スタイルのステータス表示に置き換え、
-[DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory) と見た目を揃えるように
-デザインされています。
+Minecraft の HUD を [DayZ Inventory](https://github.com/aacanadaa/DayZ-Inventory) に合わせた DayZ 風のホットバー、プレイヤーパネル、ステータス表示に置き換えます。
 
-**Minecraft 1.20.1 から 26.3 まで、単一のソースツリーと 3 つのローダーで対応。すべてのローダーで
-API モッドは不要です。**
+クライアント専用 Mod です。Fabric / Forge / NeoForge のいずれでも前提 API Mod は不要です。
+
+![ゲーム内の DayZ Hotbar HUD](docs/screenshots/uwu.png)
+![DayZ Inventory との併用](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
+
+---
 
 ## 対応バージョン
-
-バージョンのマトリクス全体は [Stonecutter](https://stonecutter.kikugie.dev/) による条件コンパイルで
-単一のソースツリーから構築され、（ローダー × ゲームバージョン）ごとに 1 つの jar を生成します。
 
 | Minecraft | Fabric | Forge | NeoForge | Java |
 | :--- | :---: | :---: | :---: | :---: |
@@ -33,243 +33,73 @@ API モッドは不要です。**
 | **1.21.8 – 1.21.11** | ✅ | ✅ | ✅ | 21 |
 | **26.1 – 26.3** | ✅ | — | ✅ | 25 |
 
-Forge には 1.21、1.21.6、1.21.7 はありません：これらの Forge 系列にはフック可能な HUD レイヤー
-API がありません。Forge には 1.21.2（未公開）と 26.x もありません。詳細な判断根拠は
-[docs/BUILDING.en.md](docs/BUILDING.en.md) に記録されています。
-
-どのビルドも同じ HUD を描画しますが、jar は**互換性がありません** — ゲームバージョンとローダーに
-合うものを選んでください。
-
-> **ヒント — GUI スケール。** HUD は固定ピクセルサイズでレイアウトされており、Minecraft のデフォルトの
-> *自動* GUI スケール向けに調整されています。GUI スケールが**大きい**と、ホットバー、プレイヤーパネル、
-> ステータス表示が詰まって画面中央で衝突することがあります；**小さすぎる**とアイコンが読みにくく
-> なります。どちらの場合も **オプション → ビデオ設定 → GUI スケール** を調整してください。
-
-![ゲーム内 DayZ Hotbar HUD：左下に空手を表示した手持ちアイテムパネル、緑に光った手持ちスロットを含む 9 スロットのホットバー、右下に食料・水・体温・経験・生命を表示するステータス表示](docs/screenshots/uwu.png)
-![DayZ Inventory UI — Jukebox 抽斗が開いた Vicinity グリッド、Survivor パネル、Decorated Pot を表示する 2.0x Hands スロット、2x2 クラフトグリッド](https://cdn.modrinth.com/data/8asZxzdc/images/66b7282b83c958bd63ec912c7353bb4817bc202a.png)
-
-インベントリモッドと合わせた様子 ^^
+お使いの Minecraft バージョンとローダーの両方に一致する jar を選んでください（例：`dayz-hotbar-fabric-1.21.1-2.0.0+mc1.21.1.jar`）。
 
 ---
 
-## 機能
+## 主な機能
 
-### ホットバー
+### ホットバー＆ジャンプバー
+- 9 スロット＋オフハンドを半透明のフラットな横一列で表示。
+- 空スロットは暗め、アイテムありは少し明るく、持ち替え時は黄→緑に変化し、クールダウン中は赤になります。
+- 馬などに乗っているときは、ホットバーの上部にコンパクトなジャンプバーを表示します（重なりません）。
 
-オフハンド含め 9 スロットを 1 行の平坦な列に並べ、DayZ Inventory 画面と同じほぼ黒の半透明スタイル
-です。各グレーのボックスは 22x22 でボックス間に 1 ピクセルの隙間のみ；背面板もアウトラインも一切
-なく — スロットの状態は色塗りの色だけで伝えます。
-
-| 状態 | 意味 |
-| :--- | :--- |
-| 暗い塗り | 空 |
-| 明るい塗り | アイテムを保持中 |
-| 緑の塗り | 現在手に持っているスロット |
-| 赤の塗り | 手に持っているが、アイテムがクールダウン中で使用できない |
-
-スロットの切り替えにはアニメーションがあります：新しく手に取ったスロットは**黄色**で始まり、約 3 分の
-1 秒で**緑**に落ち着くので、切り替えが瞬間的な切り替えではなくイベントとして感じられます。
-
-![剣、ツール、ステーキのスタック、松明、金リンゴのスタックが入ったホットバー。手持ちのステーキ スロットが緑に光り、スタックされたスロットにはアイテム数が描かれている](docs/screenshots/hud-full-hotbar.png)
+![アイテム入りホットバー](docs/screenshots/hud-full-hotbar.png)
 
 ### ステータス表示
+- 右下にピクセルアートのアイコンを表示（テクスチャを使わないためリソースパックと競合しません）：
+  - **効果：** ハート（有益）、カプセル（回復）、割れたハート（有害）。効果切れでフェードアウトします。
+  - **サバイバル：** 満腹度（隠し満腹度オーバーレイ付き）、水分、体温、酸素（水中のみ）。
+  - **バイタル：** XP（レベル表示付き）、衝撃吸収（`+` 付き）、体力（騎乗時は騎乗動物の体力）。
+- **Tough As Nails / Legendary Survival Overhaul 対応：** 導入時は水分と体温を自動で読み取ります（温度計は寒暖で色が変わって極端な状態で点滅）。未導入時は水分が満腹度に連動し、体温は中立表示になります。
+- **色分けと増減シェブロン：** 体力・満腹度・水分・酸素は減ると黄・赤・赤点滅になります。上下のシェブロンで増減を示します（1 個で通常変化、2 個で急変）。
 
-右下に横一列のアイコンがあり、ホットバーと同じマージンに収まるため、HUD 全体が画面上を横切る 1 本の
-線として読めます。各アイコンは**容器**として描かれます — 輪郭、1 セルの空き、そして値が上がるにつれ
-下から埋まる内部。輪郭は塗りと同じ色なので、黄色いアイコンは黄色い輪郭になります。
-
-この行は左から右へ 3 つのセクションに分かれます：
-
-| セクション | アイコン |
-| :--- | :--- |
-| **効果** | アクティブなポーション効果の種類ごとに 1 つのマーク |
-| **補給** | 食料はリンゴで、満腹度はより明るい塗りとして上に重ねる；水はボトル；体温は温度計；空気は泡で、水中のときのみ表示 |
-| **バイタル** | 経験は中にレベル数字が入ったしずく；吸収は金色の十字；生命は十字、騎乗中はマウントの生命 |
-
-セクションの間は縦線で区切られ、両側に何かがあるときだけ描かれます — つまり効果の区切り線は効果
-自体と共に現れ消え、補給とバイタルの間の線は常にあります。
-
-吸収は専用アイコンではなく**2 つ目の十字**として描かれ、右上に小さなプラスのバッジが付きます —
-プラスが両者を区別します。
-
-現れる／消えるアイコンは常にいるアイコンを押ししません：この行は右揃えなので、左側で伸び縮みします。
-
-> **水と体温は描いていますが、まだデータを読んでいません。** 水は食料に追従するので、食料が動くと
-> 一緒に動きます。体温は半分・白色で止まっており、温度計上で「快適」を意味します。どちらも渇きと
-> 体温システムのプレースホルダーで、対応するモッドが存在すれば実際の値になります。
-
-### カラーバンド
-
-生命と食料は **DayZ 自身のバンド**を使い、両者は異なります。生命は 100 HP 基準、食料は 5,000 ポイントの
-備蓄基準で表示されます。
-
-| | 白 | 黄 | 赤 | 点滅 |
-| :--- | :--- | :--- | :--- | :--- |
-| **生命** | 61–100% | 31–60% | 15–30% | 0–14% |
-| **食料** | 16–100% | 6–15% | 2–5% | 0–1.9% |
-
-Minecraft のバーはどちらも 20 ポイントなので、生命は 12 以下で黄色、6 以下で赤、3 未満で点滅；
-食料は 3 以下で黄色、1 で赤、空のときのみ点滅します。食料は意図的に寛容な方です：DayZ では、
-飢餓の警告は失血の警告よりはるかに遅く来ます。
-
-![臨界レベルのステータス表示：食料のリンゴ、水のボトル、生命の十字がすべて赤く点滅し、一方で増益効果のハートと経験のしずくは白いままである](docs/screenshots/uwu-icons.gif)
-
-臨界バンドの動き — 食料、水、生命がすべて空で赤く点滅しています。左の増益効果ハートと経験のしずくは
-その間も白いままで、効果はオンかオフかしかなく、レベルの途中であることは警告ではないからです。
-
-空気には独自のバンドがなく、生命のものを借りています — 溺死と失血は同じ種類の緊急事態だからです。
-吸収と経験は意図的に**カラーティアリングしません**：吸収が少ないことは警告ではなく、レベルの途中で
-あることも警告ではありません。
-
-### トレンドマーカー
-
-積み重ねたシェブロンが各ステータスの動き方を示します — 上昇時はアイコンの**上**、下降時は**下**に
-置かれ、マーカーは値が向かう側にあります。
-
-- **シェブロン 1 個** — 通常の変動
-- **シェブロン 2 個** — 大きな変化。毒のティックや再生効果が単なる自然な空腹減少と違って読める
-  のはこのためです
-
-動きが止んだ後も 1.5 秒保持してからフェードアウト — 短いダメージのやり取りを見逃すには長めです。
-閾値はステータスごとに 1 秒で測定され、動きが遅いステータスには意図的に低く設定されています：
-自然回復は毎秒約 0.25 HP のみで、閾値 1.0 では決して発動せず、回復していることに気づきません。
-
-体温には決してマーカーを表示しません。その矢印はあなたが干渉できない方向を指す上、将来の読み値は
-トレンドではなくレベルです。
+![危険状態の赤点滅](docs/screenshots/uwu-icons.gif)
+![ポーション効果マーク付きステータス](docs/screenshots/hud-effect-marks.png)
 
 ### プレイヤーパネル
+- 左下に手持ちアイテム名と DayZ 風の耐久ドット（無傷・摩耗・損傷・大破・破損）、姿勢（歩き・ダッシュ・しゃがみ）、防具バーを表示。
+- 狭い画面や **GUI スケール 4** では自動でホットバーの上に移動し、重ならないように調整されます。
 
-左下隅に、ホットバーのスロットと同じ塗りの 2 行パネルがあります。
-
-- **上の行** — 手持ちアイテム：DayZ のコンディションドット（新品、使用済み、損傷、大破、壊滅）と
-  その名前。右半分は武器の発射モード、射程、弾薬のために意図的に空けてあります。
-- **下の行** — 姿勢フィギュア（歩行、スプリント、蹲踞）、盾マーク、アーマーバー。
-
-![左下のプレイヤーパネル：Diamond Pickaxe の名前の横に新品のコンディションドット、その下の行に歩行姿勢のフィギュアと部分的に埋まったアーマーバー](docs/screenshots/hud-held-tool.png)
-
-### 効果マーク
-
-アクティブなポーション効果は効果ごとではなく**種類ごとに 1 マーク**に折りたたみます — Minecraft には
-30 種類以上の効果があり、効果ごとに増える行は画面端を食いつぶすからです。一目で重要なのは、自分が
-何*種類*のものに乗っているかです。
-
-| マーク | 種類 |
-| :--- | :--- |
-| ハート | 有益 — 速度、力、暗視 |
-| ピル | 回復 — 再生、吸収、満腹 |
-| 割れたハート | 有害 — 毒、空腹、採掘疲労、その他すべての悪性 |
-
-効果はオンかオフかしかないので、すべて白で描かれ、塗りレベルもカラーバンドもありません。効果が
-終わるとそのマークは消えるのではなく 1 秒かけて**フェードアウト**します。
-
-![食料、水、体温、経験、生命、吸収のアイコンの横に、複数のポーション効果マークが一度に並んだステータス表示](docs/screenshots/hud-effect-marks.png)
-
-### 手描き、テクスチャではない
-
-すべてのアイコンはテクスチャから読み込まず、ソース内で 15x15 グリッド上に定義されたピクセルアート
-です。モッドは独自のアイコンアートを同梱しないため、リソースパックと衝突しません。
+![プレイヤーパネルの耐久ドットと防具バー](docs/screenshots/hud-held-tool.png)
 
 ---
 
-## インストール
+## 設定
 
-Minecraft のバージョンとローダーに合う jar を選んでください。ファイル名には両方が含まれます，例：
-`dayz-hotbar-fabric-1.21.1-1.2.0.jar`。どのビルドも同じ HUD を描画しますが、異なるバージョンと
-ローダー向けに構築されており、**互換性がありません**。
+初回起動時に `config/dayz_hotbar.properties` が作成されます：
 
-1. ゲームバージョンに対応するローダーをインストール —
-   [Fabric Loader](https://fabricmc.net/use/)、
-   [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/) または
-   [NeoForge](https://neoforged.net/)。
-2. 対応する jar を `mods` フォルダーに入れます。
-
-ダウンロードは [releases ページ](https://github.com/aacanadaa/DayZ-Hotbar/releases)、および各ストアで
-実行中のバージョンの項目から取得できます。
-
-どのローダーも API モッドは不要です — Fabric API も不要で、Forge / NeoForge 側にも追加は不要です。
-Forge と NeoForge は似て見えますが別々のダウンロードです：異なるローダーで異なる HUD API を持ち、
-jar は互換性がありません。
-
----
-
-## 依存関係
-
-| | 要件 |
-| :--- | :--- |
-| モッドバージョン | 1.2.0（単一ソースで 1.20.1 – 26.3 をカバー） |
-| Fabric | ゲームバージョンに合う Fabric Loader |
-| Forge | HUD レイヤー API を提供し、ゲームバージョンに合う Forge 系列 |
-| NeoForge | 1.20.6 以上 |
-| Java | 1.20.5+ は 21+；1.20.1–1.20.4 は 17；26.x は 25 |
-| Fabric API | 不要 |
-| Forge / NeoForge API モッド | 不要 |
+| 項目 | 初期値 | 内容 |
+| :--- | :--- | :--- |
+| `enableHotbar` | `true` | バニラホットバーを置き換える |
+| `enablePlayerPanel` | `true` | 左下のアイテム・防具パネルを表示 |
+| `enableStatusRow` | `true` | 右下のステータスアイコンを表示 |
+| `showJumpBar` | `true` | 騎乗時のジャンプバーを表示 |
+| `showEffects` | `true` | ポーション効果マークを表示 |
+| `showHealth` | `true` | 体力を表示 |
+| `showFood` | `true` | 満腹度を表示 |
+| `showWater` | `true` | 水分を表示 |
+| `showTemperature` | `true` | 体温を表示 |
+| `showAir` | `true` | 水中で酸素を表示 |
+| `showAbsorption` | `true` | 衝撃吸収を表示 |
+| `showXp` | `true` | 経験値を表示 |
+| `toughAsNailsIntegration` | `true` | Tough As Nails から水分・体温を取得 |
+| `legendarySurvivalIntegration` | `true` | Legendary Survival Overhaul から水分・体温を取得 |
 
 ---
 
-## 注意
-
-- バニラの生命、空腹、アーマー、空気、経験の要素は上に描かず無効化するため、二重描画はありません。
-- バニラ自身の可視性ルールを引き継ぎます：HUD は開いた画面の背後、観戦モード、F1 押下時では従来どおり
-  隠れます。
-- バニラの攻撃力インジケーターはホットバー内にあったため、ホットバーの置き換えで消えます。再実装は
-  していません — 必要なら **オプション → ビデオ設定 → 攻撃インジケーター** を*照準*に設定してください。
-- **Forge 1.20.6 と 1.21.1–1.21.5 では**、2 つの小さなバニラ要素も一緒に消えます：短い「選択アイテム名」
-  ポップアップと、馬に乗る際のジャンプチャージバー。これらの Forge 系列はスロット行、経験バー、
-  生命行、マウントの生命を 1 レイヤーにまとめており、個別に残せる細かいものはありません。
-- **1.21.6 から**、バニラは経験バーをマウントのジャンプゲージとロケーターバーも収めた共有の
-  「コンテキストバー」に移しました。経験バーの置き換えは Fabric、NeoForge、および（1.21.8 から）
-  Forge でそのウィジェット全体を消します：DayZ 表示は独自の経験アイコンを描きますが、バニラの
-  ロケーターおよびジャンプバーは再描画されません。1.20.1–1.21.5 では 3 つのローダーがそれらを
-  保持します。
+## メモ
+- F1 非表示・スペクテイターモード・画面表示中はバニラ同様の動作をします。
+- ホットバー横の攻撃インジケーターは非表示になります。必要な場合は **ビデオ設定 → 攻撃インジケーター** を *クロスヘア* に変更してください。
 
 ---
 
-## ソースからビルド
+## ビルド方法
 
-このツリーは [Stonecutter](https://stonecutter.kikugie.dev/) でマトリクス全体を管理します：
-**単一のソース**、`settings.gradle.kts` 内の 1 つのバージョンリスト、（ローダー × ゲームバージョン）
-ごとに 1 つのビルドノード。ランチャー JDK として **JDK 25** が必要です — 各ゲームバージョンが
-必要とする Java 17 / 21 / 25 ツールチェーンは foojay リゾルバーが必要に応じてダウンロードします。
+[Stonecutter](https://stonecutter.kikugie.dev/) を使用しており、Gradle 実行には **JDK 25** が必要です：
 
 ```bash
-# Build every version and loader in the matrix
-JAVA_HOME=/path/to/jdk-25 ./gradlew chiseledBuild
-
-# Build a single node
-JAVA_HOME=/path/to/jdk-25 ./gradlew :fabric:1.21.1:build
-JAVA_HOME=/path/to/jdk-25 ./gradlew :neoforge:26.2:build
-JAVA_HOME=/path/to/jdk-25 ./gradlew :forge:1.21.11:build
-
-# List every node
-./gradlew matrix
+./gradlew chiseledBuild          # 全 50 jar をビルド
+./gradlew :fabric:1.21.1:build   # 単一ターゲットをビルド
+./gradlew matrix                 # ノード一覧を表示
 ```
-
-成果物はノード自身のビルドディレクトリに、ファイル名にゲームバージョンを含めて出力されます：
-
-- `fabric/versions/<mc>/build/libs/dayz-hotbar-fabric-<mc>-<version>.jar`
-- `neoforge/versions/<mc>/build/libs/dayz-hotbar-neoforge-<mc>-<version>.jar`
-- `forge/versions/<mc>/build/libs/dayz-hotbar-forge-<mc>-<version>.jar`
-
-これらがすべて配布可能な成果物で、後処理ステップは不要です。同じフォルダーに `-sources.jar` も
-書き出されるので、手動コピーする際は正しいファイルを選ぶようにしてください。ビルドの仕組みと
-マトリクスの欠落の理由は [docs/BUILDING.en.md](docs/BUILDING.en.md) を参照してください。
-
----
-
-## リンク
-
-- **ソース**：<https://github.com/aacanadaa/DayZ-Hotbar>
-- **課題**：<https://github.com/aacanadaa/DayZ-Hotbar/issues>
-- **変更履歴**：[CHANGELOG.md](CHANGELOG.md)
-- **DayZ Inventory**：<https://github.com/aacanadaa/DayZ-Inventory>
-
----
-
-## ライセンスと著作権
-
-[Apache License 2.0](LICENSE) の下でライセンスされています。
-
-使用、改変、再配布（Modpack、サーバー、商用）は自由です。唯一の条件は、配布するすべてのコピーに
-著作権表示とライセンスの写しが付いていることです。
-
-Copyright 2026 suoim.
