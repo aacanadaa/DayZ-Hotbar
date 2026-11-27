@@ -1,3 +1,18 @@
+# DayZ Hotbar 2.0.0 (Minecraft 1.20.1 – 26.3)
+
+**Tough As Nails & Legendary Survival Overhaul support, major FPS optimization, GUI Scale 4 layout, horse jump bar, custom item renderer fix, and client config.**
+
+## What changed
+
+- **Survival mod integration:** Added zero-dependency reflection support for **Tough As Nails** and **Legendary Survival Overhaul**. The water icon now tracks real thirst (with trend chevrons), and the thermometer tracks temperature with icy/cold/normal/warm/hot fill levels and color bands (flashing at extremes).
+- **Major FPS improvement:** Precomputed and cached horizontal pixel spans for all icons and trend chevrons, eliminating per-frame `boolean[][]` allocations and cutting `fill()` draw calls dramatically.
+- **GUI Scale 4 & narrow screen layout:** `PlayerPanel` and `StatusRow` now automatically lift above the hotbar (and stack cleanly on ultra-narrow screens) so they never overlap the hotbar.
+- **Horse jump bar:** Cancels vanilla's overlapping jump meter and draws a DayZ-styled jump bar directly above the 9 hotbar slots when riding a jumpable mount.
+- **Custom item rendering fix:** Passes the holding `player` entity and slot seed to `graphics.item(...)` (matching vanilla `Gui.renderSlot`), fixing custom/modded item renderers such as Fracturepoint.
+- **Client configuration:** Added `config/dayz_hotbar.properties` to toggle the hotbar, player panel, status row, jump bar, effects, individual stats (including absorption and health), and survival mod integrations.
+
+---
+
 # DayZ Hotbar 1.2.0 (Minecraft 1.20.1 – 26.3)
 
 **One source tree, 23 Minecraft versions, three loaders.** The HUD is unchanged — same
