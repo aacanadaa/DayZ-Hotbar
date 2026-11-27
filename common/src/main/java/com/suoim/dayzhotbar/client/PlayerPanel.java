@@ -50,6 +50,8 @@ public final class PlayerPanel {
      * uses, so the HUD is inset the same amount at both ends.
      */
     private static final int LEFT_MARGIN = 16;
+    /** Minimum horizontal clearance between the player panel and the hotbar. */
+    private static final int SIDE_GAP = 6;
 
     private static final int DOT_RADIUS = 2;
     /** Marks in the lower panel are eleven cells, drawn a screen pixel per cell. */
@@ -77,9 +79,19 @@ public final class PlayerPanel {
         }
 
         int left = LEFT_MARGIN;
-        // Bottom edge on the hotbar's line, so the HUD reads as one row even though the
-        // panel itself hugs the left edge.
-        int bottom = HotbarRenderer.bottomEdge(screenHeight);
+        // Bottom edge on the hotbar's line when there is room beside it; on narrow
+        // screens (such as GUI scale 4) lift it above the hotbar so it never overlaps.
+        int bottom;
+        if (left + WIDTH + SIDE_GAP <= HotbarRenderer.leftEdge(screenWidth)) {
+            bottom = HotbarRenderer.bottomEdge(screenHeight);
+        } else {
+            boolean hasJumpBar = HudConfig.get().showJumpBar && HotbarRenderer.hasJumpBar(player);
+            int clearance = hasJumpBar ? 10 : 4;
+            bottom = HotbarRenderer.topEdge(screenHeight) - clearance;
+            if (left + WIDTH + 120 + SIDE_GAP > screenWidth - LEFT_MARGIN) {
+                bottom -= StatusRow.CELL_H + 6;
+            }
+        }
 
         int barTop = bottom - BAR_H;
         int itemTop = barTop - GAP - ITEM_H;

@@ -55,18 +55,37 @@ public final class HotbarRenderer {
     /** Alpha of the held slot's coloured wash. The colour alone marks the held slot. */
     private static final int ACTIVE_WASH_ALPHA = 0x66;
 
+    /** Total width of the 9 hotbar slots plus separator and offhand slot. */
+    public static int totalWidth() {
+        return 9 * PITCH + SEPARATOR + PITCH;
+    }
+
     /**
      * The x of the hotbar's left edge. Exposed so other elements can anchor to the bar
      * rather than to a screen corner.
      */
     public static int leftEdge(int screenWidth) {
-        int totalWidth = 9 * PITCH + SEPARATOR + PITCH;
-        return (screenWidth - totalWidth) / 2;
+        return (screenWidth - totalWidth()) / 2;
+    }
+
+    /** The x of the hotbar's right edge. */
+    public static int rightEdge(int screenWidth) {
+        return leftEdge(screenWidth) + totalWidth();
+    }
+
+    /** The y of the hotbar's top edge. */
+    public static int topEdge(int screenHeight) {
+        return screenHeight - MARGIN - PITCH;
     }
 
     /** The y of the hotbar's bottom edge, which is one pixel inside its last cell. */
     public static int bottomEdge(int screenHeight) {
         return screenHeight - MARGIN - 1;
+    }
+
+    /** Whether the player is currently riding a jumpable mount. */
+    public static boolean hasJumpBar(LocalPlayer player) {
+        return player != null && player.jumpableVehicle() != null;
     }
 
     /**
@@ -88,25 +107,39 @@ public final class HotbarRenderer {
         int selected = inventory.getSelectedSlot();
 
         int hotbarWidth = 9 * PITCH;
-        int totalWidth = hotbarWidth + SEPARATOR + PITCH;
-        int left = (screenWidth - totalWidth) / 2;
-        int top = screenHeight - MARGIN - PITCH;
+        int left = leftEdge(screenWidth);
+        int top = topEdge(screenHeight);
 
         // No panel behind the row. The boxes are the hotbar; a backing plate around
         // them only added a dark border the boxes already define for themselves.
         for (int i = 0; i < 9; i++) {
             ItemStack stack = inventory.getItem(i);
             boolean active = i == selected;
-            drawSlot(graphics, minecraft, left + i * PITCH, top, stack,
+            drawSlot(graphics, minecraft, player, left + i * PITCH, top, stack,
                     active ? activeColor(player, stack, swapProgress) : 0,
-                    stack.isEmpty());
+                    stack.isEmpty(), i + 1);
         }
 
         int offhandX = left + hotbarWidth + SEPARATOR;
         ItemStack offhand = player.getOffhandItem();
-        drawSlot(graphics, minecraft, offhandX, top, offhand, 0, offhand.isEmpty());
+        drawSlot(graphics, minecraft, player, offhandX, top, offhand, 0, offhand.isEmpty(), 10);
+
+        if (HudConfig.get().showJumpBar && hasJumpBar(player)) {
+            drawJumpBar(graphics, left, top, hotbarWidth - 1, player.getJumpRidingScale());
+        }
 
         return true;
+    }
+
+    private static void drawJumpBar(GuiGraphicsExtractor graphics, int x, int hotbarTop, int width, float scale) {
+        int barH = 3;
+        int y = hotbarTop - 5;
+        graphics.fill(x, y, x + width, y + barH, HudTheme.PANEL_BG);
+        int filled = Math.round(width * Math.max(0.0F, Math.min(1.0F, scale)));
+        if (filled > 0) {
+            int color = HudTheme.lerp(HudTheme.STATE_SWAPPING, HudTheme.STATE_ACTIVE, scale);
+            graphics.fill(x, y, x + filled, y + barH, color);
+        }
     }
 
     /**
@@ -126,8 +159,8 @@ public final class HotbarRenderer {
      * @param activeColor the held slot's state colour, or 0 when this slot is not held
      * @param empty       whether the slot is empty, which softens its wash
      */
-    private static void drawSlot(GuiGraphicsExtractor graphics, Minecraft minecraft, int x, int y,
-                                 ItemStack stack, int activeColor, boolean empty) {
+    private static void drawSlot(GuiGraphicsExtractor graphics, Minecraft minecraft, LocalPlayer player,
+                                 int x, int y, ItemStack stack, int activeColor, boolean empty, int seed) {
         int wash = activeColor != 0
                 ? HudTheme.wash(activeColor, ACTIVE_WASH_ALPHA)
                 : (empty ? HudTheme.SLOT_INNER : HudTheme.SLOT_FILLED);
@@ -136,7 +169,7 @@ public final class HotbarRenderer {
         if (!stack.isEmpty()) {
             int itemX = x + (BOX - 16) / 2;
             int itemY = y + (BOX - 16) / 2;
-            graphics.item(stack, itemX, itemY);
+            graphics.item(player, stack, itemX, itemY, seed);
             graphics.itemDecorations(minecraft.font, stack, itemX, itemY);
         }
     }

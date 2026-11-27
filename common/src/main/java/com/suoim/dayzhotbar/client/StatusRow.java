@@ -94,6 +94,8 @@ public final class StatusRow {
      * as clipped rather than placed.
      */
     private static final int RIGHT_MARGIN = 16;
+    /** Minimum horizontal clearance between the status row and the hotbar. */
+    private static final int SIDE_GAP = 6;
 
     /** Passed as {@link Cell#level()} for everything that is not experience. */
     public static final int NO_LEVEL = -1;
@@ -124,7 +126,7 @@ public final class StatusRow {
                        int level, boolean plusBadge, Group group, float alpha) {}
 
     public static void render(GuiGraphicsExtractor graphics, Font font, int screenWidth, int screenHeight,
-                              List<Cell> cells, int guiTicks) {
+                              List<Cell> cells, int guiTicks, boolean hasJumpBar) {
         if (cells.isEmpty()) {
             return;
         }
@@ -139,8 +141,12 @@ public final class StatusRow {
             previous = cell.group();
         }
 
-        int x = screenWidth - RIGHT_MARGIN - width;
+        int x = Math.max(4, screenWidth - RIGHT_MARGIN - width);
         int y = screenHeight - BOTTOM_MARGIN - CELL_H;
+        if (x < HotbarRenderer.rightEdge(screenWidth) + SIDE_GAP) {
+            int clearance = hasJumpBar ? 10 : 4;
+            y = HotbarRenderer.topEdge(screenHeight) - clearance - CELL_H;
+        }
 
         previous = null;
         for (Cell cell : cells) {
